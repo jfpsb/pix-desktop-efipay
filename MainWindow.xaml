@@ -1,0 +1,62 @@
+﻿<Window x:Class="VMIClientePix.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VMIClientePix"
+        xmlns:ViewModel="clr-namespace:VMIClientePix.ViewModel"
+        mc:Ignorable="d"
+        Title="Cliente Pix - Vanda Moda Íntima"
+        Height="500"
+        Width="900"
+        WindowStartupLocation="CenterScreen">
+    <Window.DataContext>
+        <ViewModel:MainWindowViewModel />
+    </Window.DataContext>
+    <DockPanel LastChildFill="True">
+        <Grid DockPanel.Dock="Bottom">
+            <Button Content="Criar Cobrança Pix"
+                    Command="{Binding CriarCobrancaPixComando}" />
+        </Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Label ContentStringFormat="Listando cobranças entre {0:G} e"
+                   Language="pt-BR"
+                   Content="{Binding ListaCobranca.Parametros.Inicio, ConverterCulture=pt-BR}" />
+            <Label Grid.Column="1"
+                   ContentStringFormat="{}{0:G}"
+                   Language="pt-BR"
+                   Content="{Binding ListaCobranca.Parametros.Fim, ConverterCulture=pt-BR}" />
+            <ListView Grid.Row="2"
+                      Grid.ColumnSpan="2"
+                      HorizontalContentAlignment="Stretch"
+                      ItemsSource="{Binding Cobrancas}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Label ContentStringFormat="Criada Em: {0:G}"
+                                   Language="pt-BR" />
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+    </DockPanel>
+</Window>

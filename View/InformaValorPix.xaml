@@ -1,0 +1,30 @@
+﻿<Window x:Class="VMIClientePix.View.InformaValorPix"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VMIClientePix.View"
+        mc:Ignorable="d"
+        Title="Informe O Valor Do Pix"
+        Height="200"
+        Width="450"
+        WindowStartupLocation="CenterScreen">
+    <DockPanel LastChildFill="True">
+        <Button DockPanel.Dock="Bottom"
+                Content="Gerar QR Code"
+                Command="{Binding GerarQRCodeComando}" />
+        <Grid VerticalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Label Content="Informe o Valor Da Transferência Pix:"
+                   FontSize="20"
+                   HorizontalContentAlignment="Center" />
+            <TextBox Grid.Row="1"
+                     FontSize="24"
+                     HorizontalContentAlignment="Center"
+                     Text="{Binding ValorPix, StringFormat=C, ConverterCulture=pt-BR}" />
+        </Grid>
+    </DockPanel>
+</Window>
