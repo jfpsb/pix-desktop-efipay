@@ -16,7 +16,12 @@ namespace VMIClientePix.Model
             {
                 _criacao = value;
                 OnPropertyChanged("Criacao");
+                OnPropertyChanged("CriacaoLocalTime");
             }
+        }
+        public DateTime CriacaoLocalTime
+        {
+            get => Criacao.ToLocalTime();
         }
         public DateTime Apresentacao
         {
@@ -25,7 +30,12 @@ namespace VMIClientePix.Model
             {
                 _apresentacao = value;
                 OnPropertyChanged("Apresentacao");
+                OnPropertyChanged("ApresentacaoLocalTime");
             }
+        }
+        public DateTime ApresentacaoLocalTime
+        {
+            get => _apresentacao.ToLocalTime();
         }
         public int Expiracao
         {
