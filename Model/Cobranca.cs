@@ -7,10 +7,12 @@ namespace VMIClientePix.Model
     {
         private Calendario _calendario;
         private Valor _valor;
+        private Loc _loc;
         private string _txid;
         private int _revisao;
         private string _status;
         private string _chave;
+        private string _location;
 
         [JsonProperty(PropertyName = "calendario")]
         public Calendario Calendario
@@ -99,6 +101,34 @@ namespace VMIClientePix.Model
             {
                 _chave = value;
                 OnPropertyChanged("Chave");
+            }
+        }
+
+        public string Location
+        {
+            get
+            {
+                return _location;
+            }
+
+            set
+            {
+                _location = value;
+                OnPropertyChanged("Location");
+            }
+        }
+
+        public Loc Loc
+        {
+            get
+            {
+                return _loc;
+            }
+
+            set
+            {
+                _loc = value;
+                OnPropertyChanged("Loc");
             }
         }
     }

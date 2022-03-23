@@ -3,57 +3,126 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:b="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:local="clr-namespace:VMIClientePix"
         xmlns:ViewModel="clr-namespace:VMIClientePix.ViewModel"
         mc:Ignorable="d"
         Title="Cliente Pix - Vanda Moda Íntima"
-        Height="500"
-        Width="900"
+        Height="650"
+        Width="1050"
+        WindowState="Maximized"
         WindowStartupLocation="CenterScreen">
     <Window.DataContext>
         <ViewModel:MainWindowViewModel />
     </Window.DataContext>
+    <Window.Resources>
+        <Style x:Key="StatusStyle"
+               TargetType="Label">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Status}"
+                             Value="ATIVA">
+                    <Setter Property="Content"
+                            Value="PAGAMENTO NÃO IDENTIFICADO" />
+                    <Setter Property="Background"
+                            Value="IndianRed" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}"
+                             Value="CONCLUIDA">
+                    <Setter Property="Background"
+                            Value="LightGreen" />
+                    <Setter Property="Content"
+                            Value="PAGAMENTO REALIZADO" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
     <DockPanel LastChildFill="True">
         <Grid DockPanel.Dock="Bottom">
             <Button Content="Criar Cobrança Pix"
                     Command="{Binding CriarCobrancaPixComando}" />
         </Grid>
-        <Grid>
+        <Grid Margin="5">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
-                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Label ContentStringFormat="Listando cobranças entre {0:G} e"
+            <Label ContentStringFormat="Listando cobranças de {0:d}"
                    Language="pt-BR"
+                   FontSize="24"
+                   FontWeight="Bold"
                    Content="{Binding ListaCobranca.Parametros.Inicio, ConverterCulture=pt-BR}" />
-            <Label Grid.Column="1"
-                   ContentStringFormat="{}{0:G}"
-                   Language="pt-BR"
-                   Content="{Binding ListaCobranca.Parametros.Fim, ConverterCulture=pt-BR}" />
-            <ListView Grid.Row="2"
+            <Button Grid.Column="1"
+                    Content="Atualizar Lista de Cobranças"
+                    FontSize="20"
+                    HorizontalAlignment="Right"
+                    Command="{Binding AtualizarListaComando}"/>
+            <ListView x:Name="ListViewCobrancas"
+                      Grid.Row="2"
                       Grid.ColumnSpan="2"
                       HorizontalContentAlignment="Stretch"
-                      ItemsSource="{Binding Cobrancas}">
+                      ItemsSource="{Binding Cobrancas}"
+                      ScrollViewer.CanContentScroll="True">
+                <b:Interaction.Behaviors>
+                    <local:ScrollIntoViewBehavior />
+                </b:Interaction.Behaviors>
+                <b:Interaction.Triggers>
+                    <b:EventTrigger EventName="MouseLeftButtonUp">
+                        <b:InvokeCommandAction Command="{Binding ListViewLeftMouseClickComando}"
+                                               CommandParameter="{Binding ElementName=ListViewCobrancas, Path=SelectedItem}" />
+
+
+                    </b:EventTrigger>
+                </b:Interaction.Triggers>
                 <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-                            <Label ContentStringFormat="Criada Em: {0:G}"
-                                   Language="pt-BR" />
-                        </Grid>
+                        <Border BorderThickness="1"
+                                BorderBrush="Black">
+                            <Grid Margin="2"
+                                  HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Label ContentStringFormat="Criada Em: {0:G}"
+                                       Content="{Binding Calendario.CriacaoLocalTime}"
+                                       FontSize="18"
+                                       FontWeight="Bold"
+                                       Language="pt-BR" />
+                                <Label Grid.Row="1"
+                                       ContentStringFormat="ID: {0}"
+                                       FontSize="17"
+                                       Content="{Binding Txid}" />
+                                <Label Grid.Column="1"
+                                       Grid.RowSpan="2"
+                                       HorizontalAlignment="Right"
+                                       VerticalContentAlignment="Center"
+                                       ContentStringFormat="Valor: {0:C}"
+                                       Language="pt-BR"
+                                       Content="{Binding Valor.Original}"
+                                       FontSize="26"
+                                       FontWeight="Bold" />
+                                <Label Grid.Row="2"
+                                       Grid.ColumnSpan="2"
+                                       FontSize="24"
+                                       BorderThickness="1"
+                                       BorderBrush="Black"
+                                       FontWeight="Bold"
+                                       Padding="7"
+                                       HorizontalAlignment="Stretch"
+                                       HorizontalContentAlignment="Center"
+                                       Style="{StaticResource StatusStyle}" />
+                            </Grid>
+                        </Border>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>

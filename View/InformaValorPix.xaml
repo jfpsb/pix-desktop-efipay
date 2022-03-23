@@ -1,4 +1,5 @@
-﻿<Window x:Class="VMIClientePix.View.InformaValorPix"
+﻿<Window x:Name="TelaInformarValorPix"
+        x:Class="VMIClientePix.View.InformaValorPix"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -12,7 +13,8 @@
     <DockPanel LastChildFill="True">
         <Button DockPanel.Dock="Bottom"
                 Content="Gerar QR Code"
-                Command="{Binding GerarQRCodeComando}" />
+                Command="{Binding GerarQRCodeComando}"
+                CommandParameter="{Binding ElementName=TelaInformarValorPix}" />
         <Grid VerticalAlignment="Center">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />

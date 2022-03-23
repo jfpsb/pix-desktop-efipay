@@ -1,12 +1,16 @@
 ﻿using Gerencianet.NETCore.SDK;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Diagnostics;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Windows.Input;
+using VMIClientePix.Model;
 using VMIClientePix.Util;
+using VMIClientePix.View;
+using VMIClientePix.View.Interfaces;
+using VMIClientePix.ViewModel.Services.Concretos;
+using VMIClientePix.ViewModel.Services.Interfaces;
 
 namespace VMIClientePix.ViewModel
 {
@@ -14,14 +18,17 @@ namespace VMIClientePix.ViewModel
     {
         public ICommand GerarQRCodeComando { get; set; }
         private double _valorPix;
-        public InformaValorPixViewModel()
+        private IMessageBoxService messageBoxService;
+        public InformaValorPixViewModel(IMessageBoxService messageBoxService)
         {
             GerarQRCodeComando = new RelayCommand(GerarQRCode);
+            this.messageBoxService = messageBoxService;
         }
 
         private void GerarQRCode(object obj)
         {
             dynamic endpoints = new Endpoints(JObject.Parse(File.ReadAllText("credentials.json")));
+            var dados = JObject.Parse(File.ReadAllText("dados_recebedor.json"));
 
             var body = new
             {
@@ -33,42 +40,29 @@ namespace VMIClientePix.ViewModel
                 {
                     original = ValorPix.ToString("F2", CultureInfo.InvariantCulture)
                 },
-                chave = "7cd4f18d-86d4-4bf7-8905-be0e1c46e9da"
+                chave = (string)dados["chave"]
             };
 
             try
             {
                 var cobrancaPix = endpoints.PixCreateImmediateCharge(null, body);
-                JObject cobrancaPixJson = JObject.Parse(cobrancaPix);
+                Cobranca cobranca = JsonConvert.DeserializeObject<Cobranca>(cobrancaPix);
 
-                var paramQRCode = new
+                ApresentaQRCodeEDadosViewModel dadosPixViewModel = new ApresentaQRCodeEDadosViewModel(cobranca, new MessageBoxService(), (ICloseable)obj);
+                ApresentaQRCodeEDados view = new ApresentaQRCodeEDados()
                 {
-                    id = cobrancaPixJson["loc"]["id"]
+                    DataContext = dadosPixViewModel
                 };
-
-                try
-                {
-                    var qrCode = endpoints.PixGenerateQRCode(paramQRCode);
-
-                    // Generate QRCode Image to JPEG Format
-                    JObject qrCodeJson = JObject.Parse(qrCode);
-                    string img = (string)qrCodeJson["imagemQrcode"];
-                    img = img.Replace("data:image/png;base64,", "");
-
-                    var qrCodeImage = Image.FromStream(new MemoryStream(Convert.FromBase64String(img)));
-                    qrCodeImage.Save("QRCodeImage.jpg");
-
-                }
-                catch (GnException e)
-                {
-                    Console.WriteLine(e.ErrorType);
-                    Console.WriteLine(e.Message);
-                }
+                view.ShowDialog();
             }
             catch (GnException e)
             {
                 Console.WriteLine(e.ErrorType);
                 Console.WriteLine(e.Message);
+            }
+            catch (Exception ex)
+            {
+                messageBoxService.Show($"Não Foi Possível Criar Cobrança Pix. Cheque Sua Conexão Com A Internet.\n\n{ex.Message}", "Criar Cobrança Pix", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
         }
 

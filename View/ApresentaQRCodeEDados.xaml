@@ -5,8 +5,49 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VMIClientePix.View"
         mc:Ignorable="d"
-        Title="ApresentaQRCodeEDados" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+        Title="QRCode E Dados De Cobrança Pix"
+        Height="600"
+        Width="1000"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        Closing="Window_Closing">
+    <DockPanel LastChildFill="True">
+        <StackPanel DockPanel.Dock="Right"
+                    Margin="10">
+            <Label Content="Recebedor:"
+                   FontWeight="Bold"
+                   FontSize="24" />
+            <Label Content="Nome Fantasia:"
+                   FontSize="20"
+                   FontWeight="Bold" />
+            <Label Content="{Binding Fantasia}"
+                   FontSize="19" />
+            <Label Content="Razão Social:"
+                   FontSize="20"
+                   FontWeight="Bold" />
+            <Label Content="{Binding Razao}"
+                   FontSize="19" />
+            <Label Content="CNPJ:"
+                   FontSize="20"
+                   FontWeight="Bold" />
+            <Label Content="{Binding Cnpj}"
+                   FontSize="19" />
+            <Label Content="Instituição:"
+                   FontSize="20"
+                   FontWeight="Bold" />
+            <Label Content="{Binding Instituicao}"
+                   FontSize="19" />
+            <Label Content="Valor:"
+                   FontSize="22"
+                   FontWeight="Bold" />
+            <Label Content="{Binding Valor}"
+                   ContentStringFormat="C"
+                   Language="pt-BR"
+                   FontSize="21" />
+            <Button Content="Imprimir QRCode" />
+        </StackPanel>
+        <Image HorizontalAlignment="Stretch"
+               VerticalAlignment="Center"
+               Source="{Binding ImagemQrCode}" />
+    </DockPanel>
 </Window>

@@ -17,10 +17,7 @@
                         Value="20" />
             </Style>
             <Style TargetType="Label"
-                   BasedOn="{StaticResource Fonte}">
-                <Setter Property="FontSize"
-                        Value="18" />
-            </Style>
+                   BasedOn="{StaticResource Fonte}" />
 
         </ResourceDictionary>
     </Application.Resources>
