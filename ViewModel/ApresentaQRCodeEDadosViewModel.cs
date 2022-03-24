@@ -1,6 +1,7 @@
 ﻿using Gerencianet.NETCore.SDK;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Windows.Media;
@@ -58,8 +59,8 @@ namespace VMIClientePix.ViewModel
             catch (GnException e)
             {
                 messageBoxService.Show($"Houve Um Erro Ao Mostrar Informações de Cobrança Pix.\n\n{e.ErrorType}\n\n{e.Message}");
-                Console.WriteLine(e.ErrorType);
-                Console.WriteLine(e.Message);
+                Debug.WriteLine(e.ErrorType);
+                Debug.WriteLine(e.Message);
             }
             catch (Exception ex)
             {
