@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows.Input;
@@ -80,8 +81,8 @@ namespace VMIClientePix.ViewModel
             catch (GnException e)
             {
                 messageBoxService.Show($"Não Foi Possível Listar As Cobranças Pix. Cheque Sua Conexão Com A Internet.\n\n{e.ErrorType}\n\n{e.Message}", "Listagem De Cobranças Pix", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-                Console.WriteLine(e.ErrorType);
-                Console.WriteLine(e.Message);
+                Debug.WriteLine(e.ErrorType);
+                Debug.WriteLine(e.Message);
             }
             catch (Exception ex)
             {

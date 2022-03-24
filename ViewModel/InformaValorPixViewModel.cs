@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Windows.Input;
@@ -57,8 +58,8 @@ namespace VMIClientePix.ViewModel
             }
             catch (GnException e)
             {
-                Console.WriteLine(e.ErrorType);
-                Console.WriteLine(e.Message);
+                Debug.WriteLine(e.ErrorType);
+                Debug.WriteLine(e.Message);
             }
             catch (Exception ex)
             {
