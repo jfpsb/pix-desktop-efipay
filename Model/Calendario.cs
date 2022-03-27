@@ -5,11 +5,25 @@ namespace VMIClientePix.Model
 {
     public class Calendario : ObservableObject
     {
+        private long _id;
         private DateTime _criacao;
         private DateTime _apresentacao;
         private int _expiracao;
 
-        public DateTime Criacao
+        public virtual long Id
+        {
+            get
+            {
+                return _id;
+            }
+
+            set
+            {
+                _id = value;
+                OnPropertyChanged("Id");
+            }
+        }
+        public virtual DateTime Criacao
         {
             get => _criacao;
             set
@@ -19,11 +33,11 @@ namespace VMIClientePix.Model
                 OnPropertyChanged("CriacaoLocalTime");
             }
         }
-        public DateTime CriacaoLocalTime
+        public virtual DateTime CriacaoLocalTime
         {
-            get => Criacao.ToLocalTime();
+            get => _criacao.ToLocalTime();
         }
-        public DateTime Apresentacao
+        public virtual DateTime Apresentacao
         {
             get => _apresentacao;
             set
@@ -33,11 +47,11 @@ namespace VMIClientePix.Model
                 OnPropertyChanged("ApresentacaoLocalTime");
             }
         }
-        public DateTime ApresentacaoLocalTime
+        public virtual DateTime ApresentacaoLocalTime
         {
             get => _apresentacao.ToLocalTime();
         }
-        public int Expiracao
+        public virtual int Expiracao
         {
             get => _expiracao;
             set

@@ -11,7 +11,8 @@
         Height="650"
         Width="1050"
         WindowState="Maximized"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Closing="Window_Closing">
     <Window.DataContext>
         <ViewModel:MainWindowViewModel />
     </Window.DataContext>
@@ -51,16 +52,15 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Label ContentStringFormat="Listando cobranças de {0:d}"
+            <Label ContentStringFormat="Listando Cobranças De Hoje"
                    Language="pt-BR"
                    FontSize="24"
-                   FontWeight="Bold"
-                   Content="{Binding ListaCobranca.Parametros.Inicio, ConverterCulture=pt-BR}" />
+                   FontWeight="Bold" />
             <Button Grid.Column="1"
                     Content="Atualizar Lista de Cobranças"
                     FontSize="20"
                     HorizontalAlignment="Right"
-                    Command="{Binding AtualizarListaComando}"/>
+                    Command="{Binding AtualizarListaComando}" />
             <ListView x:Name="ListViewCobrancas"
                       Grid.Row="2"
                       Grid.ColumnSpan="2"
@@ -109,7 +109,7 @@
                                        ContentStringFormat="Valor: {0:C}"
                                        Language="pt-BR"
                                        Content="{Binding Valor.Original}"
-                                       FontSize="26"
+                                       FontSize="30"
                                        FontWeight="Bold" />
                                 <Label Grid.Row="2"
                                        Grid.ColumnSpan="2"

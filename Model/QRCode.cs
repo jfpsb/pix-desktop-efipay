@@ -1,18 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
+using System.Windows.Media.Imaging;
 using VMIClientePix.Util;
 
 namespace VMIClientePix.Model
 {
     public class QRCode : ObservableObject
     {
+        private long _id;
         private string _qrcode;
         private string _imagemQrcode;
 
-        public string Qrcode
+        public virtual long Id
+        {
+            get
+            {
+                return _id;
+            }
+
+            set
+            {
+                _id = value;
+                OnPropertyChanged("Id");
+            }
+        }
+
+        public virtual string Qrcode
         {
             get
             {
@@ -26,7 +39,7 @@ namespace VMIClientePix.Model
             }
         }
 
-        public string ImagemQrcode
+        public virtual string ImagemQrcode
         {
             get
             {
@@ -37,6 +50,19 @@ namespace VMIClientePix.Model
             {
                 _imagemQrcode = value;
                 OnPropertyChanged("ImagemQrcode");
+            }
+        }
+
+        public virtual BitmapImage QrCodeBitmap
+        {
+            get
+            {
+                BitmapImage bitmapImage = new BitmapImage();
+                bitmapImage.BeginInit();
+                bitmapImage.StreamSource = new MemoryStream(Convert.FromBase64String(ImagemQrcode));
+                bitmapImage.EndInit();
+
+                return bitmapImage;
             }
         }
     }

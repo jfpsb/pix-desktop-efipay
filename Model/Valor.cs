@@ -4,9 +4,24 @@ namespace VMIClientePix.Model
 {
     public class Valor : ObservableObject
     {
+        private long _id;
         private double _original;
 
-        public double Original
+        public virtual long Id
+        {
+            get
+            {
+                return _id;
+            }
+
+            set
+            {
+                _id = value;
+                OnPropertyChanged("Id");
+            }
+        }
+
+        public virtual double Original
         {
             get
             {
