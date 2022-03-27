@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using VMIClientePix.ViewModel.Interfaces;
 
 namespace VMIClientePix
 {
@@ -10,6 +11,11 @@ namespace VMIClientePix
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            (DataContext as IOnClosing).OnClosing();
         }
     }
 }

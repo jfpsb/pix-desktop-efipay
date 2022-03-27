@@ -1,12 +1,12 @@
 ﻿using Gerencianet.NETCore.SDK;
 using Newtonsoft.Json.Linq;
+using NHibernate;
 using System;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using VMIClientePix.Model;
+using VMIClientePix.Model.DAO;
 using VMIClientePix.Util;
 using VMIClientePix.View.Interfaces;
 using VMIClientePix.ViewModel.Interfaces;
@@ -23,49 +23,87 @@ namespace VMIClientePix.ViewModel
         private double _valor;
         private ImageSource _imagemQrCode;
         private ICloseable _closeableOwner;
-        public ApresentaQRCodeEDadosViewModel(Cobranca cobranca, IMessageBoxService messageBoxService, ICloseable closeableOwner = null)
+        private ISession _session;
+        private Cobranca _cobranca;
+        private IMessageBoxService _messageBox;
+        private DAOCobranca daoCobranca;
+
+        public ApresentaQRCodeEDadosViewModel(ISession session, Cobranca cobranca, IMessageBoxService messageBoxService, ICloseable closeableOwner = null)
+        {
+            _session = session;
+            _closeableOwner = closeableOwner;
+            _cobranca = cobranca;
+            _messageBox = messageBoxService;
+
+            daoCobranca = new DAOCobranca(session);
+
+            GeraESalvaQrCode();
+        }
+
+        private async void GeraESalvaQrCode()
         {
             dynamic endpoints = new Endpoints(JObject.Parse(File.ReadAllText("credentials.json")));
             var dados = JObject.Parse(File.ReadAllText("dados_recebedor.json"));
-            _closeableOwner = closeableOwner;
 
             var paramQRCode = new
             {
-                id = cobranca.Loc.Id
+                id = _cobranca.Loc.Id
             };
 
-            try
+            if (_cobranca.QrCode == null)
             {
-                var qrCode = endpoints.PixGenerateQRCode(paramQRCode);
+                try
+                {
 
-                // Generate QRCode Image to JPEG Format
-                JObject qrCodeJson = JObject.Parse(qrCode);
-                string img = (string)qrCodeJson["imagemQrcode"];
-                img = img.Replace("data:image/png;base64,", "");
+                    var qrCodeGn = endpoints.PixGenerateQRCode(paramQRCode);
 
-                BitmapImage bitmapImage = new BitmapImage();
-                bitmapImage.BeginInit();
-                bitmapImage.StreamSource = new MemoryStream(Convert.FromBase64String(img));
-                bitmapImage.EndInit();
+                    QRCode qrCode = new QRCode();
 
-                //ImagemQrCode = Image.FromStream(new MemoryStream(Convert.FromBase64String(img)));
-                ImagemQrCode = bitmapImage;
-                Fantasia = (string)dados["fantasia"];
-                Razao = (string)dados["razaosocial"];
-                Cnpj = (string)dados["cnpj"];
-                Instituicao = (string)dados["instituicao"];
-                Valor = cobranca.Valor.Original;
+                    // Generate QRCode Image to JPEG Format
+                    JObject qrCodeJson = JObject.Parse(qrCodeGn);
+
+                    qrCode.Qrcode = (string)qrCodeJson["qrcode"];
+                    qrCode.ImagemQrcode = ((string)qrCodeJson["imagemQrcode"]).Replace("data:image/png;base64,", "");
+
+                    _cobranca.QrCode = qrCode;
+
+                    var result = await daoCobranca.Atualizar(_cobranca);
+
+                    if (result)
+                    {
+                        PopulaDados(dados);
+                    }
+                    else
+                    {
+                        throw new Exception("Erro Ao Salvar Dados De QRCode!");
+                    }
+
+                }
+                catch (GnException e)
+                {
+                    _messageBox.Show($"Houve Um Erro Ao Mostrar Informações de Cobrança Pix.\n\n{e.ErrorType}\n\n{e.Message}");
+                    Debug.WriteLine(e.ErrorType);
+                    Debug.WriteLine(e.Message);
+                }
+                catch (Exception ex)
+                {
+                    _messageBox.Show($"Não Foi Possível Mostrar Informações De Cobrança Pix. Cheque Sua Conexão Com A Internet.\n\n{ex.Message}", "Dados De Cobrança Pix", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                }
             }
-            catch (GnException e)
+            else
             {
-                messageBoxService.Show($"Houve Um Erro Ao Mostrar Informações de Cobrança Pix.\n\n{e.ErrorType}\n\n{e.Message}");
-                Debug.WriteLine(e.ErrorType);
-                Debug.WriteLine(e.Message);
+                PopulaDados(dados);
             }
-            catch (Exception ex)
-            {
-                messageBoxService.Show($"Não Foi Possível Mostrar Informações De Cobrança Pix. Cheque Sua Conexão Com A Internet.\n\n{ex.Message}", "Dados De Cobrança Pix", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-            }
+        }
+
+        private void PopulaDados(dynamic dados)
+        {
+            ImagemQrCode = _cobranca.QrCode.QrCodeBitmap;
+            Fantasia = (string)dados["fantasia"];
+            Razao = (string)dados["razaosocial"];
+            Cnpj = (string)dados["cnpj"];
+            Instituicao = (string)dados["instituicao"];
+            Valor = _cobranca.Valor.Original;
         }
 
         public string Fantasia

@@ -8,7 +8,7 @@ namespace VMIClientePix.Model
         private string _location;
         private string _tipoCob;
 
-        public int Id
+        public virtual int Id
         {
             get
             {
@@ -22,7 +22,7 @@ namespace VMIClientePix.Model
             }
         }
 
-        public string Location
+        public virtual string Location
         {
             get
             {
@@ -36,7 +36,7 @@ namespace VMIClientePix.Model
             }
         }
 
-        public string TipoCob
+        public virtual string TipoCob
         {
             get
             {

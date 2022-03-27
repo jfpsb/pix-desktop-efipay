@@ -1,21 +1,25 @@
 ﻿using Newtonsoft.Json;
+using System;
 using VMIClientePix.Util;
 
 namespace VMIClientePix.Model
 {
     public class Cobranca : ObservableObject
     {
+        private string _txid;
         private Calendario _calendario;
         private Valor _valor;
         private Loc _loc;
-        private string _txid;
+        private QRCode _qrCode;
         private int _revisao;
         private string _status;
         private string _chave;
         private string _location;
+        private string _endToEndId;
+        private DateTime _pagoEm;
 
         [JsonProperty(PropertyName = "calendario")]
-        public Calendario Calendario
+        public virtual Calendario Calendario
         {
             get
             {
@@ -30,7 +34,7 @@ namespace VMIClientePix.Model
         }
 
         [JsonProperty(PropertyName = "valor")]
-        public Valor Valor
+        public virtual Valor Valor
         {
             get
             {
@@ -45,7 +49,7 @@ namespace VMIClientePix.Model
         }
 
         [JsonProperty(PropertyName = "txid")]
-        public string Txid
+        public virtual string Txid
         {
             get
             {
@@ -60,7 +64,7 @@ namespace VMIClientePix.Model
         }
 
         [JsonProperty(PropertyName = "revisao")]
-        public int Revisao
+        public virtual int Revisao
         {
             get
             {
@@ -75,7 +79,7 @@ namespace VMIClientePix.Model
         }
 
         [JsonProperty(PropertyName = "status")]
-        public string Status
+        public virtual string Status
         {
             get
             {
@@ -90,7 +94,7 @@ namespace VMIClientePix.Model
         }
 
         [JsonProperty(PropertyName = "chave")]
-        public string Chave
+        public virtual string Chave
         {
             get
             {
@@ -104,7 +108,8 @@ namespace VMIClientePix.Model
             }
         }
 
-        public string Location
+        [JsonProperty(PropertyName = "location")]
+        public virtual string Location
         {
             get
             {
@@ -118,7 +123,8 @@ namespace VMIClientePix.Model
             }
         }
 
-        public Loc Loc
+        [JsonProperty(PropertyName = "loc")]
+        public virtual Loc Loc
         {
             get
             {
@@ -129,6 +135,50 @@ namespace VMIClientePix.Model
             {
                 _loc = value;
                 OnPropertyChanged("Loc");
+            }
+        }
+
+        [JsonProperty(PropertyName = "endToEndId")]
+        public virtual string EndToEndId
+        {
+            get
+            {
+                return _endToEndId;
+            }
+
+            set
+            {
+                _endToEndId = value;
+                OnPropertyChanged("EndToEndId");
+            }
+        }
+
+        [JsonProperty(PropertyName = "horario")]
+        public virtual DateTime PagoEm
+        {
+            get
+            {
+                return _pagoEm;
+            }
+
+            set
+            {
+                _pagoEm = value;
+                OnPropertyChanged("PagoEm");
+            }
+        }
+
+        public virtual QRCode QrCode
+        {
+            get
+            {
+                return _qrCode;
+            }
+
+            set
+            {
+                _qrCode = value;
+                OnPropertyChanged("QrCode");
             }
         }
     }

@@ -1,35 +1,45 @@
-﻿using Gerencianet.NETCore.SDK;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+﻿using NHibernate;
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
+using System.Net;
 using System.Windows.Input;
+using VandaModaIntimaWpf.BancoDeDados.ConnectionFactory;
 using VMIClientePix.Model;
+using VMIClientePix.Model.DAO;
 using VMIClientePix.Util;
 using VMIClientePix.View;
+using VMIClientePix.ViewModel.Interfaces;
 using VMIClientePix.ViewModel.Services.Concretos;
 
 namespace VMIClientePix.ViewModel
 {
-    public class MainWindowViewModel : ObservableObject
+    public class MainWindowViewModel : ObservableObject, IOnClosing
     {
         private MessageBoxService messageBoxService;
         private ObservableCollection<Cobranca> _cobrancas = new ObservableCollection<Cobranca>();
-        private ListaCobrancas _listaCobranca;
+        private DAOCobranca daoCobranca;
+        private ISession session;
         public ICommand CriarCobrancaPixComando { get; set; }
         public ICommand ListViewLeftMouseClickComando { get; set; }
         public ICommand AtualizarListaComando { get; set; }
 
         public MainWindowViewModel()
         {
+            SessionProvider.SessionFactory = SessionProvider.BuildSessionFactory();
+            session = SessionProvider.GetSession();
+
+            daoCobranca = new DAOCobranca(session);
+
             CriarCobrancaPixComando = new RelayCommand(CriarCobrancaPix);
             ListViewLeftMouseClickComando = new RelayCommand(ListViewLeftMouseClick);
             AtualizarListaComando = new RelayCommand(AtualizarLista);
             messageBoxService = new MessageBoxService();
             ListarCobrancas();
+        }
+
+        private async void ListarCobrancas()
+        {
+            Cobrancas = new ObservableCollection<Cobranca>(await daoCobranca.ListarPorDia(DateTime.Now));
         }
 
         private void AtualizarLista(object obj)
@@ -39,7 +49,7 @@ namespace VMIClientePix.ViewModel
 
         private void ListViewLeftMouseClick(object obj)
         {
-            ApresentaQRCodeEDadosViewModel viewModel = new ApresentaQRCodeEDadosViewModel((Cobranca)obj, new MessageBoxService());
+            ApresentaQRCodeEDadosViewModel viewModel = new ApresentaQRCodeEDadosViewModel(session, (Cobranca)obj, new MessageBoxService());
             ApresentaQRCodeEDados view = new ApresentaQRCodeEDados() { DataContext = viewModel };
             view.ShowDialog();
             ListarCobrancas();
@@ -47,47 +57,15 @@ namespace VMIClientePix.ViewModel
 
         private void CriarCobrancaPix(object obj)
         {
-            InformaValorPixViewModel viewModel = new InformaValorPixViewModel(new MessageBoxService());
+            InformaValorPixViewModel viewModel = new InformaValorPixViewModel(session, new MessageBoxService());
             InformaValorPix view = new InformaValorPix() { DataContext = viewModel };
             view.ShowDialog();
             ListarCobrancas();
         }
 
-        private void ListarCobrancas()
+        public void OnClosing()
         {
-            var today = DateTime.Now;
-            var inicio = JsonConvert.SerializeObject(today.Date.AddDays(-100).ToUniversalTime()).Replace("\"", "");
-            var fim = JsonConvert.SerializeObject(today.Date.AddDays(1).AddSeconds(-1).ToUniversalTime()).Replace("\"", "");
-
-            dynamic endpoints = new Endpoints(JObject.Parse(File.ReadAllText("credentials.json")));
-
-            var param = new
-            {
-                inicio = inicio,
-                fim = fim
-            };
-
-            try
-            {
-                var listagemCobrancas = endpoints.PixListCharges(param);
-
-                ListaCobranca = JsonConvert.DeserializeObject<ListaCobrancas>(listagemCobrancas);
-
-                if (ListaCobranca != null)
-                {
-                    Cobrancas = new ObservableCollection<Cobranca>(ListaCobranca.Cobrancas.OrderBy(o => o.Calendario.Criacao));
-                }
-            }
-            catch (GnException e)
-            {
-                messageBoxService.Show($"Não Foi Possível Listar As Cobranças Pix. Cheque Sua Conexão Com A Internet.\n\n{e.ErrorType}\n\n{e.Message}", "Listagem De Cobranças Pix", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-                Debug.WriteLine(e.ErrorType);
-                Debug.WriteLine(e.Message);
-            }
-            catch (Exception ex)
-            {
-                messageBoxService.Show($"Não Foi Possível Listar As Cobranças Pix. Cheque Sua Conexão Com A Internet.\n\n{ex.Message}", "Listagem De Cobranças Pix", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-            }
+            SessionProvider.FechaSession(session);
         }
 
         public ObservableCollection<Cobranca> Cobrancas
@@ -101,20 +79,6 @@ namespace VMIClientePix.ViewModel
             {
                 _cobrancas = value;
                 OnPropertyChanged("Cobrancas");
-            }
-        }
-
-        public ListaCobrancas ListaCobranca
-        {
-            get
-            {
-                return _listaCobranca;
-            }
-
-            set
-            {
-                _listaCobranca = value;
-                OnPropertyChanged("ListaCobranca");
             }
         }
     }
