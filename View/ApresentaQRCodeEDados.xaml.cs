@@ -18,5 +18,11 @@ namespace VMIClientePix.View
             var onClosingDataContext = DataContext as IOnClosing;
             onClosingDataContext.OnClosing();
         }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            var onLoadDataContext = DataContext as IOnLoad;
+            onLoadDataContext.OnWindowLoad();
+        }
     }
 }
