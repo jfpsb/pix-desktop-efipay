@@ -1,7 +1,13 @@
-﻿using NHibernate;
+﻿using Gerencianet.NETCore.SDK;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using NHibernate;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Windows.Input;
 using VandaModaIntimaWpf.BancoDeDados.ConnectionFactory;
@@ -68,9 +74,44 @@ namespace VMIClientePix.ViewModel
             Cobrancas = new ObservableCollection<Cobranca>(await daoCobranca.ListarPorDia(DateTime.Now));
         }
 
+        private async void AtualizarCobrancasPelaGN()
+        {
+            dynamic endpoints = new Endpoints(JObject.Parse(File.ReadAllText("credentials.json")));
+
+            var param = new
+            {
+                inicio = JsonConvert.SerializeObject(DateTime.Now.Date.ToUniversalTime()).Replace("\"", ""),
+                fim = JsonConvert.SerializeObject(DateTime.Now.Date.AddDays(1).AddSeconds(-1).ToUniversalTime()).Replace("\"", "")
+            };
+
+            try
+            {
+                var response = endpoints.PixListCharges(param);
+                ListaCobrancas listaCobranca = JsonConvert.DeserializeObject<ListaCobrancas>(response);
+                IList<Cobranca> cobrancasAtt = new List<Cobranca>();
+
+                foreach (var cobranca in listaCobranca.Cobrancas)
+                {
+                    var cobNoBd = Cobrancas.Where(w => w.Txid == cobranca.Txid).First();
+                    cobranca.Calendario = cobNoBd.Calendario;
+                    cobranca.Valor = cobNoBd.Valor;
+                    cobranca.Loc = cobNoBd.Loc;
+                    cobranca.QrCode = cobNoBd.QrCode;
+                    cobrancasAtt.Add(cobranca);
+                }
+
+                var result = await daoCobranca.Merge(cobrancasAtt);
+            }
+            catch (GnException e)
+            {
+                Debug.WriteLine(e.ErrorType);
+                Debug.WriteLine(e.Message);
+            }
+        }
+
         private void AtualizarLista(object obj)
         {
-            ListarCobrancas();
+            AtualizarCobrancasPelaGN();
         }
 
         private void ListViewLeftMouseClick(object obj)

@@ -145,6 +145,32 @@ namespace VMIClientePix.Model.DAO
                 }
             }
         }
+        public virtual async Task<bool> Merge(IList<E> objetos)
+        {
+            using (var transacao = session.BeginTransaction())
+            {
+                try
+                {
+                    foreach (E e in objetos)
+                    {
+                        await session.MergeAsync(e);
+                    }
+
+                    await transacao.CommitAsync();
+
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    await transacao.RollbackAsync();
+                    Console.WriteLine("ERRO AO FAZER MERGE >>> " + ex.Message);
+                    if (ex.InnerException != null)
+                        Console.WriteLine("ERRO AO FAZER MERGE >>> " + ex.InnerException.Message);
+                }
+
+                return false;
+            }
+        }
         public virtual async Task<bool> Deletar(object objeto)
         {
             using (var transacao = session.BeginTransaction())

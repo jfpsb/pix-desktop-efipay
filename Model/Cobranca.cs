@@ -15,7 +15,6 @@ namespace VMIClientePix.Model
         private string _status;
         private string _chave;
         private string _location;
-        private string _endToEndId;
         private DateTime _pagoEm;
 
         [JsonProperty(PropertyName = "calendario")]
@@ -135,21 +134,6 @@ namespace VMIClientePix.Model
             {
                 _loc = value;
                 OnPropertyChanged("Loc");
-            }
-        }
-
-        [JsonProperty(PropertyName = "endToEndId")]
-        public virtual string EndToEndId
-        {
-            get
-            {
-                return _endToEndId;
-            }
-
-            set
-            {
-                _endToEndId = value;
-                OnPropertyChanged("EndToEndId");
             }
         }
 

@@ -41,7 +41,7 @@ namespace VMIClientePix.ViewModel
             {
                 calendario = new
                 {
-                    expiracao = 600
+                    expiracao = 120 //2 minutos
                 },
                 valor = new
                 {
