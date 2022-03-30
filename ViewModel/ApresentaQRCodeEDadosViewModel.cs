@@ -1,12 +1,15 @@
-﻿using Gerencianet.NETCore.SDK;
+﻿using ACBrLib.Core.PosPrinter;
+using ACBrLib.PosPrinter;
+using Gerencianet.NETCore.SDK;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NHibernate;
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
+using System.Text;
 using System.Timers;
-using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using VMIClientePix.Model;
@@ -25,23 +28,25 @@ namespace VMIClientePix.ViewModel
         private string _cnpj;
         private string _instituicao;
         private double _valor;
+        private string _nomeLoja;
         private ImageSource _imagemQrCode;
         private ICloseable _closeableOwner;
         private ISession _session;
         private Cobranca _cobranca;
         private IMessageBoxService _messageBox;
         private DAOCobranca daoCobranca;
-        private Visibility _visibilidadeLabelQRCode;
-        private Visibility _visibilidadeImagemQRCode;
         private double _segundosDesdeCriacao;
-        private string _labelQRCode1;
-        private string _labelQRCode2;
         private string _segundosAteExpiracaoEmString;
         private Timer timerExpiracaoQrCode;
         private Timer timerConsultaCobranca;
         private DateTime expiraEm;
+        private ACBrPosPrinter aCBrPosPrinter;
+
+        private bool _isCobrancaExpirado;
+        private bool _isPagamentoEfetuado;
 
         public ICommand ImprimirQRCodeComando { get; set; }
+        public ICommand ImprimirComprovanteComando { get; set; }
 
         public ApresentaQRCodeEDadosViewModel(ISession session, Cobranca cobranca, IMessageBoxService messageBoxService, ICloseable closeableOwner = null)
         {
@@ -51,35 +56,30 @@ namespace VMIClientePix.ViewModel
             _messageBox = messageBoxService;
 
             ImprimirQRCodeComando = new RelayCommand(ImprimirQRCode, IsQRCodeValido);
+            ImprimirComprovanteComando = new RelayCommand(ChamaImprimirComprovante);
 
             expiraEm = Cobranca.Calendario.CriacaoLocalTime.AddSeconds(Cobranca.Calendario.Expiracao);
+
+            Cobranca.PropertyChanged += Cobranca_PropertyChanged;
 
             switch (Cobranca.Status)
             {
                 case "CONCLUIDA":
-                    LabelQRCode1 = "Esta Cobrança Já Foi Paga.";
-                    LabelQRCode2 = "Crie Uma Nova Cobrança.";
-
-                    VisibilidadeLabelQRCode = Visibility.Visible;
-                    VisibilidadeImagemQRCode = Visibility.Collapsed;
-
+                    IsPagamentoEfetuado = true;
+                    IsCobrancaExpirado = false;
                     PopulaDados();
                     break;
                 case "ATIVA":
                     if (DateTime.Now >= expiraEm)
                     {
-                        VisibilidadeLabelQRCode = Visibility.Visible;
-                        VisibilidadeImagemQRCode = Visibility.Collapsed;
-
-                        LabelQRCode1 = "QR Code Expirado.";
-                        LabelQRCode2 = "Crie Uma Nova Cobrança.";
-
+                        IsCobrancaExpirado = true;
+                        IsPagamentoEfetuado = false;
                         PopulaDados();
                     }
                     else
                     {
-                        VisibilidadeLabelQRCode = Visibility.Collapsed;
-                        VisibilidadeImagemQRCode = Visibility.Visible;
+                        IsPagamentoEfetuado = false;
+                        IsCobrancaExpirado = false;
 
                         daoCobranca = new DAOCobranca(_session);
 
@@ -98,7 +98,38 @@ namespace VMIClientePix.ViewModel
                     break;
             };
 
-            Cobranca.PropertyChanged += Cobranca_PropertyChanged;
+            aCBrPosPrinter = new ACBrPosPrinter();
+            ConfiguraPosPrinter();
+        }
+
+        private void ChamaImprimirComprovante(object obj)
+        {
+            ImprimirComprovante();
+        }
+
+        private void ImprimirComprovante()
+        {
+            string s = "</zera>" + "\n";
+            s += "</ce>" + "\n";
+            s += "<e>COMPROVANTE DE PAGAMENTO PIX</e>" + "\n";
+            s += "</ae>" + "\n";
+            s += "<n>RECEBEDOR<n>" + "\n";
+            s += "<n>Nome Fantasia:</n>" + "\n";
+            s += $"</fn>{Fantasia}" + "\n";
+            s += "<n>Razão Social:</n>" + "\n";
+            s += $"</fn>{Razao}" + "\n";
+            s += "<n>CNPJ:</n>" + "\n";
+            s += $"</fn>{Cnpj}" + "\n";
+            s += "<n>Instituição:</n>" + "\n";
+            s += $"</fn>{Instituicao}" + "\n";
+            s += "<n>Loja:</n>" + "\n";
+            s += $"</fn>{NomeLoja}" + "\n";
+            s += $"<a><n><in>VALOR: {Valor.ToString("C", CultureInfo.CreateSpecificCulture("pt-BR"))}</in></n></a>" + "\n";
+            s += "</linha_dupla>" + "\n";
+            s += "</ce>" + "\n";
+            s += $"<a>PAGAMENTO EFETUADO EM {Cobranca.PagoEm.ToString(CultureInfo.CurrentCulture)}" + "\n";
+            s += "</corte_total>" + "\n";
+            aCBrPosPrinter.Imprimir(s);
         }
 
         private async void Cobranca_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -107,18 +138,15 @@ namespace VMIClientePix.ViewModel
             {
                 if (Cobranca.Status.Equals("CONCLUIDA"))
                 {
-                    LabelQRCode1 = "Esta Cobrança Já Foi Paga.";
-                    LabelQRCode2 = "Crie Uma Nova Cobrança.";
-
-                    VisibilidadeLabelQRCode = Visibility.Visible;
-                    VisibilidadeImagemQRCode = Visibility.Collapsed;
-
+                    IsPagamentoEfetuado = true;
+                    Cobranca.PagoEm = DateTime.Now;
                     SegundosAteExpiracaoEmString = "PAGAMENTO EFETUADO";
-
                     timerConsultaCobranca.Stop();
                     timerConsultaCobranca.Dispose();
                     timerExpiracaoQrCode.Stop();
                     timerExpiracaoQrCode.Dispose();
+
+                    ImprimirComprovante();
 
                     var result = await daoCobranca.Atualizar(Cobranca);
 
@@ -136,7 +164,7 @@ namespace VMIClientePix.ViewModel
 
         private void TimerConsultaCobranca_Elapsed(object sender, ElapsedEventArgs e)
         {
-            if (e.SignalTime < expiraEm)
+            if (e.SignalTime <= expiraEm)
             {
                 dynamic endpoints = new Endpoints(JObject.Parse(File.ReadAllText("credentials.json")));
 
@@ -150,10 +178,11 @@ namespace VMIClientePix.ViewModel
                     var response = endpoints.PixDetailCharge(param);
                     Cobranca cobranca = JsonConvert.DeserializeObject<Cobranca>(response);
 
-                    Cobranca.Status = cobranca.Status;
                     Cobranca.Revisao = cobranca.Revisao;
                     Cobranca.Location = cobranca.Location;
                     //TODO: Campo PIX
+
+                    Cobranca.Status = cobranca.Status;
 
                     Console.WriteLine(response);
                 }
@@ -165,6 +194,8 @@ namespace VMIClientePix.ViewModel
             }
             else
             {
+                IsCobrancaExpirado = true;
+                IsPagamentoEfetuado = false;
                 timerConsultaCobranca.Stop();
                 timerConsultaCobranca.Dispose();
             }
@@ -174,35 +205,82 @@ namespace VMIClientePix.ViewModel
         {
             if (e.SignalTime > expiraEm)
             {
-                VisibilidadeLabelQRCode = Visibility.Visible;
-                VisibilidadeImagemQRCode = Visibility.Collapsed;
-                LabelQRCode1 = "QR Code Expirado.";
-                LabelQRCode2 = "Crie Uma Nova Cobrança.";
-
+                IsCobrancaExpirado = true;
+                IsPagamentoEfetuado = false;
                 SegundosDesdeCriacao = Cobranca.Calendario.Expiracao;
-
                 SegundosAteExpiracaoEmString = "EXPIRADO";
-
                 timerExpiracaoQrCode.Stop();
                 timerExpiracaoQrCode.Dispose();
             }
             else
             {
-                SegundosDesdeCriacao = (e.SignalTime - Cobranca.Calendario.CriacaoLocalTime).TotalSeconds;
-                double segundosAteExpiracao = Cobranca.Calendario.Expiracao - SegundosDesdeCriacao;
-                TimeSpan timeSpan = new TimeSpan(0, 0, (int)segundosAteExpiracao);
-                SegundosAteExpiracaoEmString = timeSpan.ToString(@"mm\:ss");
+                var horaAtual = DateTime.Now.TimeOfDay;
+                var timeSpan1 = new TimeSpan(Cobranca.Calendario.CriacaoLocalTime.Hour, Cobranca.Calendario.CriacaoLocalTime.Minute, Cobranca.Calendario.CriacaoLocalTime.Second);
+                var timeSpan2 = new TimeSpan(expiraEm.Hour, expiraEm.Minute, expiraEm.Second);
+
+                if (horaAtual >= timeSpan1 && horaAtual <= timeSpan2)
+                {
+                    var timeSpanRestante = timeSpan2.Subtract(horaAtual);
+                    SegundosAteExpiracaoEmString = timeSpanRestante.ToString(@"mm\:ss");
+                    SegundosDesdeCriacao = horaAtual.Subtract(timeSpan1).TotalSeconds;
+                }
             }
         }
 
         private bool IsQRCodeValido(object arg)
         {
-            return VisibilidadeImagemQRCode == Visibility.Visible;
+            return !IsCobrancaExpirado && !IsPagamentoEfetuado;
         }
 
         private void ImprimirQRCode(object obj)
         {
-            //throw new NotImplementedException();
+            string s = "</zera>" + "\n";
+            s += "</ce>" + "\n";
+            s += "<e>PAGAMENTO PIX</e>" + "\n";
+            s += "</ae>" + "\n";
+            s += "<n>RECEBEDOR<n>" + "\n";
+            s += "<n>Nome Fantasia:</n>" + "\n";
+            s += $"</fn>{Fantasia}" + "\n";
+            s += "<n>Razão Social:</n>" + "\n";
+            s += $"</fn>{Razao}" + "\n";
+            s += "<n>CNPJ:</n>" + "\n";
+            s += $"</fn>{Cnpj}" + "\n";
+            s += "<n>Instituição:</n>" + "\n";
+            s += $"</fn>{Instituicao}" + "\n";
+            s += "<n>Loja:</n>" + "\n";
+            s += $"</fn>{NomeLoja}" + "\n";
+            s += $"<a><n><in>VALOR: {Valor.ToString("C", CultureInfo.CreateSpecificCulture("pt-BR"))}</in></n></a>" + "\n";
+            s += "</linha_dupla>" + "\n";
+            s += "</ce>" + "\n";
+            s += "<a>ESCANEIE O QR CODE COM O APLICATIVO DO SEU BANCO" + "\n";
+            s += "PARA EFETUAR O PAGAMENTO</a>" + "\n";
+            s += $"</fn>QR Code válido até {expiraEm.ToString(CultureInfo.CurrentCulture)}" + "\n";
+            s += $"<qrcode>{Cobranca.QrCode.Qrcode}</qrcode>" + "\n";
+            s += "</corte_total>" + "\n";
+            aCBrPosPrinter.Imprimir(s);
+        }
+
+        private void ConfiguraPosPrinter()
+        {
+            aCBrPosPrinter.Config.Porta = "USB";
+            aCBrPosPrinter.Config.Modelo = ACBrPosPrinterModelo.ppEscPosEpson;
+            aCBrPosPrinter.Config.ColunasFonteNormal = 48;
+            aCBrPosPrinter.Config.EspacoEntreLinhas = 0;
+            aCBrPosPrinter.Config.LinhasBuffer = 0;
+            aCBrPosPrinter.Config.LinhasEntreCupons = 5;
+            aCBrPosPrinter.Config.ControlePorta = false;
+            aCBrPosPrinter.Config.CortaPapel = true;
+            aCBrPosPrinter.Config.TraduzirTags = true;
+            aCBrPosPrinter.Config.IgnorarTags = false;
+            aCBrPosPrinter.Config.PaginaDeCodigo = PosPaginaCodigo.pc850;
+
+            aCBrPosPrinter.Config.QrCodeConfig.Tipo = 2;
+            aCBrPosPrinter.Config.QrCodeConfig.LarguraModulo = 6;
+            aCBrPosPrinter.Config.QrCodeConfig.ErrorLevel = 0;
+
+            aCBrPosPrinter.ConfigGravar();
+
+            aCBrPosPrinter.Ativar();
         }
 
         private async void GeraESalvaQrCode()
@@ -262,11 +340,15 @@ namespace VMIClientePix.ViewModel
         private void PopulaDados()
         {
             var dados = JObject.Parse(File.ReadAllText("dados_recebedor.json"));
-            ImagemQrCode = Cobranca.QrCode.QrCodeBitmap;
+
+            if (!IsPagamentoEfetuado && !IsCobrancaExpirado)
+                ImagemQrCode = Cobranca.QrCode.QrCodeBitmap;
+
             Fantasia = (string)dados["fantasia"];
             Razao = (string)dados["razaosocial"];
             Cnpj = (string)dados["cnpj"];
             Instituicao = (string)dados["instituicao"];
+            NomeLoja = (string)dados["loja"];
             Valor = Cobranca.Valor.Original;
         }
 
@@ -354,34 +436,6 @@ namespace VMIClientePix.ViewModel
             }
         }
 
-        public Visibility VisibilidadeLabelQRCode
-        {
-            get
-            {
-                return _visibilidadeLabelQRCode;
-            }
-
-            set
-            {
-                _visibilidadeLabelQRCode = value;
-                OnPropertyChanged("VisibilidadeLabelQRCode");
-            }
-        }
-
-        public Visibility VisibilidadeImagemQRCode
-        {
-            get
-            {
-                return _visibilidadeImagemQRCode;
-            }
-
-            set
-            {
-                _visibilidadeImagemQRCode = value;
-                OnPropertyChanged("VisibilidadeImagemQRCode");
-            }
-        }
-
         public Cobranca Cobranca
         {
             get
@@ -410,34 +464,6 @@ namespace VMIClientePix.ViewModel
             }
         }
 
-        public string LabelQRCode1
-        {
-            get
-            {
-                return _labelQRCode1;
-            }
-
-            set
-            {
-                _labelQRCode1 = value;
-                OnPropertyChanged("LabelQRCode1");
-            }
-        }
-
-        public string LabelQRCode2
-        {
-            get
-            {
-                return _labelQRCode2;
-            }
-
-            set
-            {
-                _labelQRCode2 = value;
-                OnPropertyChanged("LabelQRCode2");
-            }
-        }
-
         public string SegundosAteExpiracaoEmString
         {
             get
@@ -452,10 +478,54 @@ namespace VMIClientePix.ViewModel
             }
         }
 
+        public bool IsCobrancaExpirado
+        {
+            get
+            {
+                return _isCobrancaExpirado;
+            }
+
+            set
+            {
+                _isCobrancaExpirado = value;
+                OnPropertyChanged("IsCobrancaExpirado");
+            }
+        }
+
+        public bool IsPagamentoEfetuado
+        {
+            get
+            {
+                return _isPagamentoEfetuado;
+            }
+
+            set
+            {
+                _isPagamentoEfetuado = value;
+                OnPropertyChanged("IsPagamentoEfetuado");
+            }
+        }
+
+        public string NomeLoja
+        {
+            get
+            {
+                return _nomeLoja;
+            }
+
+            set
+            {
+                _nomeLoja = value;
+                OnPropertyChanged("NomeLoja");
+            }
+        }
+
         public void OnClosing()
         {
             if (_closeableOwner != null)
                 _closeableOwner.Close();
+
+            aCBrPosPrinter.Dispose();
         }
     }
 }

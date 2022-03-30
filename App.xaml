@@ -9,7 +9,8 @@
                 <ResourceDictionary Source="Theme/FonteTheme.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <Style TargetType="Button"
+            <Style x:Key="ButtonAppStyle"
+                   TargetType="Button"
                    BasedOn="{StaticResource Fonte}">
                 <Setter Property="FontSize"
                         Value="30" />

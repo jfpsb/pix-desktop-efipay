@@ -13,6 +13,7 @@
     <DockPanel LastChildFill="True">
         <Button DockPanel.Dock="Bottom"
                 Content="Gerar QR Code"
+                Style="{StaticResource ButtonAppStyle}"
                 Command="{Binding GerarQRCodeComando}"
                 CommandParameter="{Binding ElementName=TelaInformarValorPix}" />
         <Grid VerticalAlignment="Center">

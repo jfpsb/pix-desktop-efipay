@@ -8,11 +8,23 @@
     <ApplicationIcon>Logo.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Import\**" />
+    <Compile Remove="Shared\**" />
+    <EmbeddedResource Remove="Import\**" />
+    <EmbeddedResource Remove="Shared\**" />
+    <None Remove="Import\**" />
+    <None Remove="Shared\**" />
+    <Page Remove="Import\**" />
+    <Page Remove="Shared\**" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="Mapas\Calendario.hbm.xml" />
     <None Remove="Mapas\Cobranca.hbm.xml" />
     <None Remove="Mapas\Loc.hbm.xml" />
     <None Remove="Mapas\QRCode.hbm.xml" />
     <None Remove="Mapas\Valor.hbm.xml" />
+    <None Remove="View\Imagens\CheckMark.png" />
+    <None Remove="View\Imagens\ErrorMark.png" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Logo.ico" />
@@ -35,6 +47,14 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Import\Dinamico\ST\ACBrLib.PosPrinter.csproj" />
+    <ProjectReference Include="Shared\ACBrLib.Core\ACBrLib.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Imagens\CheckMark.png" />
+    <Resource Include="View\Imagens\ErrorMark.png" />
   </ItemGroup>
   <ItemGroup>
     <None Update="certificadohomo.p12">

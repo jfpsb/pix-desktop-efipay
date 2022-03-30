@@ -6,12 +6,10 @@
         xmlns:local="clr-namespace:VMIClientePix.View"
         mc:Ignorable="d"
         Title="QRCode E Dados De Cobrança Pix"
-        Height="530"
+        Height="610"
         Width="800"
-        ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen"
-        Closing="Window_Closing"
-        Loaded="Window_Loaded">
+        Closing="Window_Closing">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -21,35 +19,181 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        <StackPanel VerticalAlignment="Top"
-                    HorizontalAlignment="Center">
-            <Label Width="340"
-                   Height="340"
-                   VerticalContentAlignment="Center"
-                   HorizontalContentAlignment="Center"
+        <Grid Width="340"
+              Height="Auto"
+              VerticalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Image Width="300"
+                   Height="300">
+                <Image.Style>
+                    <Style TargetType="{x:Type Image}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsCobrancaExpirado}"
+                                         Value="True">
+                                <Setter Property="Source"
+                                        Value="/View/Imagens/ErrorMark.png" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsPagamentoEfetuado}"
+                                         Value="True">
+                                <Setter Property="Source"
+                                        Value="/View/Imagens/CheckMark.png" />
+                            </DataTrigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsCobrancaExpirado}"
+                                               Value="False" />
+                                    <Condition Binding="{Binding IsPagamentoEfetuado}"
+                                               Value="False" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Source"
+                                        Value="{Binding ImagemQrCode}" />
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
+            <Label Grid.Row="1"
                    FontSize="24"
-                   Visibility="{Binding VisibilidadeLabelQRCode}">
-                <StackPanel>
-                    <TextBlock TextAlignment="Center"
-                               Text="{Binding LabelQRCode1}" />
-
-                    <TextBlock TextAlignment="Center"
-                               Text="{Binding LabelQRCode2}" />
-                </StackPanel>
+                   FontFamily="Century Gothic"
+                   HorizontalContentAlignment="Center">
+                <Label.Style>
+                    <Style TargetType="{x:Type Label}">
+                        <Setter Property="Content"
+                                Value="Esta Cobrança Já Foi Paga" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsCobrancaExpirado}"
+                                         Value="True">
+                                <Setter Property="Content"
+                                        Value="QR Code Expirado" />
+                                <Setter Property="Visibility"
+                                        Value="Visible" />
+                                <Setter Property="Foreground"
+                                        Value="IndianRed" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsPagamentoEfetuado}"
+                                         Value="True">
+                                <Setter Property="Visibility"
+                                        Value="Visible" />
+                                <Setter Property="Content"
+                                        Value="Esta Cobrança Já Foi Paga" />
+                            </DataTrigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsPagamentoEfetuado}"
+                                               Value="False" />
+                                    <Condition Binding="{Binding IsCobrancaExpirado}"
+                                               Value="False" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility"
+                                        Value="Collapsed" />
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Label.Style>
             </Label>
-            <Image Width="340"
-                   Height="340"
-                   Source="{Binding ImagemQrCode}"
-                   Visibility="{Binding VisibilidadeImagemQRCode}" />
-            <Button Content="Imprimir QRCode"
+            <Label Grid.Row="2"
+                   FontSize="24"
+                   FontFamily="Century Gothic"
+                   HorizontalContentAlignment="Center">
+                <Label.Style>
+                    <Style TargetType="{x:Type Label}">
+                        <Setter Property="Content"
+                                Value="Crie Uma Nova Cobrança" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsCobrancaExpirado}"
+                                         Value="True">
+                                <Setter Property="Visibility"
+                                        Value="Visible" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsPagamentoEfetuado}"
+                                         Value="True">
+                                <Setter Property="Visibility"
+                                        Value="Visible" />
+                            </DataTrigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsPagamentoEfetuado}"
+                                               Value="False" />
+                                    <Condition Binding="{Binding IsCobrancaExpirado}"
+                                               Value="False" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility"
+                                        Value="Collapsed" />
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Label.Style>
+            </Label>
+            <Button Grid.Row="3"
+                    Content="Imprimir QRCode"
                     VerticalAlignment="Bottom"
                     Margin="10"
                     FontSize="22"
-                    Command="{Binding ImprimirQRCodeComando}" />
-        </StackPanel>
+                    Command="{Binding ImprimirQRCodeComando}">
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}"
+                           BasedOn="{StaticResource ButtonAppStyle}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsPagamentoEfetuado}"
+                                         Value="True">
+                                <Setter Property="Visibility"
+                                        Value="Collapsed" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsCobrancaExpirado}"
+                                         Value="True">
+                                <Setter Property="Visibility"
+                                        Value="Collapsed" />
+                            </DataTrigger>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding IsPagamentoEfetuado}"
+                                               Value="False" />
+                                    <Condition Binding="{Binding IsCobrancaExpirado}"
+                                               Value="False" />
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility"
+                                        Value="Visible" />
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            <Button Grid.Row="4"
+                    Content="Imprimir Comprovante"
+                    VerticalAlignment="Bottom"
+                    Margin="10"
+                    FontSize="22"
+                    Command="{Binding ImprimirComprovanteComando}">
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}"
+                           BasedOn="{StaticResource ButtonAppStyle}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsPagamentoEfetuado}"
+                                         Value="True">
+                                <Setter Property="Visibility"
+                                        Value="Visible" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsPagamentoEfetuado}"
+                                         Value="False">
+                                <Setter Property="Visibility"
+                                        Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+        </Grid>
         <Grid Grid.Column="1"
               Margin="10">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -95,26 +239,34 @@
                    Content="{Binding Instituicao}"
                    FontSize="19" />
             <Label Grid.Row="9"
+                   Content="Loja:"
+                   FontSize="20"
+                   FontWeight="Bold" />
+            <Label Grid.Row="10"
+                   Content="{Binding NomeLoja}"
+                   FontSize="19" />
+            <Label Grid.Row="11"
                    Content="Valor:"
                    FontSize="22"
                    FontWeight="Bold" />
-            <Label Grid.Row="10"
+            <Label Grid.Row="12"
                    Content="{Binding Valor}"
                    ContentStringFormat="C"
                    Language="pt-BR"
                    FontSize="21" />
         </Grid>
         <Grid Grid.Row="1"
-              Grid.ColumnSpan="2">
+              Grid.ColumnSpan="2"
+              VerticalAlignment="Bottom">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Label Content="QR Code Expira Em "
+            <Label Content="QR Code Expira Em"
                    FontSize="18"
                    FontWeight="Bold" />
             <Label Grid.Column="1"
@@ -123,6 +275,7 @@
                    FontSize="18"
                    HorizontalAlignment="Left" />
             <ProgressBar Grid.Row="1"
+                         Height="30"
                          Grid.ColumnSpan="2"
                          Margin="5"
                          Minimum="0"

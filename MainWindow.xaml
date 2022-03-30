@@ -40,6 +40,7 @@
     <DockPanel LastChildFill="True">
         <Grid DockPanel.Dock="Bottom">
             <Button Content="Criar Cobrança Pix"
+                    Style="{StaticResource ButtonAppStyle}"
                     Command="{Binding CriarCobrancaPixComando}" />
         </Grid>
         <Grid Margin="5">
