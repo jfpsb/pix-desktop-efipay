@@ -14,6 +14,11 @@
 		<property name="Chave" />
 		<property name="Location" />
 		<property name="PagoEm" />
+
+		<bag name="Pix" table="pix" cascade="save-update" inverse="true">
+			<key column="cobranca" />
+			<one-to-many class="VMIClientePix.Model.Pix"/>
+		</bag>
 	</class>
 
 </hibernate-mapping>

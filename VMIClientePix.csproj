@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
@@ -20,7 +20,11 @@
   <ItemGroup>
     <None Remove="Mapas\Calendario.hbm.xml" />
     <None Remove="Mapas\Cobranca.hbm.xml" />
+    <None Remove="Mapas\Devolucao.hbm.xml" />
+    <None Remove="Mapas\Horario.hbm.xml" />
     <None Remove="Mapas\Loc.hbm.xml" />
+    <None Remove="Mapas\Pagador.hbm.xml" />
+    <None Remove="Mapas\Pix.hbm.xml" />
     <None Remove="Mapas\QRCode.hbm.xml" />
     <None Remove="Mapas\Valor.hbm.xml" />
     <None Remove="View\Imagens\CheckMark.png" />
@@ -30,6 +34,10 @@
     <Content Include="Logo.ico" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Mapas\Pagador.hbm.xml" />
+    <EmbeddedResource Include="Mapas\Horario.hbm.xml" />
+    <EmbeddedResource Include="Mapas\Devolucao.hbm.xml" />
+    <EmbeddedResource Include="Mapas\Pix.hbm.xml" />
     <EmbeddedResource Include="Mapas\Cobranca.hbm.xml" />
     <EmbeddedResource Include="Mapas\Loc.hbm.xml" />
     <EmbeddedResource Include="Mapas\QRCode.hbm.xml" />

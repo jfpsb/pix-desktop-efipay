@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using VMIClientePix.Util;
 
 namespace VMIClientePix.Model
@@ -10,6 +11,7 @@ namespace VMIClientePix.Model
         private Calendario _calendario;
         private Valor _valor;
         private Loc _loc;
+        private IList<Pix> _pix = new List<Pix>();
         private QRCode _qrCode;
         private int _revisao;
         private string _status;
@@ -149,6 +151,15 @@ namespace VMIClientePix.Model
             {
                 _pagoEm = value;
                 OnPropertyChanged("PagoEm");
+                OnPropertyChanged("PagoEmLocalTime");
+            }
+        }
+
+        public virtual DateTime PagoEmLocalTime
+        {
+            get
+            {
+                return _pagoEm.ToLocalTime();
             }
         }
 
@@ -163,6 +174,21 @@ namespace VMIClientePix.Model
             {
                 _qrCode = value;
                 OnPropertyChanged("QrCode");
+            }
+        }
+
+        [JsonProperty(PropertyName = "pix")]
+        public virtual IList<Pix> Pix
+        {
+            get
+            {
+                return _pix;
+            }
+
+            set
+            {
+                _pix = value;
+                OnPropertyChanged("Pix");
             }
         }
     }

@@ -12,7 +12,7 @@ namespace VMIClientePix.Model
         private double _valor;
         private string _status;
 
-        public string Id
+        public virtual string Id
         {
             get
             {
@@ -26,7 +26,7 @@ namespace VMIClientePix.Model
             }
         }
 
-        public Pix Pix
+        public virtual Pix Pix
         {
             get
             {
@@ -40,7 +40,7 @@ namespace VMIClientePix.Model
             }
         }
 
-        public string RtrId
+        public virtual string RtrId
         {
             get
             {
@@ -54,7 +54,7 @@ namespace VMIClientePix.Model
             }
         }
 
-        public double Valor
+        public virtual double Valor
         {
             get
             {
@@ -68,7 +68,7 @@ namespace VMIClientePix.Model
             }
         }
 
-        public string Status
+        public virtual string Status
         {
             get
             {
@@ -82,7 +82,7 @@ namespace VMIClientePix.Model
             }
         }
 
-        public Horario Horario
+        public virtual Horario Horario
         {
             get
             {
@@ -103,7 +103,7 @@ namespace VMIClientePix.Model
         private DateTime _solicitacao;
         private DateTime _liquidacao;
 
-        public long Id
+        public virtual long Id
         {
             get
             {
@@ -117,7 +117,7 @@ namespace VMIClientePix.Model
             }
         }
 
-        public DateTime Solicitacao
+        public virtual DateTime Solicitacao
         {
             get
             {
@@ -131,7 +131,7 @@ namespace VMIClientePix.Model
             }
         }
 
-        public DateTime Liquidacao
+        public virtual DateTime Liquidacao
         {
             get
             {

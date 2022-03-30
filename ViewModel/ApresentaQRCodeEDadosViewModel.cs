@@ -127,7 +127,7 @@ namespace VMIClientePix.ViewModel
             s += $"<a><n><in>VALOR: {Valor.ToString("C", CultureInfo.CreateSpecificCulture("pt-BR"))}</in></n></a>" + "\n";
             s += "</linha_dupla>" + "\n";
             s += "</ce>" + "\n";
-            s += $"<a>PAGAMENTO EFETUADO EM {Cobranca.PagoEm.ToString(CultureInfo.CurrentCulture)}" + "\n";
+            s += $"<a>PAGAMENTO EFETUADO EM {Cobranca.PagoEmLocalTime.ToString(CultureInfo.CurrentCulture)}" + "\n";
             s += "</corte_total>" + "\n";
             aCBrPosPrinter.Imprimir(s);
         }
@@ -139,7 +139,7 @@ namespace VMIClientePix.ViewModel
                 if (Cobranca.Status.Equals("CONCLUIDA"))
                 {
                     IsPagamentoEfetuado = true;
-                    Cobranca.PagoEm = DateTime.Now;
+                    Cobranca.PagoEm = Cobranca.Pix[0].Horario;
                     SegundosAteExpiracaoEmString = "PAGAMENTO EFETUADO";
                     timerConsultaCobranca.Stop();
                     timerConsultaCobranca.Dispose();
@@ -180,7 +180,12 @@ namespace VMIClientePix.ViewModel
 
                     Cobranca.Revisao = cobranca.Revisao;
                     Cobranca.Location = cobranca.Location;
-                    //TODO: Campo PIX
+
+                    Cobranca.Pix.Clear();
+                    foreach (var p in cobranca.Pix)
+                    {
+                        Cobranca.Pix.Add(p);
+                    }
 
                     Cobranca.Status = cobranca.Status;
 

@@ -26,7 +26,7 @@ namespace VMIClientePix.ViewModel
         private ObservableCollection<Cobranca> _cobrancas = new ObservableCollection<Cobranca>();
         private DAOCobranca daoCobranca;
         private ISession session;
-        private HttpListener listener;
+        //private HttpListener listener;
         public ICommand CriarCobrancaPixComando { get; set; }
         public ICommand ListViewLeftMouseClickComando { get; set; }
         public ICommand AtualizarListaComando { get; set; }
@@ -52,21 +52,21 @@ namespace VMIClientePix.ViewModel
 
         private void ListenerCallback(IAsyncResult ar)
         {
-            HttpListener httpListener = (HttpListener)ar.AsyncState;
-            var context = httpListener.EndGetContext(ar);
-            var request = context.Request;
-            var response = context.Response;
+            //HttpListener httpListener = (HttpListener)ar.AsyncState;
+            //var context = httpListener.EndGetContext(ar);
+            //var request = context.Request;
+            //var response = context.Response;
 
-            if (request.HttpMethod == "POST")
-            {
-                var rqstEncoding = request.ContentEncoding;
-                StreamReader reader = new StreamReader(request.InputStream, rqstEncoding);
-                messageBoxService.Show(reader.ReadToEnd());
-                request.InputStream.Close();
-                reader.Close();
-            }
+            //if (request.HttpMethod == "POST")
+            //{
+            //    var rqstEncoding = request.ContentEncoding;
+            //    StreamReader reader = new StreamReader(request.InputStream, rqstEncoding);
+            //    messageBoxService.Show(reader.ReadToEnd());
+            //    request.InputStream.Close();
+            //    reader.Close();
+            //}
 
-            listener.BeginGetContext(new AsyncCallback(ListenerCallback), listener);
+            //listener.BeginGetContext(new AsyncCallback(ListenerCallback), listener);
         }
 
         private async void ListarCobrancas()
@@ -92,20 +92,31 @@ namespace VMIClientePix.ViewModel
 
                 foreach (var cobranca in listaCobranca.Cobrancas)
                 {
-                    var cobNoBd = Cobrancas.Where(w => w.Txid == cobranca.Txid).First();
-                    cobranca.Calendario = cobNoBd.Calendario;
-                    cobranca.Valor = cobNoBd.Valor;
-                    cobranca.Loc = cobNoBd.Loc;
-                    cobranca.QrCode = cobNoBd.QrCode;
+                    var cobrancaLocal = Cobrancas.Where(w => w.Txid == cobranca.Txid).FirstOrDefault(); //Cobrança salva no banco de dados local
+                    if (cobrancaLocal == null) continue;
+                    cobranca.Calendario = cobrancaLocal.Calendario;
+                    cobranca.Valor = cobrancaLocal.Valor;
+                    cobranca.Loc = cobrancaLocal.Loc;
+                    cobranca.QrCode = cobrancaLocal.QrCode;
+                    foreach (var p in cobranca.Pix)
+                    {
+                        p.Cobranca = cobranca;
+                    }
+                    if (cobranca.Pix.Count > 0)
+                        cobranca.PagoEm = cobranca.Pix[0].Horario;
                     cobrancasAtt.Add(cobranca);
                 }
 
-                var result = await daoCobranca.Merge(cobrancasAtt);
+                session.Clear();
+                var result = await daoCobranca.InserirOuAtualizar(cobrancasAtt);
+
+                if (result)
+                    ListarCobrancas();
             }
             catch (GnException e)
             {
-                Debug.WriteLine(e.ErrorType);
-                Debug.WriteLine(e.Message);
+                Console.WriteLine(e.ErrorType);
+                Console.WriteLine(e.Message);
             }
         }
 
@@ -133,6 +144,7 @@ namespace VMIClientePix.ViewModel
         public void OnClosing()
         {
             SessionProvider.FechaSession(session);
+            SessionProvider.FechaSessionFactory();
         }
 
         public ObservableCollection<Cobranca> Cobrancas

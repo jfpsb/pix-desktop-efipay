@@ -8,13 +8,14 @@ namespace VMIClientePix.Model
     {
         private string _txid;
         private Pagador _pagador;
+        private Cobranca _cobranca;
         private string _endToEndId;
         private double _valor;
         private DateTime _horario;
         private string _infoPagador;
         private IList<Devolucao> _devolucoes = new List<Devolucao>();
 
-        public string Txid
+        public virtual string Txid
         {
             get
             {
@@ -28,7 +29,7 @@ namespace VMIClientePix.Model
             }
         }
 
-        public Pagador Pagador
+        public virtual Pagador Pagador
         {
             get
             {
@@ -42,7 +43,7 @@ namespace VMIClientePix.Model
             }
         }
 
-        public string EndToEndId
+        public virtual string EndToEndId
         {
             get
             {
@@ -56,7 +57,7 @@ namespace VMIClientePix.Model
             }
         }
 
-        public double Valor
+        public virtual double Valor
         {
             get
             {
@@ -70,7 +71,7 @@ namespace VMIClientePix.Model
             }
         }
 
-        public DateTime Horario
+        public virtual DateTime Horario
         {
             get
             {
@@ -84,7 +85,7 @@ namespace VMIClientePix.Model
             }
         }
 
-        public string InfoPagador
+        public virtual string InfoPagador
         {
             get
             {
@@ -98,7 +99,7 @@ namespace VMIClientePix.Model
             }
         }
 
-        public IList<Devolucao> Devolucoes
+        public virtual IList<Devolucao> Devolucoes
         {
             get
             {
@@ -111,6 +112,20 @@ namespace VMIClientePix.Model
                 OnPropertyChanged("Devolucoes");
             }
         }
+
+        public virtual Cobranca Cobranca
+        {
+            get
+            {
+                return _cobranca;
+            }
+
+            set
+            {
+                _cobranca = value;
+                OnPropertyChanged("Cobranca");
+            }
+        }
     }
 
     public class Pagador : ObservableObject
@@ -120,7 +135,7 @@ namespace VMIClientePix.Model
         private string _cnpj;
         private string _nome;
 
-        public long Id
+        public virtual long Id
         {
             get
             {
@@ -134,7 +149,7 @@ namespace VMIClientePix.Model
             }
         }
 
-        public string Cpf
+        public virtual string Cpf
         {
             get
             {
@@ -148,7 +163,7 @@ namespace VMIClientePix.Model
             }
         }
 
-        public string Cnpj
+        public virtual string Cnpj
         {
             get
             {
@@ -162,7 +177,7 @@ namespace VMIClientePix.Model
             }
         }
 
-        public string Nome
+        public virtual string Nome
         {
             get
             {

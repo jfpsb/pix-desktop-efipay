@@ -2,7 +2,6 @@
 using NHibernate.Criterion;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace VMIClientePix.Model.DAO
@@ -32,7 +31,7 @@ namespace VMIClientePix.Model.DAO
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Console.WriteLine(ex);
             }
 
             return null;
@@ -54,7 +53,7 @@ namespace VMIClientePix.Model.DAO
             }
             catch (Exception ex)
             {
-                Debug.WriteLine(ex);
+                Console.WriteLine(ex);
             }
 
             return null;
