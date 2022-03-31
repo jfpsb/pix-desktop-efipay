@@ -1,5 +1,4 @@
-﻿using ACBrLib.Core.PosPrinter;
-using ACBrLib.PosPrinter;
+﻿using ACBrLib.PosPrinter;
 using Gerencianet.NETCore.SDK;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -8,7 +7,6 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Text;
 using System.Timers;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -40,7 +38,7 @@ namespace VMIClientePix.ViewModel
         private Timer timerExpiracaoQrCode;
         private Timer timerConsultaCobranca;
         private DateTime expiraEm;
-        private ACBrPosPrinter aCBrPosPrinter;
+        private ACBrPosPrinter posPrinter;
 
         private bool _isCobrancaExpirado;
         private bool _isPagamentoEfetuado;
@@ -98,7 +96,7 @@ namespace VMIClientePix.ViewModel
                     break;
             };
 
-            aCBrPosPrinter = new ACBrPosPrinter();
+            posPrinter = new ACBrPosPrinter();
             ConfiguraPosPrinter();
         }
 
@@ -129,7 +127,15 @@ namespace VMIClientePix.ViewModel
             s += "</ce>" + "\n";
             s += $"<a>PAGAMENTO EFETUADO EM {Cobranca.PagoEmLocalTime.ToString(CultureInfo.CurrentCulture)}" + "\n";
             s += "</corte_total>" + "\n";
-            aCBrPosPrinter.Imprimir(s);
+
+            try
+            {
+                posPrinter.Imprimir(s);
+            }
+            catch (Exception ex)
+            {
+                _messageBox.Show("Erro ao imprimir comprovante. Cheque se a impressora está conectada corretamente e que está ligada.\n\n" + ex.Message, "Impressão De Comprovante Pix", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
         }
 
         private async void Cobranca_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -262,30 +268,28 @@ namespace VMIClientePix.ViewModel
             s += $"</fn>QR Code válido até {expiraEm.ToString(CultureInfo.CurrentCulture)}" + "\n";
             s += $"<qrcode>{Cobranca.QrCode.Qrcode}</qrcode>" + "\n";
             s += "</corte_total>" + "\n";
-            aCBrPosPrinter.Imprimir(s);
+
+            try
+            {
+                posPrinter.Imprimir(s);
+            }
+            catch (Exception ex)
+            {
+                _messageBox.Show("Erro ao imprimir QR Code. Cheque se a impressora está conectada corretamente e que está ligada.\n\n" + ex.Message, "Impressão De QR Code Pix", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
         }
 
         private void ConfiguraPosPrinter()
         {
-            aCBrPosPrinter.Config.Porta = "USB";
-            aCBrPosPrinter.Config.Modelo = ACBrPosPrinterModelo.ppEscPosEpson;
-            aCBrPosPrinter.Config.ColunasFonteNormal = 48;
-            aCBrPosPrinter.Config.EspacoEntreLinhas = 0;
-            aCBrPosPrinter.Config.LinhasBuffer = 0;
-            aCBrPosPrinter.Config.LinhasEntreCupons = 5;
-            aCBrPosPrinter.Config.ControlePorta = false;
-            aCBrPosPrinter.Config.CortaPapel = true;
-            aCBrPosPrinter.Config.TraduzirTags = true;
-            aCBrPosPrinter.Config.IgnorarTags = false;
-            aCBrPosPrinter.Config.PaginaDeCodigo = PosPaginaCodigo.pc850;
-
-            aCBrPosPrinter.Config.QrCodeConfig.Tipo = 2;
-            aCBrPosPrinter.Config.QrCodeConfig.LarguraModulo = 6;
-            aCBrPosPrinter.Config.QrCodeConfig.ErrorLevel = 0;
-
-            aCBrPosPrinter.ConfigGravar();
-
-            aCBrPosPrinter.Ativar();
+            try
+            {
+                posPrinter.ConfigLer();
+                //posPrinter.Ativar();
+            }
+            catch (Exception ex)
+            {
+                _messageBox.Show("Erro ao iniciar impressora. Cheque se a impressora está conectada corretamente e que está ligada.\n\n" + ex.Message, "Impressão De Comprovante Pix", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
         }
 
         private async void GeraESalvaQrCode()
@@ -530,7 +534,8 @@ namespace VMIClientePix.ViewModel
             if (_closeableOwner != null)
                 _closeableOwner.Close();
 
-            aCBrPosPrinter.Dispose();
+            //posPrinter.Desativar();
+            posPrinter.Dispose();
         }
     }
 }

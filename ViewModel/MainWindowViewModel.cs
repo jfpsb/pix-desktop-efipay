@@ -1,4 +1,5 @@
-﻿using Gerencianet.NETCore.SDK;
+﻿using ACBrLib.PosPrinter;
+using Gerencianet.NETCore.SDK;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NHibernate;
@@ -48,13 +49,14 @@ namespace VMIClientePix.ViewModel
 
         private void AbrirConfigImpressora(object obj)
         {
-            ConfiguracaoImpressora view = new ConfiguracaoImpressora();
+            ConfiguracoesImpressoraViewModel viewModel = new ConfiguracoesImpressoraViewModel(messageBoxService);
+            ConfiguracaoImpressora view = new ConfiguracaoImpressora() { DataContext = viewModel };
             view.ShowDialog();
         }
 
         private async void ListarCobrancas()
         {
-            Cobrancas = new ObservableCollection<Cobranca>(await daoCobranca.ListarPorDia(DateTime.Now));
+            Cobrancas = new ObservableCollection<Cobranca>(await daoCobranca.ListarPorDia(DateTime.Now.AddDays(-1)));
         }
 
         private async void AtualizarCobrancasPelaGN()
