@@ -26,10 +26,10 @@ namespace VMIClientePix.ViewModel
         private ObservableCollection<Cobranca> _cobrancas = new ObservableCollection<Cobranca>();
         private DAOCobranca daoCobranca;
         private ISession session;
-        //private HttpListener listener;
         public ICommand CriarCobrancaPixComando { get; set; }
         public ICommand ListViewLeftMouseClickComando { get; set; }
         public ICommand AtualizarListaComando { get; set; }
+        public ICommand AbrirConfigImpressoraComando { get; set; }
 
         public MainWindowViewModel()
         {
@@ -41,32 +41,15 @@ namespace VMIClientePix.ViewModel
             CriarCobrancaPixComando = new RelayCommand(CriarCobrancaPix);
             ListViewLeftMouseClickComando = new RelayCommand(ListViewLeftMouseClick);
             AtualizarListaComando = new RelayCommand(AtualizarLista);
+            AbrirConfigImpressoraComando = new RelayCommand(AbrirConfigImpressora);
             messageBoxService = new MessageBoxService();
             ListarCobrancas();
-
-            //listener = new HttpListener();
-            //listener.Prefixes.Add("http://*:6569/");
-            //listener.Start();
-            //var result = listener.BeginGetContext(new AsyncCallback(ListenerCallback), listener);
         }
 
-        private void ListenerCallback(IAsyncResult ar)
+        private void AbrirConfigImpressora(object obj)
         {
-            //HttpListener httpListener = (HttpListener)ar.AsyncState;
-            //var context = httpListener.EndGetContext(ar);
-            //var request = context.Request;
-            //var response = context.Response;
-
-            //if (request.HttpMethod == "POST")
-            //{
-            //    var rqstEncoding = request.ContentEncoding;
-            //    StreamReader reader = new StreamReader(request.InputStream, rqstEncoding);
-            //    messageBoxService.Show(reader.ReadToEnd());
-            //    request.InputStream.Close();
-            //    reader.Close();
-            //}
-
-            //listener.BeginGetContext(new AsyncCallback(ListenerCallback), listener);
+            ConfiguracaoImpressora view = new ConfiguracaoImpressora();
+            view.ShowDialog();
         }
 
         private async void ListarCobrancas()
@@ -104,6 +87,7 @@ namespace VMIClientePix.ViewModel
                     }
                     if (cobranca.Pix.Count > 0)
                         cobranca.PagoEm = cobranca.Pix[0].Horario;
+
                     cobrancasAtt.Add(cobranca);
                 }
 

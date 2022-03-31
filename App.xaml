@@ -17,7 +17,16 @@
                 <Setter Property="Padding"
                         Value="20" />
             </Style>
-            <Style TargetType="Label"
+            <Style TargetType="{x:Type Label}"
+                   BasedOn="{StaticResource Fonte}" />
+
+            <Style TargetType="{x:Type Menu}"
+                   BasedOn="{StaticResource Fonte}" />
+
+            <Style TargetType="{x:Type MenuItem}"
+                   BasedOn="{StaticResource Fonte}" />
+
+            <Style TargetType="{x:Type ComboBox}"
                    BasedOn="{StaticResource Fonte}" />
 
         </ResourceDictionary>

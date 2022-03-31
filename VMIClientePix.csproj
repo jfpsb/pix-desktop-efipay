@@ -27,6 +27,7 @@
     <None Remove="Mapas\Pix.hbm.xml" />
     <None Remove="Mapas\QRCode.hbm.xml" />
     <None Remove="Mapas\Valor.hbm.xml" />
+    <None Remove="View\Imagens\Atualizar.png" />
     <None Remove="View\Imagens\CheckMark.png" />
     <None Remove="View\Imagens\ErrorMark.png" />
   </ItemGroup>
@@ -45,6 +46,7 @@
     <EmbeddedResource Include="Mapas\Calendario.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.3.0" />
     <PackageReference Include="Gerencianet.NETCore.SDK" Version="2.0.2" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
@@ -61,6 +63,7 @@
     <ProjectReference Include="Shared\ACBrLib.Core\ACBrLib.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="View\Imagens\Atualizar.png" />
     <Resource Include="View\Imagens\CheckMark.png" />
     <Resource Include="View\Imagens\ErrorMark.png" />
   </ItemGroup>

@@ -38,6 +38,15 @@
         </Style>
     </Window.Resources>
     <DockPanel LastChildFill="True">
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Configurações"
+                      FontSize="16">
+                <MenuItem Header="Impressora"
+                          Command="{Binding AbrirConfigImpressoraComando}" />
+
+
+            </MenuItem>
+        </Menu>
         <Grid DockPanel.Dock="Bottom">
             <Button Content="Criar Cobrança Pix"
                     Style="{StaticResource ButtonAppStyle}"
