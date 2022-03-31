@@ -56,7 +56,7 @@ namespace VMIClientePix.ViewModel
 
         private async void ListarCobrancas()
         {
-            Cobrancas = new ObservableCollection<Cobranca>(await daoCobranca.ListarPorDia(DateTime.Now.AddDays(-1)));
+            Cobrancas = new ObservableCollection<Cobranca>(await daoCobranca.ListarPorDia(DateTime.Now));
         }
 
         private async void AtualizarCobrancasPelaGN()

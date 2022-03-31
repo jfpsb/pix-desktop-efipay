@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using NHibernate;
 using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Timers;
@@ -109,6 +110,7 @@ namespace VMIClientePix.ViewModel
         {
             string s = "</zera>" + "\n";
             s += "</ce>" + "\n";
+            s += "</logo>" + "\n";
             s += "<e>COMPROVANTE DE PAGAMENTO PIX</e>" + "\n";
             s += "</ae>" + "\n";
             s += "<n>RECEBEDOR<n>" + "\n";
@@ -247,6 +249,7 @@ namespace VMIClientePix.ViewModel
         {
             string s = "</zera>" + "\n";
             s += "</ce>" + "\n";
+            s += "</logo>" + "\n";
             s += "<e>PAGAMENTO PIX</e>" + "\n";
             s += "</ae>" + "\n";
             s += "<n>RECEBEDOR<n>" + "\n";
