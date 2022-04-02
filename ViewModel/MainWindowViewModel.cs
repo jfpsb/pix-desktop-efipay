@@ -31,6 +31,7 @@ namespace VMIClientePix.ViewModel
         public ICommand ListViewLeftMouseClickComando { get; set; }
         public ICommand AtualizarListaComando { get; set; }
         public ICommand AbrirConfigImpressoraComando { get; set; }
+        public ICommand ConfigCredenciaisComando { get; set; }
 
         public MainWindowViewModel()
         {
@@ -43,8 +44,16 @@ namespace VMIClientePix.ViewModel
             ListViewLeftMouseClickComando = new RelayCommand(ListViewLeftMouseClick);
             AtualizarListaComando = new RelayCommand(AtualizarLista);
             AbrirConfigImpressoraComando = new RelayCommand(AbrirConfigImpressora);
+            ConfigCredenciaisComando = new RelayCommand(ConfigCredenciais);
             messageBoxService = new MessageBoxService();
             ListarCobrancas();
+        }
+
+        private void ConfigCredenciais(object obj)
+        {
+            ConfiguraCredenciaisViewModel viewModel = new ConfiguraCredenciaisViewModel();
+            ConfigurarCredenciais view = new ConfigurarCredenciais() { DataContext = viewModel };
+            view.ShowDialog();
         }
 
         private void AbrirConfigImpressora(object obj)
@@ -113,10 +122,13 @@ namespace VMIClientePix.ViewModel
 
         private void ListViewLeftMouseClick(object obj)
         {
-            ApresentaQRCodeEDadosViewModel viewModel = new ApresentaQRCodeEDadosViewModel(session, (Cobranca)obj, new MessageBoxService());
-            ApresentaQRCodeEDados view = new ApresentaQRCodeEDados() { DataContext = viewModel };
-            view.ShowDialog();
-            ListarCobrancas();
+            if (obj != null)
+            {
+                ApresentaQRCodeEDadosViewModel viewModel = new ApresentaQRCodeEDadosViewModel(session, (Cobranca)obj, new MessageBoxService());
+                ApresentaQRCodeEDados view = new ApresentaQRCodeEDados() { DataContext = viewModel };
+                view.ShowDialog();
+                ListarCobrancas();
+            }
         }
 
         private void CriarCobrancaPix(object obj)
