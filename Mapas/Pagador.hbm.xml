@@ -12,6 +12,10 @@
 		<property name="Cpf" />
 		<property name="Cnpj" />
 		<property name="Nome" />
+		<property name="CriadoEm" />
+		<property name="ModificadoEm" />
+		<property name="DeletadoEm" />
+		<property name="Deletado" />
 	</class>
 
 </hibernate-mapping>

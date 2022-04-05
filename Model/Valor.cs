@@ -2,7 +2,7 @@
 
 namespace VMIClientePix.Model
 {
-    public class Valor : ObservableObject
+    public class Valor : AModel
     {
         private long _id;
         private double _original;

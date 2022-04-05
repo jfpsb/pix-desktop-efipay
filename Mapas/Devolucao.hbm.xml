@@ -10,6 +10,10 @@
 		<property name="RtrId" />
 		<property name="Valor" />
 		<property name="Status" />
+		<property name="CriadoEm" />
+		<property name="ModificadoEm" />
+		<property name="DeletadoEm" />
+		<property name="Deletado" />
 	</class>
 
 </hibernate-mapping>

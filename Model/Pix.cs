@@ -4,7 +4,7 @@ using VMIClientePix.Util;
 
 namespace VMIClientePix.Model
 {
-    public class Pix : ObservableObject
+    public class Pix : AModel
     {
         private string _txid;
         private Pagador _pagador;
@@ -128,7 +128,7 @@ namespace VMIClientePix.Model
         }
     }
 
-    public class Pagador : ObservableObject
+    public class Pagador : AModel
     {
         private long _id;
         private string _cpf;

@@ -2,7 +2,7 @@
 
 namespace VMIClientePix.Model
 {
-    public class Loc : ObservableObject
+    public class Loc : AModel
     {
         private int _id;
         private string _location;

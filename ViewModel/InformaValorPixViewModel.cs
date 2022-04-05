@@ -34,7 +34,8 @@ namespace VMIClientePix.ViewModel
 
         private async void GerarQRCode(object obj)
         {
-            dynamic endpoints = new Endpoints(JObject.Parse(File.ReadAllText("credentials.json")));
+
+            dynamic endpoints = new Endpoints(Credentials.GNEndpoints());
             var dados = JObject.Parse(File.ReadAllText("dados_recebedor.json"));
 
             var body = new
@@ -59,6 +60,7 @@ namespace VMIClientePix.ViewModel
 
                 if (result)
                 {
+                    _session.Refresh(cobranca);
                     ApresentaQRCodeEDadosViewModel dadosPixViewModel = new ApresentaQRCodeEDadosViewModel(_session, cobranca, new MessageBoxService(), (ICloseable)obj);
                     ApresentaQRCodeEDados view = new ApresentaQRCodeEDados()
                     {

@@ -5,7 +5,7 @@ using VMIClientePix.Util;
 
 namespace VMIClientePix.Model
 {
-    public class QRCode : ObservableObject
+    public class QRCode : AModel
     {
         private long _id;
         private string _qrcode;

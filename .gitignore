@@ -5,6 +5,7 @@ credentials.json
 dados_recebedor.json
 certificadoprod.p12
 certificadohomo.p12
+hibernateBackup.cfg.xml
 
 .vs/
 

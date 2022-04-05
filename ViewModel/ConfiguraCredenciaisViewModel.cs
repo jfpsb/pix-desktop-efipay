@@ -18,6 +18,11 @@ namespace VMIClientePix.ViewModel
         private string _userID;
         private string _password;
         private string _porta;
+        private string _hostRemoto;
+        private string _userIDRemoto;
+        private string _passwordRemoto;
+        private string _portaRemoto;
+        private string _databaseRemoto;
         private string _caminhoCertificado;
         private IMessageBoxService messageBox;
 
@@ -30,7 +35,7 @@ namespace VMIClientePix.ViewModel
             SalvarCredenciaisComando = new RelayCommand(SalvarCredenciais);
             AbrirProcurarComando = new RelayCommand(AbrirProcurar);
 
-            Porta = "3306"; //Porta comum do Mysql
+            Porta = "3306"; //Porta padrão do Mysql
         }
 
         private void AbrirProcurar(object obj)
@@ -52,42 +57,73 @@ namespace VMIClientePix.ViewModel
         {
             try
             {
-                byte[] clientIDByteArray = Encoding.Unicode.GetBytes(ClientID);
-                byte[] clientIDByteArrayEncriptado = ProtectedData.Protect(clientIDByteArray, null, DataProtectionScope.CurrentUser);
-                string clientIDEncriptado = Convert.ToBase64String(clientIDByteArrayEncriptado);
-
-                byte[] clientSecretByteArray = Encoding.Unicode.GetBytes(ClientSecret);
-                byte[] clientSecretByteArrayEncriptado = ProtectedData.Protect(clientSecretByteArray, null, DataProtectionScope.CurrentUser);
-                string clientSecretEncriptado = Convert.ToBase64String(clientSecretByteArrayEncriptado);
-
-                byte[] userIDByteArray = Encoding.Unicode.GetBytes(UserID);
-                byte[] userIDByteArrayEncriptado = ProtectedData.Protect(userIDByteArray, null, DataProtectionScope.CurrentUser);
-                string userIDEncriptado = Convert.ToBase64String(userIDByteArrayEncriptado);
-
-                byte[] passwordByteArray = Encoding.Unicode.GetBytes(Password);
-                byte[] passwordByteArrayEncriptado = ProtectedData.Protect(passwordByteArray, null, DataProtectionScope.CurrentUser);
-                string passwordEncriptado = Convert.ToBase64String(passwordByteArrayEncriptado);
-
-                var credentials_encrypted = new
+                if (!string.IsNullOrEmpty(ClientID) && !string.IsNullOrEmpty(ClientSecret))
                 {
-                    client_id = clientIDEncriptado,
-                    client_secret = clientSecretEncriptado,
-                    pix_cert = CaminhoCertificado,
-                    sandbox = false
-                };
+                    byte[] clientIDByteArray = Encoding.Unicode.GetBytes(ClientID);
+                    byte[] clientIDByteArrayEncriptado = ProtectedData.Protect(clientIDByteArray, null, DataProtectionScope.CurrentUser);
+                    string clientIDEncriptado = Convert.ToBase64String(clientIDByteArrayEncriptado);
 
-                var hibernate_local_config = new
+                    byte[] clientSecretByteArray = Encoding.Unicode.GetBytes(ClientSecret);
+                    byte[] clientSecretByteArrayEncriptado = ProtectedData.Protect(clientSecretByteArray, null, DataProtectionScope.CurrentUser);
+                    string clientSecretEncriptado = Convert.ToBase64String(clientSecretByteArrayEncriptado);
+
+                    var credentials_encrypted = new
+                    {
+                        client_id = clientIDEncriptado,
+                        client_secret = clientSecretEncriptado,
+                        pix_cert = CaminhoCertificado,
+                        sandbox = false
+                    };
+
+                    string credentials_json = JsonConvert.SerializeObject(credentials_encrypted, Formatting.Indented);
+                    File.WriteAllText("credentials_encrypted.json", credentials_json);
+                }
+
+                if (!string.IsNullOrEmpty(UserID) && !string.IsNullOrEmpty(Password))
                 {
-                    userid = userIDEncriptado,
-                    password = passwordEncriptado,
-                    porta = Porta
-                };
+                    byte[] userIDByteArray = Encoding.Unicode.GetBytes(UserID);
+                    byte[] userIDByteArrayEncriptado = ProtectedData.Protect(userIDByteArray, null, DataProtectionScope.CurrentUser);
+                    string userIDEncriptado = Convert.ToBase64String(userIDByteArrayEncriptado);
 
-                string credentials_json = JsonConvert.SerializeObject(credentials_encrypted, Formatting.Indented);
-                string hibernate_json = JsonConvert.SerializeObject(hibernate_local_config, Formatting.Indented);
+                    byte[] passwordByteArray = Encoding.Unicode.GetBytes(Password);
+                    byte[] passwordByteArrayEncriptado = ProtectedData.Protect(passwordByteArray, null, DataProtectionScope.CurrentUser);
+                    string passwordEncriptado = Convert.ToBase64String(passwordByteArrayEncriptado);
 
-                File.WriteAllText("credentials_encrypted.json", credentials_json);
-                File.WriteAllText("hibernate_config_encrypted.json", hibernate_json);
+                    var hibernate_local_config = new
+                    {
+                        server = "localhost",
+                        port = Porta,
+                        userid = userIDEncriptado,
+                        password = passwordEncriptado,
+                        database = "vmiclientepix"
+                    };
+
+                    string hibernate_json = JsonConvert.SerializeObject(hibernate_local_config, Formatting.Indented);
+                    File.WriteAllText("hibernate_config_encrypted.json", hibernate_json);
+                }
+
+                if (!string.IsNullOrEmpty(UserIDRemoto) && !string.IsNullOrEmpty(PasswordRemoto))
+                {
+                    byte[] userIDRemotoByteArray = Encoding.Unicode.GetBytes(UserIDRemoto);
+                    byte[] userIDRemotoByteArrayEncriptado = ProtectedData.Protect(userIDRemotoByteArray, null, DataProtectionScope.CurrentUser);
+                    string userIDRemotoEncriptado = Convert.ToBase64String(userIDRemotoByteArrayEncriptado);
+
+                    byte[] passwordRemotoByteArray = Encoding.Unicode.GetBytes(PasswordRemoto);
+                    byte[] passwordRemotoByteArrayEncriptado = ProtectedData.Protect(passwordRemotoByteArray, null, DataProtectionScope.CurrentUser);
+                    string passwordRemotoEncriptado = Convert.ToBase64String(passwordRemotoByteArrayEncriptado);
+
+                    var hibernate_backup_local_config = new
+                    {
+                        server = HostRemoto,
+                        port = Porta,
+                        userid = userIDRemotoEncriptado,
+                        password = passwordRemotoEncriptado,
+                        database = DatabaseRemoto
+                    };
+
+                    string hibernate_backup_json = JsonConvert.SerializeObject(hibernate_backup_local_config, Formatting.Indented);
+                    File.WriteAllText("hibernate_backup_config_encrypted.json", hibernate_backup_json);
+                }
 
                 messageBox.Show("Credenciais Salvas Com Sucesso!");
 
@@ -181,6 +217,76 @@ namespace VMIClientePix.ViewModel
             {
                 _porta = value;
                 OnPropertyChanged("Porta");
+            }
+        }
+
+        public string HostRemoto
+        {
+            get
+            {
+                return _hostRemoto;
+            }
+
+            set
+            {
+                _hostRemoto = value;
+                OnPropertyChanged("HostRemoto");
+            }
+        }
+
+        public string UserIDRemoto
+        {
+            get
+            {
+                return _userIDRemoto;
+            }
+
+            set
+            {
+                _userIDRemoto = value;
+                OnPropertyChanged("UserIDRemoto");
+            }
+        }
+
+        public string PasswordRemoto
+        {
+            get
+            {
+                return _passwordRemoto;
+            }
+
+            set
+            {
+                _passwordRemoto = value;
+                OnPropertyChanged("PasswordRemoto");
+            }
+        }
+
+        public string PortaRemoto
+        {
+            get
+            {
+                return _portaRemoto;
+            }
+
+            set
+            {
+                _portaRemoto = value;
+                OnPropertyChanged("PortaRemoto");
+            }
+        }
+
+        public string DatabaseRemoto
+        {
+            get
+            {
+                return _databaseRemoto;
+            }
+
+            set
+            {
+                _databaseRemoto = value;
+                OnPropertyChanged("DatabaseRemoto");
             }
         }
     }

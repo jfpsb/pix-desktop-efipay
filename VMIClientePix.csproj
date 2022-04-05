@@ -18,6 +18,8 @@
     <Page Remove="Shared\**" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="hibernate.cfg.xml" />
+    <None Remove="hibernateBackup.cfg.xml" />
     <None Remove="Mapas\Calendario.hbm.xml" />
     <None Remove="Mapas\Cobranca.hbm.xml" />
     <None Remove="Mapas\Devolucao.hbm.xml" />
@@ -36,6 +38,12 @@
     <Content Include="Logo.ico" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="hibernate.cfg.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="hibernateBackup.cfg.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <EmbeddedResource Include="Mapas\Pagador.hbm.xml" />
     <EmbeddedResource Include="Mapas\Horario.hbm.xml" />
     <EmbeddedResource Include="Mapas\Devolucao.hbm.xml" />
@@ -81,9 +89,6 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="dados_recebedor.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="hibernate.cfg.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

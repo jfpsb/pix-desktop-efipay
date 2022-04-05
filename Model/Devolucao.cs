@@ -3,7 +3,7 @@ using VMIClientePix.Util;
 
 namespace VMIClientePix.Model
 {
-    public class Devolucao : ObservableObject
+    public class Devolucao : AModel
     {
         private string _id;
         private Pix _pix;
@@ -97,7 +97,7 @@ namespace VMIClientePix.Model
         }
     }
 
-    public class Horario : ObservableObject
+    public class Horario : AModel
     {
         private long _id;
         private DateTime _solicitacao;

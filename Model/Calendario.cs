@@ -1,9 +1,8 @@
 ﻿using System;
-using VMIClientePix.Util;
 
 namespace VMIClientePix.Model
 {
-    public class Calendario : ObservableObject
+    public class Calendario : AModel
     {
         private long _id;
         private DateTime _criacao;

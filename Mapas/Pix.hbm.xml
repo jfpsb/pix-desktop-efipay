@@ -11,6 +11,10 @@
 		<property name="Valor" />
 		<property name="Horario" />
 		<property name="InfoPagador" />
+		<property name="CriadoEm" />
+		<property name="ModificadoEm" />
+		<property name="DeletadoEm" />
+		<property name="Deletado" />
 
 		<bag name="Devolucoes" table="devolucao" inverse="true" cascade="all-delete-orphan">
 			<key column="pix" />

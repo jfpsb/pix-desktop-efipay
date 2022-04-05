@@ -10,6 +10,10 @@
 			</generator>
 		</id>
 		<property name="Original" />
+		<property name="CriadoEm" />
+		<property name="ModificadoEm" />
+		<property name="DeletadoEm" />
+		<property name="Deletado" />
 	</class>
 
 </hibernate-mapping>

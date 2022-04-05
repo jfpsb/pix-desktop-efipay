@@ -174,7 +174,7 @@ namespace VMIClientePix.ViewModel
         {
             if (e.SignalTime <= expiraEm)
             {
-                dynamic endpoints = new Endpoints(JObject.Parse(File.ReadAllText("credentials.json")));
+                dynamic endpoints = new Endpoints(Credentials.GNEndpoints());
 
                 var param = new
                 {
@@ -192,12 +192,11 @@ namespace VMIClientePix.ViewModel
                     Cobranca.Pix.Clear();
                     foreach (var p in cobranca.Pix)
                     {
+                        p.Cobranca = Cobranca;
                         Cobranca.Pix.Add(p);
                     }
 
                     Cobranca.Status = cobranca.Status;
-
-                    Console.WriteLine(response);
                 }
                 catch (GnException gne)
                 {
@@ -297,7 +296,7 @@ namespace VMIClientePix.ViewModel
 
         private async void GeraESalvaQrCode()
         {
-            dynamic endpoints = new Endpoints(JObject.Parse(File.ReadAllText("credentials.json")));
+            dynamic endpoints = new Endpoints(Credentials.GNEndpoints());
 
             var paramQRCode = new
             {

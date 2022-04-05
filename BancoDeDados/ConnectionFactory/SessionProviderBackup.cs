@@ -1,9 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Cfg;
 using System;
-using System.IO;
-using System.Text.RegularExpressions;
 using VMIClientePix.Util;
 
 namespace VMIClientePix.BancoDeDados.ConnectionFactory
@@ -11,17 +8,17 @@ namespace VMIClientePix.BancoDeDados.ConnectionFactory
     /// <summary>
     /// Classe estática responsável pelas Sessions necessárias para o uso de banco de dados com NHibernate.
     /// </summary>
-    public static class SessionProvider
+    public static class SessionProviderBackup
     {
         /// <summary>
         /// Variável que guardará a configuração necessária contida em hibernate.cfg.xml.
         /// </summary>
-        public static Configuration Configuration;
+        public static Configuration BackupConfiguration;
 
         /// <summary>
         /// Guarda a Session Factory criada para uso em DAO.
         /// </summary>        
-        public static ISessionFactory SessionFactory = null;
+        public static ISessionFactory BackupSessionFactory = null;
 
         /// <summary>
         /// Método responsável pela criação da Session Factory.
@@ -29,34 +26,46 @@ namespace VMIClientePix.BancoDeDados.ConnectionFactory
         /// <returns>myConfiguration.BuildSessionFactory()</returns>
         public static ISessionFactory BuildSessionFactory()
         {
-            Configuration = new Configuration();
-            Configuration.Configure();
+            BackupConfiguration = new Configuration();
+            BackupConfiguration.Configure("hibernateBackup.cfg.xml");
 
-            string connString = Credentials.HibernateLocalConnString();
+            string connString = Credentials.HibernateBackupConnString();
             const string connectionStringKey = "connection.connection_string";
-            Configuration.SetProperty(connectionStringKey, connString);
+            BackupConfiguration.SetProperty(connectionStringKey, connString);
 
-            return Configuration.BuildSessionFactory();
+            return BackupConfiguration.BuildSessionFactory();
         }
 
         public static ISession GetSession()
         {
-            if (SessionFactory == null)
+            if (BackupSessionFactory == null)
             {
-                SessionFactory = BuildSessionFactory();
+                BackupSessionFactory = BuildSessionFactory();
             }
 
-            ISession _session = SessionFactory.OpenSession();
+            ISession _session = BackupSessionFactory.OpenSession();
+
+            return _session;
+        }
+
+        public static IStatelessSession GetStatelessSession()
+        {
+            if (BackupSessionFactory == null)
+            {
+                BackupSessionFactory = BuildSessionFactory();
+            }
+
+            IStatelessSession _session = BackupSessionFactory.OpenStatelessSession();
 
             return _session;
         }
 
         public static void FechaSessionFactory()
         {
-            if (SessionFactory != null && !SessionFactory.IsClosed)
+            if (BackupSessionFactory != null && !BackupSessionFactory.IsClosed)
             {
-                SessionFactory.Close();
-                Console.WriteLine("MainSessionFactory fechada");
+                BackupSessionFactory.Close();
+                Console.WriteLine("BackupSessionFactory fechada");
             }
         }
 

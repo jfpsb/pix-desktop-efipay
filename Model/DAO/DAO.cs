@@ -3,7 +3,7 @@ using NHibernate.Criterion;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using VandaModaIntimaWpf.BancoDeDados.ConnectionFactory;
+using VMIClientePix.BancoDeDados.ConnectionFactory;
 
 namespace VMIClientePix.Model.DAO
 {

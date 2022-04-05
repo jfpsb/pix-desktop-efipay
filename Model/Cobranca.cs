@@ -5,7 +5,7 @@ using VMIClientePix.Util;
 
 namespace VMIClientePix.Model
 {
-    public class Cobranca : ObservableObject
+    public class Cobranca : AModel
     {
         private string _txid;
         private Calendario _calendario;

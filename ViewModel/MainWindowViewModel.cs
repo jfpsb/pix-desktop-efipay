@@ -1,17 +1,16 @@
-﻿using ACBrLib.PosPrinter;
-using Gerencianet.NETCore.SDK;
+﻿using Gerencianet.NETCore.SDK;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NHibernate;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
+using System.Timers;
 using System.Windows.Input;
-using VandaModaIntimaWpf.BancoDeDados.ConnectionFactory;
+using VMIClientePix.BancoDeDados.BackupRemoto;
+using VMIClientePix.BancoDeDados.ConnectionFactory;
 using VMIClientePix.Model;
 using VMIClientePix.Model.DAO;
 using VMIClientePix.Util;
@@ -27,6 +26,7 @@ namespace VMIClientePix.ViewModel
         private ObservableCollection<Cobranca> _cobrancas = new ObservableCollection<Cobranca>();
         private DAOCobranca daoCobranca;
         private ISession session;
+        private Timer timerSync;
         public ICommand CriarCobrancaPixComando { get; set; }
         public ICommand ListViewLeftMouseClickComando { get; set; }
         public ICommand AtualizarListaComando { get; set; }
@@ -47,6 +47,52 @@ namespace VMIClientePix.ViewModel
             ConfigCredenciaisComando = new RelayCommand(ConfigCredenciais);
             messageBoxService = new MessageBoxService();
             ListarCobrancas();
+
+            timerSync = new Timer(); //Inicia timer de imediato e dentro do timer configuro para rodar de 1 em 1 minuto
+            timerSync.Elapsed += TimerSync_Elapsed;
+            timerSync.AutoReset = false;
+            timerSync.Enabled = true;
+        }
+
+        private async void TimerSync_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            Console.WriteLine($"INICIO SYNC em {e.SignalTime}");
+            timerSync.Stop();
+            try
+            {
+                if (SessionProviderBackup.BackupSessionFactory == null)
+                    SessionProviderBackup.BackupSessionFactory = SessionProviderBackup.BuildSessionFactory();
+
+                File.AppendAllText("SyncLog.txt", $"\nData/Hora: {DateTime.Now}\nSessionFactory De Backup Iniciada Com Sucesso.");
+            }
+            catch (Exception ex)
+            {
+                File.AppendAllText("SyncLog.txt", $"\nOperação: CRIAÇÃO DE SESSION FACTORY BACKUP\nData/Hora: {DateTime.Now}\n{ex.Message}");
+            }
+
+            if (SessionProviderBackup.BackupSessionFactory != null)
+            {
+                await Sync.Sincronizar<Calendario>();
+                await Sync.Sincronizar<Valor>();
+                await Sync.Sincronizar<Loc>();
+                await Sync.Sincronizar<QRCode>();
+                await Sync.Sincronizar<Cobranca>();
+                await Sync.Sincronizar<Pagador>();
+                await Sync.Sincronizar<Pix>();
+                await Sync.Sincronizar<Horario>();
+                await Sync.Sincronizar<Devolucao>();
+            }
+
+            if (timerSync.Interval == 100) //Intervalo padrão
+            {
+                timerSync.Stop();
+                timerSync.Interval = 60000; //Configura para 1 minuto
+                timerSync.AutoReset = true;
+                timerSync.Start();
+            }
+
+            Console.WriteLine($"FIM SYNC em {DateTime.Now}");
+            timerSync.Start();
         }
 
         private void ConfigCredenciais(object obj)
@@ -70,7 +116,7 @@ namespace VMIClientePix.ViewModel
 
         private async void AtualizarCobrancasPelaGN()
         {
-            dynamic endpoints = new Endpoints(JObject.Parse(File.ReadAllText("credentials.json")));
+            dynamic endpoints = new Endpoints(Credentials.GNEndpoints());
 
             var param = new
             {
@@ -143,6 +189,10 @@ namespace VMIClientePix.ViewModel
         {
             SessionProvider.FechaSession(session);
             SessionProvider.FechaSessionFactory();
+            SessionProviderBackup.FechaSessionFactory();
+
+            timerSync.Stop();
+            timerSync.Dispose();
         }
 
         public ObservableCollection<Cobranca> Cobrancas
