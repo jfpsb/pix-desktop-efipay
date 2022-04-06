@@ -90,7 +90,12 @@ namespace VMIClientePix.BancoDeDados.BackupRemoto
             }
             catch (Exception ex)
             {
-                File.AppendAllText("SyncLog.txt", $"\nOperação: INSERT\nData/Hora: {DateTime.Now}\nEntidade: {typeof(E).FullName}\n{ex.Message}");
+                string msg = $"\nOperação: INSERT\nData/Hora: {DateTime.Now}\nEntidade: {typeof(E).FullName}\n{ex.Message}\n";
+                if (ex.InnerException != null)
+                {
+                    msg += $"InnerException: \n{ex.InnerException.Message}\n\n";
+                }
+                File.AppendAllText("SyncLog.txt", msg);
                 return false;
             }
 
@@ -114,7 +119,12 @@ namespace VMIClientePix.BancoDeDados.BackupRemoto
             }
             catch (Exception ex)
             {
-                File.AppendAllText("SyncLog.txt", $"\nOperação: UPDATE\nData/Hora: {DateTime.Now}\nEntidade: {typeof(E).FullName}\n{ex.Message}");
+                string msg = $"\nOperação: UPDATE\nData/Hora: {DateTime.Now}\nEntidade: {typeof(E).FullName}\n{ex.Message}\n";
+                if (ex.InnerException != null)
+                {
+                    msg += $"InnerException: \n{ex.InnerException.Message}\n\n";
+                }
+                File.AppendAllText("SyncLog.txt", msg);
                 return false;
             }
 
