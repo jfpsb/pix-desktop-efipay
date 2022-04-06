@@ -115,7 +115,7 @@ namespace VMIClientePix.ViewModel
                     var hibernate_backup_local_config = new
                     {
                         server = HostRemoto,
-                        port = Porta,
+                        port = PortaRemoto,
                         userid = userIDRemotoEncriptado,
                         password = passwordRemotoEncriptado,
                         database = DatabaseRemoto

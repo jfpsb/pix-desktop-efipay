@@ -12,5 +12,10 @@ namespace VMIClientePix.View
         {
             InitializeComponent();
         }
+
+        private void TelaInformarValorPix_Loaded(object sender, RoutedEventArgs e)
+        {
+            TxtValor.SelectAll();
+        }
     }
 }

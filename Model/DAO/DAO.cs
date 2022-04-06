@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using VMIClientePix.BancoDeDados.ConnectionFactory;
+using VMIClientePix.Util;
 
 namespace VMIClientePix.Model.DAO
 {
@@ -28,9 +29,7 @@ namespace VMIClientePix.Model.DAO
                 catch (Exception ex)
                 {
                     await transacao.RollbackAsync();
-                    Console.WriteLine("ERRO AO INSERIR >>> " + ex.Message);
-                    if (ex.InnerException != null)
-                        Console.WriteLine("ERRO AO INSERIR >>> " + ex.InnerException.Message);
+                    Log.EscreveLogBancoLocal(ex, "inserir único");
                 }
 
                 return false;
@@ -53,9 +52,7 @@ namespace VMIClientePix.Model.DAO
                 catch (Exception ex)
                 {
                     await transacao.RollbackAsync();
-                    Console.WriteLine("ERRO AO INSERIR OU ATUALIZAR LISTA >>> " + ex.Message);
-                    if (ex.InnerException != null)
-                        Console.WriteLine("ERRO AO INSERIR OU ATUALIZAR LISTA >>> " + ex.InnerException.Message);
+                    Log.EscreveLogBancoLocal(ex, "inserir lista");
                 }
 
                 return false;
@@ -74,9 +71,7 @@ namespace VMIClientePix.Model.DAO
                 catch (Exception ex)
                 {
                     await transacao.RollbackAsync();
-                    Console.WriteLine("ERRO AO INSERIR >>> " + ex.Message);
-                    if (ex.InnerException != null)
-                        Console.WriteLine("ERRO AO INSERIR >>> " + ex.InnerException.Message);
+                    Log.EscreveLogBancoLocal(ex, "inserir ou atualizar único");
                 }
 
                 return false;
@@ -100,9 +95,7 @@ namespace VMIClientePix.Model.DAO
                 catch (Exception ex)
                 {
                     await transacao.RollbackAsync();
-                    Console.WriteLine("ERRO AO INSERIR LISTA >>> " + ex.Message);
-                    if (ex.InnerException != null)
-                        Console.WriteLine("ERRO AO INSERIR LISTA >>> " + ex.InnerException.Message);
+                    Log.EscreveLogBancoLocal(ex, "inserir ou atualizar lista");
                 }
 
                 return false;
@@ -121,7 +114,7 @@ namespace VMIClientePix.Model.DAO
                 catch (Exception ex)
                 {
                     await transacao.RollbackAsync();
-                    Console.WriteLine("ERRO AO ATUALIZAR >>> " + ex.Message);
+                    Log.EscreveLogBancoLocal(ex, "atualizar único");
                 }
 
                 return false;
@@ -140,7 +133,7 @@ namespace VMIClientePix.Model.DAO
                 catch (Exception ex)
                 {
                     await transacao.RollbackAsync();
-                    Console.WriteLine("ERRO AO FAZER MERGE >>> " + ex.Message);
+                    Log.EscreveLogBancoLocal(ex, "merge único");
                     return false;
                 }
             }
@@ -163,9 +156,7 @@ namespace VMIClientePix.Model.DAO
                 catch (Exception ex)
                 {
                     await transacao.RollbackAsync();
-                    Console.WriteLine("ERRO AO FAZER MERGE >>> " + ex.Message);
-                    if (ex.InnerException != null)
-                        Console.WriteLine("ERRO AO FAZER MERGE >>> " + ex.InnerException.Message);
+                    Log.EscreveLogBancoLocal(ex, "merge lista");
                 }
 
                 return false;
@@ -187,7 +178,7 @@ namespace VMIClientePix.Model.DAO
                 catch (Exception ex)
                 {
                     await transacao.RollbackAsync();
-                    Console.WriteLine("ERRO AO DELETAR >>> " + ex.Message);
+                    Log.EscreveLogBancoLocal(ex, "deletar único");
                 }
 
                 return false;
@@ -213,7 +204,7 @@ namespace VMIClientePix.Model.DAO
                 catch (Exception ex)
                 {
                     await transacao.RollbackAsync();
-                    Console.WriteLine("ERRO AO DELETAR >>> " + ex.Message);
+                    Log.EscreveLogBancoLocal(ex, "deletar lista");
                 }
 
                 return false;
@@ -239,7 +230,7 @@ namespace VMIClientePix.Model.DAO
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Log.EscreveLogBancoLocal(ex, "listar");
             }
 
             return null;
@@ -265,7 +256,7 @@ namespace VMIClientePix.Model.DAO
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Log.EscreveLogBancoLocal(ex, "listar");
             }
 
             return null;
@@ -289,7 +280,7 @@ namespace VMIClientePix.Model.DAO
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Log.EscreveLogBancoLocal(ex, "listar com nova session");
             }
 
             return null;

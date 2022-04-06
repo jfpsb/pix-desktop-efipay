@@ -4,11 +4,10 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NHibernate;
 using System;
-using System.Diagnostics;
-using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Timers;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using VMIClientePix.Model;
@@ -136,7 +135,7 @@ namespace VMIClientePix.ViewModel
             }
             catch (Exception ex)
             {
-                _messageBox.Show("Erro ao imprimir comprovante. Cheque se a impressora está conectada corretamente e que está ligada.\n\n" + ex.Message, "Impressão De Comprovante Pix", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                _messageBox.Show("Erro ao imprimir comprovante. Cheque se a impressora está conectada corretamente e que está ligada.\n\n" + ex.Message, "Impressão De Comprovante Pix", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -158,13 +157,9 @@ namespace VMIClientePix.ViewModel
 
                     var result = await daoCobranca.Atualizar(Cobranca);
 
-                    if (result)
+                    if (!result)
                     {
-                        Debug.WriteLine("COBRANÇA SALVA COM SUCESSO NO BANCO DE DADOS!");
-                    }
-                    else
-                    {
-                        Debug.WriteLine("ERRO AO SALVAR COBRANÇA NO BANCO DE DADOS!");
+                        _messageBox.Show($"Erro ao salvar cobrança.\nAcesse {Log.LogLocal} para mais detalhes.", "Erro ao salvar cobrança", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                 }
             }
@@ -174,7 +169,15 @@ namespace VMIClientePix.ViewModel
         {
             if (e.SignalTime <= expiraEm)
             {
-                dynamic endpoints = new Endpoints(Credentials.GNEndpoints());
+                var gnEndPoints = Credentials.GNEndpoints();
+
+                if (gnEndPoints == null)
+                {
+                    _messageBox.Show($"Erro ao recuperar credenciais da GerenciaNet.\nAcesse {Log.LogCredenciais} para mais detalhes.", "Erro em Credenciais GerenciaNet", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                dynamic endpoints = new Endpoints(gnEndPoints);
 
                 var param = new
                 {
@@ -200,8 +203,8 @@ namespace VMIClientePix.ViewModel
                 }
                 catch (GnException gne)
                 {
-                    Debug.WriteLine(gne.ErrorType);
-                    Debug.WriteLine(gne.Message);
+                    Log.EscreveLogGn(gne);
+                    _messageBox.Show($"Erro ao consultar cobrança Pix na GerenciaNet.\nAcesse {Log.LogGn} para mais detalhes.", "Erro ao consultar cobrança", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             else
@@ -296,7 +299,15 @@ namespace VMIClientePix.ViewModel
 
         private async void GeraESalvaQrCode()
         {
-            dynamic endpoints = new Endpoints(Credentials.GNEndpoints());
+            var gnEndPoints = Credentials.GNEndpoints();
+
+            if (gnEndPoints == null)
+            {
+                _messageBox.Show($"Erro ao recuperar credenciais da GerenciaNet.\nAcesse {Log.LogCredenciais} para mais detalhes.", "Erro em Credenciais GerenciaNet", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            dynamic endpoints = new Endpoints(gnEndPoints);
 
             var paramQRCode = new
             {
@@ -308,15 +319,10 @@ namespace VMIClientePix.ViewModel
                 try
                 {
                     var qrCodeGn = endpoints.PixGenerateQRCode(paramQRCode);
-
                     QRCode qrCode = new QRCode();
-
-                    // Generate QRCode Image to JPEG Format
                     JObject qrCodeJson = JObject.Parse(qrCodeGn);
-
                     qrCode.Qrcode = (string)qrCodeJson["qrcode"];
                     qrCode.ImagemQrcode = ((string)qrCodeJson["imagemQrcode"]).Replace("data:image/png;base64,", "");
-
                     Cobranca.QrCode = qrCode;
 
                     var result = await daoCobranca.Atualizar(Cobranca);
@@ -327,15 +333,14 @@ namespace VMIClientePix.ViewModel
                     }
                     else
                     {
-                        throw new Exception("Erro Ao Salvar Dados De QRCode!");
+                        _messageBox.Show($"Erro ao salvar dados de QR Code.\nAcesse {Log.LogLocal} para mais detalhes.", "Erro ao salvar QR Code", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
 
                 }
                 catch (GnException e)
                 {
-                    _messageBox.Show($"Houve Um Erro Ao Mostrar Informações de Cobrança Pix.\n\n{e.ErrorType}\n\n{e.Message}");
-                    Debug.WriteLine(e.ErrorType);
-                    Debug.WriteLine(e.Message);
+                    Log.EscreveLogGn(e);
+                    _messageBox.Show($"Erro ao gerar QR Code na GerenciaNet.\nAcesse {Log.LogGn} para mais detalhes.", "Erro ao gerar QR Code", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 catch (Exception ex)
                 {

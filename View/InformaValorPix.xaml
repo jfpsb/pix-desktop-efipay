@@ -9,7 +9,9 @@
         Title="Informe O Valor Do Pix"
         Height="200"
         Width="450"
-        WindowStartupLocation="CenterScreen">
+        WindowStartupLocation="CenterScreen"
+        Loaded="TelaInformarValorPix_Loaded"
+        FocusManager.FocusedElement="{Binding ElementName=TxtValor}">
     <DockPanel LastChildFill="True">
         <Button DockPanel.Dock="Bottom"
                 Content="Gerar QR Code"
@@ -24,7 +26,8 @@
             <Label Content="Informe o Valor Da Transferência Pix:"
                    FontSize="20"
                    HorizontalContentAlignment="Center" />
-            <TextBox Grid.Row="1"
+            <TextBox x:Name="TxtValor"
+                     Grid.Row="1"
                      FontSize="24"
                      HorizontalContentAlignment="Center"
                      Text="{Binding ValorPix, StringFormat=C, ConverterCulture=pt-BR}" />

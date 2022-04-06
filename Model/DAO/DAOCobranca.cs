@@ -3,6 +3,7 @@ using NHibernate.Criterion;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using VMIClientePix.Util;
 
 namespace VMIClientePix.Model.DAO
 {
@@ -31,7 +32,7 @@ namespace VMIClientePix.Model.DAO
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Log.EscreveLogBancoLocal(ex, "listar em daocobranca");
             }
 
             return null;
@@ -53,7 +54,7 @@ namespace VMIClientePix.Model.DAO
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex);
+                Log.EscreveLogBancoLocal(ex, "listar por dia em daocobranca");
             }
 
             return null;

@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 using VMIClientePix.BancoDeDados.ConnectionFactory;
 using VMIClientePix.Model;
+using VMIClientePix.Util;
 
 namespace VMIClientePix.BancoDeDados.BackupRemoto
 {
@@ -25,7 +26,7 @@ namespace VMIClientePix.BancoDeDados.BackupRemoto
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"ERRO AO RECUPEAR DATAS DE BANCO REMOTO.\n{ex.Message}");
+                Console.WriteLine($"ERRO AO RECUPERAR DATAS DE BANCO REMOTO.\n{ex.Message}");
                 File.AppendAllText("SyncLog.txt", $"\nOperação: GETLASTSYNC\nData/Hora: {DateTime.Now}\nEntidade: {typeof(E).FullName}\nERRO AO RECUPEAR DATAS DE BANCO REMOTO.\n{ex.Message}");
                 return false;
             }
@@ -37,10 +38,17 @@ namespace VMIClientePix.BancoDeDados.BackupRemoto
             {
                 using (var tx = session.BeginTransaction())
                 {
-                    var criteria = session.CreateCriteria<E>();
-                    criteria.Add(Restrictions.Gt("CriadoEm", ultCriadoEm));
-                    inserts = await criteria.ListAsync<E>();
-                    await tx.CommitAsync();
+                    try
+                    {
+                        var criteria = session.CreateCriteria<E>();
+                        criteria.Add(Restrictions.Gt("CriadoEm", ultCriadoEm));
+                        inserts = await criteria.ListAsync<E>();
+                        await tx.CommitAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.EscreveLogBancoLocal(ex, "listar inserts criadoem");
+                    }
                 }
             }
 
@@ -48,10 +56,17 @@ namespace VMIClientePix.BancoDeDados.BackupRemoto
             {
                 using (var tx = session.BeginTransaction())
                 {
-                    var criteria = session.CreateCriteria<E>();
-                    criteria.Add(Restrictions.Gt("ModificadoEm", ultModificadoEm));
-                    updates = await criteria.ListAsync<E>();
-                    await tx.CommitAsync();
+                    try
+                    {
+                        var criteria = session.CreateCriteria<E>();
+                        criteria.Add(Restrictions.Gt("ModificadoEm", ultModificadoEm));
+                        updates = await criteria.ListAsync<E>();
+                        await tx.CommitAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.EscreveLogBancoLocal(ex, "listar updates criadoem");
+                    }
                 }
             }
 

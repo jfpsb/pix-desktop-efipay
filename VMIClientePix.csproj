@@ -80,7 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Update="dados_recebedor.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 </Project>

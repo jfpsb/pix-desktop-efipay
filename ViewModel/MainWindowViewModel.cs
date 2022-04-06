@@ -1,6 +1,5 @@
 ﻿using Gerencianet.NETCore.SDK;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NHibernate;
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Timers;
+using System.Windows;
 using System.Windows.Input;
 using VMIClientePix.BancoDeDados.BackupRemoto;
 using VMIClientePix.BancoDeDados.ConnectionFactory;
@@ -35,23 +35,31 @@ namespace VMIClientePix.ViewModel
 
         public MainWindowViewModel()
         {
-            SessionProvider.SessionFactory = SessionProvider.BuildSessionFactory();
-            session = SessionProvider.GetSession();
-
-            daoCobranca = new DAOCobranca(session);
-
+            messageBoxService = new MessageBoxService();
             CriarCobrancaPixComando = new RelayCommand(CriarCobrancaPix);
             ListViewLeftMouseClickComando = new RelayCommand(ListViewLeftMouseClick);
             AtualizarListaComando = new RelayCommand(AtualizarLista);
             AbrirConfigImpressoraComando = new RelayCommand(AbrirConfigImpressora);
             ConfigCredenciaisComando = new RelayCommand(ConfigCredenciais);
-            messageBoxService = new MessageBoxService();
-            ListarCobrancas();
 
-            timerSync = new Timer(); //Inicia timer de imediato e dentro do timer configuro para rodar de 1 em 1 minuto
-            timerSync.Elapsed += TimerSync_Elapsed;
-            timerSync.AutoReset = false;
-            timerSync.Enabled = true;
+            try
+            {
+                SessionProvider.SessionFactory = SessionProvider.BuildSessionFactory();
+                session = SessionProvider.GetSession();
+                daoCobranca = new DAOCobranca(session);
+
+                ListarCobrancas();
+
+                timerSync = new Timer(); //Inicia timer de imediato e dentro do timer configuro para rodar de 1 em 1 minuto
+                timerSync.Elapsed += TimerSync_Elapsed;
+                timerSync.AutoReset = false;
+                timerSync.Enabled = true;
+            }
+            catch (Exception ex)
+            {
+                Log.EscreveLogBancoLocal(ex, "criar session factory");
+                messageBoxService.Show($"Erro Ao Conectar Banco de Dados Local\nAcesse {Log.LogLocal} para mais detalhes.");
+            }
         }
 
         private async void TimerSync_Elapsed(object sender, ElapsedEventArgs e)
@@ -67,7 +75,8 @@ namespace VMIClientePix.ViewModel
             }
             catch (Exception ex)
             {
-                File.AppendAllText("SyncLog.txt", $"\nOperação: CRIAÇÃO DE SESSION FACTORY BACKUP\nData/Hora: {DateTime.Now}\n{ex.Message}");
+                File.AppendAllText("SyncLog.txt", $"\nOperação: ERRO EM CRIAÇÃO DE SESSION FACTORY DE BACKUP\nData/Hora: {DateTime.Now}\n{ex.Message}");
+                SessionProviderBackup.BackupSessionFactory = null;
             }
 
             if (SessionProviderBackup.BackupSessionFactory != null)
@@ -111,12 +120,26 @@ namespace VMIClientePix.ViewModel
 
         private async void ListarCobrancas()
         {
-            Cobrancas = new ObservableCollection<Cobranca>(await daoCobranca.ListarPorDia(DateTime.Now));
+            var cobs = await daoCobranca.ListarPorDia(DateTime.Now);
+            Cobrancas = new ObservableCollection<Cobranca>(cobs);
+
+            if (cobs == null)
+            {
+                messageBoxService.Show($"Erro ao listar cobranças.\n\nAcesse {Log.LogLocal} para mais detalhes.", "Erro ao listar cobranças", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private async void AtualizarCobrancasPelaGN()
         {
-            dynamic endpoints = new Endpoints(Credentials.GNEndpoints());
+            var gnEndPoints = Credentials.GNEndpoints();
+
+            if (gnEndPoints == null)
+            {
+                messageBoxService.Show($"Erro ao recuperar credenciais da GerenciaNet.\nAcesse {Log.LogCredenciais} para mais detalhes.", "Erro em Credenciais GerenciaNet", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            dynamic endpoints = new Endpoints(gnEndPoints);
 
             var param = new
             {
@@ -156,8 +179,8 @@ namespace VMIClientePix.ViewModel
             }
             catch (GnException e)
             {
-                Console.WriteLine(e.ErrorType);
-                Console.WriteLine(e.Message);
+                Log.EscreveLogGn(e);
+                messageBoxService.Show($"Erro ao listar cobranças da instituição GerenciaNet.\n\nAcesse {Log.LogGn} para mais detalhes.", "Erro ao consultar cobranças", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

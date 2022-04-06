@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Windows;
 using System.Windows.Input;
 using VMIClientePix.Model;
 using VMIClientePix.Model.DAO;
@@ -34,25 +35,32 @@ namespace VMIClientePix.ViewModel
 
         private async void GerarQRCode(object obj)
         {
-
-            dynamic endpoints = new Endpoints(Credentials.GNEndpoints());
-            var dados = JObject.Parse(File.ReadAllText("dados_recebedor.json"));
-
-            var body = new
-            {
-                calendario = new
-                {
-                    expiracao = 120 //2 minutos
-                },
-                valor = new
-                {
-                    original = ValorPix.ToString("F2", CultureInfo.InvariantCulture)
-                },
-                chave = (string)dados["chave"]
-            };
-
             try
             {
+                var gnEndPoints = Credentials.GNEndpoints();
+
+                if (gnEndPoints == null)
+                {
+                    messageBoxService.Show($"Erro ao recuperar credenciais da GerenciaNet.\nAcesse {Log.LogCredenciais} para mais detalhes.", "Erro em Credenciais GerenciaNet", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                dynamic endpoints = new Endpoints(gnEndPoints);
+                var dados = JObject.Parse(File.ReadAllText("dados_recebedor.json"));
+
+                var body = new
+                {
+                    calendario = new
+                    {
+                        expiracao = 120 //2 minutos
+                    },
+                    valor = new
+                    {
+                        original = ValorPix.ToString("F2", CultureInfo.InvariantCulture)
+                    },
+                    chave = (string)dados["chave"]
+                };
+
                 var cobrancaPix = endpoints.PixCreateImmediateCharge(null, body);
                 Cobranca cobranca = JsonConvert.DeserializeObject<Cobranca>(cobrancaPix);
 
@@ -68,15 +76,19 @@ namespace VMIClientePix.ViewModel
                     };
                     view.ShowDialog();
                 }
+                else
+                {
+                    messageBoxService.Show($"Erro ao criar cobrança.\nAcesse {Log.LogLocal} para mais detalhes.", "Erro ao criar cobrança", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
             catch (GnException e)
             {
-                Debug.WriteLine(e.ErrorType);
-                Debug.WriteLine(e.Message);
+                Log.EscreveLogGn(e);
+                messageBoxService.Show($"Erro ao criar cobrança Pix na GerenciaNet.\nAcesse {Log.LogGn} para mais detalhes.", "Erro ao criar cobrança", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception ex)
             {
-                messageBoxService.Show($"Não Foi Possível Criar Cobrança Pix. Cheque Sua Conexão Com A Internet.\n\n{ex.Message}", "Criar Cobrança Pix", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                messageBoxService.Show($"Não Foi Possível Criar Cobrança Pix. Cheque Sua Conexão Com A Internet.\n\n{ex.GetType().Name}\n{ex.Message}\n{ex.ToString()}", "Criar Cobrança Pix", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
         }
 
