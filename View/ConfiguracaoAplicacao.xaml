@@ -1,0 +1,72 @@
+﻿<Window x:Class="VMIClientePix.View.ConfiguracaoAplicacao"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VMIClientePix.View"
+        mc:Ignorable="d"
+        Title="Configuração da Aplicação"
+        Height="550"
+        Width="700"
+        WindowStartupLocation="CenterScreen">
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <GroupBox FontFamily="Century Gothic">
+            <GroupBox.Header>
+                <Label Content="Backup"
+                       FontWeight="Bold"
+                       FontSize="16" />
+            </GroupBox.Header>
+            <CheckBox Content="Este Cliente Realiza Backup?"
+                      FontSize="14"
+                      VerticalContentAlignment="Center"
+                      IsChecked="{Binding FazBackup}" />
+        </GroupBox>
+        <GroupBox Grid.Row="1"
+                  FontFamily="Century Gothic">
+            <GroupBox.Header>
+                <Label Content="Dados Do Recebedor Do Pix"
+                       FontWeight="Bold"
+                       FontSize="16" />
+            </GroupBox.Header>
+            <StackPanel>
+                <TextBlock TextWrapping="Wrap"
+                           FontSize="14"
+                           Text="   Preencha com os dados que irão aparecer na impressão do QR Code e comprovante de pagamento Pix e que correspondem aos dados de sua conta na GerenciaNet." />
+                <Label Content="Nome Fantasia:"
+                       FontSize="14" />
+                <TextBox FontSize="14"
+                         Text="{Binding Fantasia}" />
+                <Label Content="Razão Social:"
+                       FontSize="14" />
+                <TextBox FontSize="14"
+                         Text="{Binding RazaoSocial}" />
+                <Label Content="CNPJ:"
+                       FontSize="14" />
+                <TextBox FontSize="14"
+                         Text="{Binding Cnpj}" />
+                <Label Content="Instituição:"
+                       FontSize="14" />
+                <TextBox FontSize="14"
+                         IsEnabled="False"
+                         Text="GERENCIANET" />
+                <Label Content="Identificação De Loja:"
+                       FontSize="14" />
+                <TextBox FontSize="14"
+                         Text="{Binding Loja}" />
+                <Label Content="Chave PIX:"
+                       FontSize="14" />
+                <TextBox FontSize="14"
+                         Text="{Binding ChavePIX}" />
+            </StackPanel>
+        </GroupBox>
+        <Button Grid.Row="2"
+                Content="Salvar"
+                Style="{StaticResource ButtonAppStyle}"
+                Command="{Binding SalvaConfigComando}" />
+    </Grid>
+</Window>

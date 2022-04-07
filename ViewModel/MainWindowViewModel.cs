@@ -1,5 +1,6 @@
 ﻿using Gerencianet.NETCore.SDK;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using NHibernate;
 using System;
 using System.Collections.Generic;
@@ -32,6 +33,7 @@ namespace VMIClientePix.ViewModel
         public ICommand AtualizarListaComando { get; set; }
         public ICommand AbrirConfigImpressoraComando { get; set; }
         public ICommand ConfigCredenciaisComando { get; set; }
+        public ICommand AbrirConfigAppComando { get; set; }
 
         public MainWindowViewModel()
         {
@@ -41,6 +43,21 @@ namespace VMIClientePix.ViewModel
             AtualizarListaComando = new RelayCommand(AtualizarLista);
             AbrirConfigImpressoraComando = new RelayCommand(AbrirConfigImpressora);
             ConfigCredenciaisComando = new RelayCommand(ConfigCredenciais);
+            AbrirConfigAppComando = new RelayCommand(AbrirConfigApp);
+
+            JObject configApp = null;
+            //configApp = JObject.Parse(File.ReadAllText("Config.json"));
+            try
+            {
+                configApp = JObject.Parse(File.ReadAllText("Config.json"));
+            }
+            catch (Exception ex)
+            {
+                messageBoxService.Show($"Erro ao abrir arquivo de configurações da aplicação. Algumas funções não funcionam sem este arquivo. Certifique-se que a aplicação foi configurada.\n\n{ex.Message}",
+                    "Abrir Configurações De Aplicação",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
 
             try
             {
@@ -50,16 +67,32 @@ namespace VMIClientePix.ViewModel
 
                 ListarCobrancas();
 
-                timerSync = new Timer(); //Inicia timer de imediato e dentro do timer configuro para rodar de 1 em 1 minuto
-                timerSync.Elapsed += TimerSync_Elapsed;
-                timerSync.AutoReset = false;
-                timerSync.Enabled = true;
+                if (configApp != null)
+                {
+                    if ((bool)configApp["fazbackup"])
+                    {
+                        timerSync = new Timer(); //Inicia timer de imediato e dentro do timer configuro para rodar de 1 em 1 minuto
+                        timerSync.Elapsed += TimerSync_Elapsed;
+                        timerSync.AutoReset = false;
+                        timerSync.Enabled = true;
+                    }
+                }
             }
             catch (Exception ex)
             {
                 Log.EscreveLogBancoLocal(ex, "criar session factory");
                 messageBoxService.Show($"Erro Ao Conectar Banco de Dados Local\nAcesse {Log.LogLocal} para mais detalhes.");
             }
+        }
+
+        private void AbrirConfigApp(object obj)
+        {
+            ConfiguracaoAplicacaoViewModel viewModel = new ConfiguracaoAplicacaoViewModel(messageBoxService);
+            ConfiguracaoAplicacao view = new ConfiguracaoAplicacao
+            {
+                DataContext = viewModel
+            };
+            view.ShowDialog();
         }
 
         private async void TimerSync_Elapsed(object sender, ElapsedEventArgs e)
@@ -214,8 +247,11 @@ namespace VMIClientePix.ViewModel
             SessionProvider.FechaSessionFactory();
             SessionProviderBackup.FechaSessionFactory();
 
-            timerSync.Stop();
-            timerSync.Dispose();
+            if (timerSync != null)
+            {
+                timerSync.Stop();
+                timerSync.Dispose();
+            }
         }
 
         public ObservableCollection<Cobranca> Cobrancas

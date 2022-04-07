@@ -1,0 +1,190 @@
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
+using VMIClientePix.Util;
+using VMIClientePix.ViewModel.Services.Interfaces;
+
+namespace VMIClientePix.ViewModel
+{
+    public class ConfiguracaoAplicacaoViewModel : ObservableObject
+    {
+        private bool _fazBackup;
+        private string _fantasia;
+        private string _razaoSocial;
+        private string _cnpj;
+        private string _loja;
+        private string _chavePIX;
+
+        private IMessageBoxService messageBox;
+
+        public ICommand SalvaConfigComando { get; set; }
+
+        public ConfiguracaoAplicacaoViewModel(IMessageBoxService messageBoxService)
+        {
+            messageBox = messageBoxService;
+            SalvaConfigComando = new RelayCommand(SalvaConfig);
+
+            if (File.Exists("Config.json"))
+            {
+                var config = File.ReadAllText("Config.json");
+                JObject Jconfig = JObject.Parse(config);
+
+                FazBackup = (bool)Jconfig["fazbackup"];
+            }
+            else
+            {
+                FazBackup = true;
+            }
+
+            if (File.Exists("dados_recebedor.json"))
+            {
+                var dados = File.ReadAllText("dados_recebedor.json");
+                JObject Jdados = JObject.Parse(dados);
+
+                Fantasia = (string)Jdados["fantasia"];
+                RazaoSocial = (string)Jdados["razaosocial"];
+                Cnpj = (string)Jdados["cnpj"];
+                Loja = (string)Jdados["loja"];
+                ChavePIX = (string)Jdados["chave"];
+            }
+        }
+
+        private void SalvaConfig(object obj)
+        {
+            //Salva config.json
+            var config = new
+            {
+                fazbackup = FazBackup
+            };
+
+            var configJson = JsonConvert.SerializeObject(config, Formatting.Indented);
+
+            try
+            {
+                File.WriteAllText("Config.json", configJson);
+                messageBox.Show($"Sucesso ao salvar arquivo de configurações de aplicação.", "Salvar Configurações De Aplicação", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                messageBox.Show($"Erro ao salvar arquivo de configurações de aplicação.\n\n{ex.Message}", "Salvar Configurações De Aplicação", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+
+            if (!string.IsNullOrEmpty(ChavePIX))
+            {
+                //Salva dados recebedor
+                var dados_recebedor = new
+                {
+                    fantasia = Fantasia,
+                    razaosocial = RazaoSocial,
+                    cnpj = Cnpj,
+                    instituicao = "GERENCIANET",
+                    loja = Loja,
+                    chave = ChavePIX
+                };
+
+                var dadosJson = JsonConvert.SerializeObject(dados_recebedor, Formatting.Indented);
+
+                try
+                {
+                    File.WriteAllText("dados_recebedor.json", dadosJson);
+                    messageBox.Show($"Sucesso ao salvar dados de recebedor.", "Salvar Configurações De Aplicação", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    messageBox.Show($"Erro ao salvar  dados de recebedor.\n\n{ex.Message}", "Salvar Configurações De Aplicação", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        public string Fantasia
+        {
+            get
+            {
+                return _fantasia;
+            }
+
+            set
+            {
+                _fantasia = value;
+                OnPropertyChanged("Fantasia");
+            }
+        }
+
+        public string RazaoSocial
+        {
+            get
+            {
+                return _razaoSocial;
+            }
+
+            set
+            {
+                _razaoSocial = value;
+                OnPropertyChanged("RazaoSocial");
+            }
+        }
+
+        public string Cnpj
+        {
+            get
+            {
+                return _cnpj;
+            }
+
+            set
+            {
+                _cnpj = value;
+                OnPropertyChanged("Cnpj");
+            }
+        }
+
+        public string Loja
+        {
+            get
+            {
+                return _loja;
+            }
+
+            set
+            {
+                _loja = value;
+                OnPropertyChanged("Loja");
+            }
+        }
+
+        public string ChavePIX
+        {
+            get
+            {
+                return _chavePIX;
+            }
+
+            set
+            {
+                _chavePIX = value;
+                OnPropertyChanged("ChavePIX");
+            }
+        }
+
+        public bool FazBackup
+        {
+            get
+            {
+                return _fazBackup;
+            }
+
+            set
+            {
+                _fazBackup = value;
+                OnPropertyChanged("FazBackup");
+            }
+        }
+    }
+}

@@ -45,6 +45,8 @@
                           Command="{Binding ConfigCredenciaisComando}" />
                 <MenuItem Header="Impressora"
                           Command="{Binding AbrirConfigImpressoraComando}" />
+                <MenuItem Header="Aplicação"
+                          Command="{Binding AbrirConfigAppComando}" />
             </MenuItem>
         </Menu>
         <Grid DockPanel.Dock="Bottom">
