@@ -37,6 +37,9 @@ namespace VMIClientePix.ViewModel
 
         public MainWindowViewModel()
         {
+            VMISplashScreen telaInicial = new VMISplashScreen();
+            telaInicial.Show();
+
             messageBoxService = new MessageBoxService();
             CriarCobrancaPixComando = new RelayCommand(CriarCobrancaPix);
             ListViewLeftMouseClickComando = new RelayCommand(ListViewLeftMouseClick);
@@ -83,6 +86,8 @@ namespace VMIClientePix.ViewModel
                 Log.EscreveLogBancoLocal(ex, "criar session factory");
                 messageBoxService.Show($"Erro Ao Conectar Banco de Dados Local\nAcesse {Log.LogLocal} para mais detalhes.");
             }
+
+            telaInicial.Close();
         }
 
         private void AbrirConfigApp(object obj)

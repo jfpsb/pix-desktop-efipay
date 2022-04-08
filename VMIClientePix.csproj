@@ -33,6 +33,7 @@
     <None Remove="View\Imagens\Atualizar.png" />
     <None Remove="View\Imagens\CheckMark.png" />
     <None Remove="View\Imagens\ErrorMark.png" />
+    <None Remove="View\Imagens\SplashScreen.png" />
     <None Remove="View\Imagens\TinyLogo.bmp" />
   </ItemGroup>
   <ItemGroup>
@@ -78,6 +79,7 @@
     <Resource Include="Resources\TinyLogo.bmp">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="View\Imagens\SplashScreen.png" />
   </ItemGroup>
   <ItemGroup>
     <None Update="dados_recebedor.json">

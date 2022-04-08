@@ -47,7 +47,7 @@ namespace VMIClientePix.Util
 
                 var credentials = new
                 {
-                    server = "localhost",
+                    server = (string)encrypted["server"],
                     port = (string)encrypted["port"],
                     userid = Encoding.Unicode.GetString(ProtectedData.Unprotect(userIdEncrypted, null, DataProtectionScope.CurrentUser)),
                     password = Encoding.Unicode.GetString(ProtectedData.Unprotect(passwordEncrypted, null, DataProtectionScope.CurrentUser)),

@@ -71,7 +71,7 @@ namespace VMIClientePix.BancoDeDados.ConnectionFactory
 
         public static void FechaSession(ISession session)
         {
-            if (session.IsOpen)
+            if (session != null && session.IsOpen)
             {
                 session?.Clear();
                 session?.Dispose();
