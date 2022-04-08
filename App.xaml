@@ -9,6 +9,8 @@
                 <ResourceDictionary Source="Theme/FonteTheme.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
+            <FontFamily x:Key="GothamBold">pack://application:,,,/Fonts/#Gotham Bold</FontFamily>
+
             <Style x:Key="ButtonAppStyle"
                    TargetType="Button"
                    BasedOn="{StaticResource Fonte}">

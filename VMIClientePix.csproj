@@ -19,6 +19,9 @@
     <Page Remove="Shared\**" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Fonts\Astral Sisters.ttf" />
+    <None Remove="Fonts\GothamBold.ttf" />
+    <None Remove="Fonts\GothamBook.ttf" />
     <None Remove="hibernate.cfg.xml" />
     <None Remove="hibernateBackup.cfg.xml" />
     <None Remove="Mapas\Calendario.hbm.xml" />
@@ -73,6 +76,9 @@
     <ProjectReference Include="Shared\ACBrLib.Core\ACBrLib.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Resource Include="Fonts\Astral Sisters.ttf" />
+    <Resource Include="Fonts\GothamBold.ttf" />
+    <Resource Include="Fonts\GothamBook.ttf" />
     <Resource Include="View\Imagens\Atualizar.png" />
     <Resource Include="View\Imagens\CheckMark.png" />
     <Resource Include="View\Imagens\ErrorMark.png" />

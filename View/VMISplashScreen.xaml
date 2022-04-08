@@ -18,7 +18,7 @@
         <Label Content="carregando aplicação. aguarde"
                HorizontalContentAlignment="Center"
                FontSize="18.5"
-               FontFamily="Gotham Bold"
+               FontFamily="{StaticResource GothamBold}"
                Foreground="White" />
     </StackPanel>
 </Window>
