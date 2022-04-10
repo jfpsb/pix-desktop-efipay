@@ -36,6 +36,21 @@ namespace VMIClientePix.Util
             }
         }
 
+        public static string GetLocalHost()
+        {
+            try
+            {
+                JObject encrypted = JObject.Parse(File.ReadAllText("hibernate_config_encrypted.json"));
+                return (string)encrypted["server"];
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                new MessageBoxService().Show(ex.Message);
+                return null;
+            }
+        }
+
         public static string HibernateLocalConnString()
         {
             try

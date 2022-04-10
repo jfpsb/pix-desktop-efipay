@@ -34,6 +34,8 @@ namespace VMIClientePix.ViewModel
         public ICommand AbrirConfigImpressoraComando { get; set; }
         public ICommand ConfigCredenciaisComando { get; set; }
         public ICommand AbrirConfigAppComando { get; set; }
+        public delegate void AposSalvarCobrancaEventHandler(AposSalvarCobrancaEventArgs e);
+        public event AposSalvarCobrancaEventHandler AposSalvarCobranca;
 
         public MainWindowViewModel()
         {
@@ -47,6 +49,8 @@ namespace VMIClientePix.ViewModel
             AbrirConfigImpressoraComando = new RelayCommand(AbrirConfigImpressora);
             ConfigCredenciaisComando = new RelayCommand(ConfigCredenciais);
             AbrirConfigAppComando = new RelayCommand(AbrirConfigApp);
+
+            AposSalvarCobranca += MainWindowViewModel_AposSalvarCobranca;
 
             JObject configApp = null;
             //configApp = JObject.Parse(File.ReadAllText("Config.json"));
@@ -74,10 +78,16 @@ namespace VMIClientePix.ViewModel
                 {
                     if ((bool)configApp["fazbackup"])
                     {
-                        timerSync = new Timer(); //Inicia timer de imediato e dentro do timer configuro para rodar de 1 em 1 minuto
-                        timerSync.Elapsed += TimerSync_Elapsed;
-                        timerSync.AutoReset = false;
-                        timerSync.Enabled = true;
+                        //timerSync = new Timer(); //Inicia timer de imediato e dentro do timer configuro para rodar de 1 em 1 minuto
+                        //timerSync.Elapsed += TimerSync_Elapsed;
+                        //timerSync.AutoReset = false;
+                        //timerSync.Enabled = true;
+
+                        ComunicaoPelaRede.IniciaServidor(AposSalvarCobranca);
+                    }
+                    else
+                    {
+                        ComunicaoPelaRede.IniciaListener(AposSalvarCobranca);
                     }
                 }
             }
@@ -88,6 +98,13 @@ namespace VMIClientePix.ViewModel
             }
 
             telaInicial.Close();
+        }
+
+        private void MainWindowViewModel_AposSalvarCobranca(AposSalvarCobrancaEventArgs e)
+        {
+            var cob = session.Get<Cobranca>(e.TxIdCobranca);
+            session.Refresh(cob);
+            ListarCobrancas();
         }
 
         private void AbrirConfigApp(object obj)
@@ -159,9 +176,12 @@ namespace VMIClientePix.ViewModel
         private async void ListarCobrancas()
         {
             var cobs = await daoCobranca.ListarPorDia(DateTime.Now);
-            Cobrancas = new ObservableCollection<Cobranca>(cobs);
 
-            if (cobs == null)
+            if (cobs != null)
+            {
+                Cobrancas = new ObservableCollection<Cobranca>(cobs);
+            }
+            else
             {
                 messageBoxService.Show($"Erro ao listar cobranças.\n\nAcesse {Log.LogLocal} para mais detalhes.", "Erro ao listar cobranças", MessageBoxButton.OK, MessageBoxImage.Error);
             }
@@ -251,6 +271,7 @@ namespace VMIClientePix.ViewModel
             SessionProvider.FechaSession(session);
             SessionProvider.FechaSessionFactory();
             SessionProviderBackup.FechaSessionFactory();
+            ComunicaoPelaRede.FecharSocket();
 
             if (timerSync != null)
             {

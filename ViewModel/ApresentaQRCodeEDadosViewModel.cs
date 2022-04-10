@@ -86,7 +86,7 @@ namespace VMIClientePix.ViewModel
                         timerExpiracaoQrCode.AutoReset = true;
                         timerExpiracaoQrCode.Enabled = true;
 
-                        timerConsultaCobranca = new Timer(10000);
+                        timerConsultaCobranca = new Timer(5000);
                         timerConsultaCobranca.Elapsed += TimerConsultaCobranca_Elapsed;
                         timerConsultaCobranca.AutoReset = true;
                         timerConsultaCobranca.Enabled = true;
@@ -153,11 +153,17 @@ namespace VMIClientePix.ViewModel
                     timerExpiracaoQrCode.Stop();
                     timerExpiracaoQrCode.Dispose();
 
-                    ImprimirComprovante();
+                    //ImprimirComprovante();
 
                     var result = await daoCobranca.Atualizar(Cobranca);
 
-                    if (!result)
+                    if (result)
+                    {
+                        Cobranca.PropertyChanged -= Cobranca_PropertyChanged;
+                        _session.Refresh(Cobranca);
+                        ComunicaoPelaRede.NotificaListarCobrancas(Cobranca.Txid);
+                    }
+                    else
                     {
                         _messageBox.Show($"Erro ao salvar cobrança.\nAcesse {Log.LogLocal} para mais detalhes.", "Erro ao salvar cobrança", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
@@ -169,6 +175,8 @@ namespace VMIClientePix.ViewModel
         {
             if (e.SignalTime <= expiraEm)
             {
+                timerConsultaCobranca.Stop();
+
                 var gnEndPoints = Credentials.GNEndpoints();
 
                 if (gnEndPoints == null)
@@ -205,6 +213,15 @@ namespace VMIClientePix.ViewModel
                 {
                     Log.EscreveLogGn(gne);
                     _messageBox.Show($"Erro ao consultar cobrança Pix na GerenciaNet.\nAcesse {Log.LogGn} para mais detalhes.", "Erro ao consultar cobrança", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+
+                try
+                {
+                    timerConsultaCobranca.Start();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Timer De Consulta Foi Parado. " + ex.Message);
                 }
             }
             else
@@ -330,6 +347,8 @@ namespace VMIClientePix.ViewModel
                     if (result)
                     {
                         PopulaDados();
+                        _session.Refresh(Cobranca);
+                        ComunicaoPelaRede.NotificaListarCobrancas(Cobranca.Txid);
                     }
                     else
                     {

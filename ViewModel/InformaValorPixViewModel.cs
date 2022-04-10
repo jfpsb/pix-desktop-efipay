@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NHibernate;
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Windows;
@@ -25,6 +24,7 @@ namespace VMIClientePix.ViewModel
         private IMessageBoxService messageBoxService;
         private DAOCobranca daoCobranca;
         private ISession _session;
+
         public InformaValorPixViewModel(ISession session, IMessageBoxService messageBoxService)
         {
             _session = session;
@@ -69,6 +69,7 @@ namespace VMIClientePix.ViewModel
                 if (result)
                 {
                     _session.Refresh(cobranca);
+                    ComunicaoPelaRede.NotificaListarCobrancas(cobranca.Txid);
                     ApresentaQRCodeEDadosViewModel dadosPixViewModel = new ApresentaQRCodeEDadosViewModel(_session, cobranca, new MessageBoxService(), (ICloseable)obj);
                     ApresentaQRCodeEDados view = new ApresentaQRCodeEDados()
                     {
