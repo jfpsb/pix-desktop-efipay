@@ -42,6 +42,8 @@ namespace VMIClientePix.ViewModel
             VMISplashScreen telaInicial = new VMISplashScreen();
             telaInicial.Show();
 
+            Directory.CreateDirectory("Logs");
+
             messageBoxService = new MessageBoxService();
             CriarCobrancaPixComando = new RelayCommand(CriarCobrancaPix);
             ListViewLeftMouseClickComando = new RelayCommand(ListViewLeftMouseClick);
@@ -53,7 +55,7 @@ namespace VMIClientePix.ViewModel
             AposSalvarCobranca += MainWindowViewModel_AposSalvarCobranca;
 
             JObject configApp = null;
-            //configApp = JObject.Parse(File.ReadAllText("Config.json"));
+
             try
             {
                 configApp = JObject.Parse(File.ReadAllText("Config.json"));
@@ -69,19 +71,17 @@ namespace VMIClientePix.ViewModel
             try
             {
                 SessionProvider.SessionFactory = SessionProvider.BuildSessionFactory();
-                session = SessionProvider.GetSession();
-                daoCobranca = new DAOCobranca(session);
-
+                IniciaSessionEDAO();
                 ListarCobrancas();
 
                 if (configApp != null)
                 {
                     if ((bool)configApp["fazbackup"])
                     {
-                        //timerSync = new Timer(); //Inicia timer de imediato e dentro do timer configuro para rodar de 1 em 1 minuto
-                        //timerSync.Elapsed += TimerSync_Elapsed;
-                        //timerSync.AutoReset = false;
-                        //timerSync.Enabled = true;
+                        timerSync = new Timer(); //Inicia timer de imediato e dentro do timer configuro para rodar de 1 em 1 minuto
+                        timerSync.Elapsed += TimerSync_Elapsed;
+                        timerSync.AutoReset = false;
+                        timerSync.Enabled = true;
 
                         ComunicaoPelaRede.IniciaServidor(AposSalvarCobranca);
                     }
@@ -100,10 +100,21 @@ namespace VMIClientePix.ViewModel
             telaInicial.Close();
         }
 
-        private void MainWindowViewModel_AposSalvarCobranca(AposSalvarCobrancaEventArgs e)
+        /// <summary>
+        /// Cria nova session e recria DAOs
+        /// </summary>
+        private void IniciaSessionEDAO()
         {
-            var cob = session.Get<Cobranca>(e.TxIdCobranca);
-            session.Refresh(cob);
+            SessionProvider.FechaSession(session);
+            session = SessionProvider.GetSession();
+            daoCobranca = new DAOCobranca(session);
+            //ListarCobrancas();
+        }
+
+        private async void MainWindowViewModel_AposSalvarCobranca(AposSalvarCobrancaEventArgs e)
+        {
+            var cob = await daoCobranca.ListarPorId(e.TxIdCobranca);
+            await daoCobranca.RefreshEntidade(cob);
             ListarCobrancas();
         }
 
@@ -126,11 +137,11 @@ namespace VMIClientePix.ViewModel
                 if (SessionProviderBackup.BackupSessionFactory == null)
                     SessionProviderBackup.BackupSessionFactory = SessionProviderBackup.BuildSessionFactory();
 
-                File.AppendAllText("SyncLog.txt", $"\nData/Hora: {DateTime.Now}\nSessionFactory De Backup Iniciada Com Sucesso.");
+                File.AppendAllText(Sync.ArquivoLog, $"\nData/Hora: {DateTime.Now}\nSessionFactory De Backup Iniciada Com Sucesso.");
             }
             catch (Exception ex)
             {
-                File.AppendAllText("SyncLog.txt", $"\nOperação: ERRO EM CRIAÇÃO DE SESSION FACTORY DE BACKUP\nData/Hora: {DateTime.Now}\n{ex.Message}");
+                File.AppendAllText(Sync.ArquivoLog, $"\nOperação: ERRO EM CRIAÇÃO DE SESSION FACTORY DE BACKUP\nData/Hora: {DateTime.Now}\n{ex.Message}");
                 SessionProviderBackup.BackupSessionFactory = null;
             }
 
@@ -175,15 +186,20 @@ namespace VMIClientePix.ViewModel
 
         private async void ListarCobrancas()
         {
-            var cobs = await daoCobranca.ListarPorDia(DateTime.Now);
+            try
+            {
+                var cobs = await daoCobranca.ListarPorDia(DateTime.Now);
 
-            if (cobs != null)
-            {
-                Cobrancas = new ObservableCollection<Cobranca>(cobs);
+                if (cobs != null)
+                {
+                    await daoCobranca.RefreshEntidade(cobs);
+                    Cobrancas = new ObservableCollection<Cobranca>(cobs);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                messageBoxService.Show($"Erro ao listar cobranças.\n\nAcesse {Log.LogLocal} para mais detalhes.", "Erro ao listar cobranças", MessageBoxButton.OK, MessageBoxImage.Error);
+                messageBoxService.Show(ex.Message, "Erro ao listar cobranças", MessageBoxButton.OK, MessageBoxImage.Error);
+                IniciaSessionEDAO();
             }
         }
 
@@ -229,11 +245,19 @@ namespace VMIClientePix.ViewModel
                     cobrancasAtt.Add(cobranca);
                 }
 
-                session.Clear();
-                var result = await daoCobranca.InserirOuAtualizar(cobrancasAtt);
+                try
+                {
+                    session.Clear();
+                    var result = await daoCobranca.InserirOuAtualizar(cobrancasAtt);
 
-                if (result)
-                    ListarCobrancas();
+                    if (result)
+                        ListarCobrancas();
+                }
+                catch (Exception ex)
+                {
+                    messageBoxService.Show(ex.Message, "Erro ao listar cobranças", MessageBoxButton.OK, MessageBoxImage.Error);
+                    IniciaSessionEDAO();
+                }
             }
             catch (GnException e)
             {
@@ -251,7 +275,7 @@ namespace VMIClientePix.ViewModel
         {
             if (obj != null)
             {
-                ApresentaQRCodeEDadosViewModel viewModel = new ApresentaQRCodeEDadosViewModel(session, (Cobranca)obj, new MessageBoxService());
+                ApresentaQRCodeEDadosViewModel viewModel = new ApresentaQRCodeEDadosViewModel(((Cobranca)obj).Txid, new MessageBoxService());
                 ApresentaQRCodeEDados view = new ApresentaQRCodeEDados() { DataContext = viewModel };
                 view.ShowDialog();
                 ListarCobrancas();
@@ -260,7 +284,7 @@ namespace VMIClientePix.ViewModel
 
         private void CriarCobrancaPix(object obj)
         {
-            InformaValorPixViewModel viewModel = new InformaValorPixViewModel(session, new MessageBoxService());
+            InformaValorPixViewModel viewModel = new InformaValorPixViewModel(new MessageBoxService());
             InformaValorPix view = new InformaValorPix() { DataContext = viewModel };
             view.ShowDialog();
             ListarCobrancas();

@@ -16,6 +16,8 @@ namespace VMIClientePix.BancoDeDados.BackupRemoto
         {
         }
 
+        public static readonly string ArquivoLog = Path.Combine("Logs", "SyncLog.txt");
+
         public static async Task<bool> Sincronizar<E>() where E : AModel
         {
             DateTime ultCriadoEm, ultModificadoEm;
@@ -27,7 +29,7 @@ namespace VMIClientePix.BancoDeDados.BackupRemoto
             catch (Exception ex)
             {
                 Console.WriteLine($"ERRO AO RECUPERAR DATAS DE BANCO REMOTO.\n{ex.Message}");
-                File.AppendAllText("SyncLog.txt", $"\nOperação: GETLASTSYNC\nData/Hora: {DateTime.Now}\nEntidade: {typeof(E).FullName}\nERRO AO RECUPEAR DATAS DE BANCO REMOTO.\n{ex.Message}");
+                File.AppendAllText(ArquivoLog, $"\nOperação: GETLASTSYNC\nData/Hora: {DateTime.Now}\nEntidade: {typeof(E).FullName}\nERRO AO RECUPEAR DATAS DE BANCO REMOTO.\n{ex.Message}");
                 return false;
             }
 
@@ -95,7 +97,7 @@ namespace VMIClientePix.BancoDeDados.BackupRemoto
                 {
                     msg += $"InnerException: \n{ex.InnerException.Message}\n\n";
                 }
-                File.AppendAllText("SyncLog.txt", msg);
+                File.AppendAllText(ArquivoLog, msg);
                 return false;
             }
 
@@ -124,7 +126,7 @@ namespace VMIClientePix.BancoDeDados.BackupRemoto
                 {
                     msg += $"InnerException: \n{ex.InnerException.Message}\n\n";
                 }
-                File.AppendAllText("SyncLog.txt", msg);
+                File.AppendAllText(ArquivoLog, msg);
                 return false;
             }
 

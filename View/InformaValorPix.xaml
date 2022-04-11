@@ -11,7 +11,8 @@
         Width="450"
         WindowStartupLocation="CenterScreen"
         Loaded="TelaInformarValorPix_Loaded"
-        FocusManager.FocusedElement="{Binding ElementName=TxtValor}">
+        FocusManager.FocusedElement="{Binding ElementName=TxtValor}"
+        Closing="TelaInformarValorPix_Closing">
     <DockPanel LastChildFill="True">
         <Button DockPanel.Dock="Bottom"
                 Content="Gerar QR Code"
@@ -30,7 +31,13 @@
                      Grid.Row="1"
                      FontSize="24"
                      HorizontalContentAlignment="Center"
-                     Text="{Binding ValorPix, StringFormat=C, ConverterCulture=pt-BR}" />
+                     Text="{Binding ValorPix, StringFormat=C, ConverterCulture=pt-BR}">
+                <TextBox.InputBindings>
+                    <KeyBinding Key="Return"
+                                Command="{Binding GerarQRCodeComando}"
+                                CommandParameter="{Binding ElementName=TelaInformarValorPix}" />
+                </TextBox.InputBindings>
+            </TextBox>
         </Grid>
     </DockPanel>
 </Window>

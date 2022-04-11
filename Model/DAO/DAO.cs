@@ -16,7 +16,7 @@ namespace VMIClientePix.Model.DAO
             this.session = session;
         }
 
-        public virtual async Task<bool> Inserir(object objeto)
+        public virtual async Task Inserir(object objeto)
         {
             using (var transacao = session.BeginTransaction())
             {
@@ -24,15 +24,13 @@ namespace VMIClientePix.Model.DAO
                 {
                     var result = await session.SaveAsync(objeto);
                     await transacao.CommitAsync();
-                    return true;
                 }
                 catch (Exception ex)
                 {
                     await transacao.RollbackAsync();
                     Log.EscreveLogBancoLocal(ex, "inserir único");
+                    throw new Exception($"Erro ao inserir em banco de dados local. Acesse {Log.LogLocal} para mais detalhes.", ex);
                 }
-
-                return false;
             }
         }
         public virtual async Task<bool> Inserir(IList<E> objetos)
@@ -53,9 +51,8 @@ namespace VMIClientePix.Model.DAO
                 {
                     await transacao.RollbackAsync();
                     Log.EscreveLogBancoLocal(ex, "inserir lista");
+                    throw new Exception($"Erro ao inserir lista em banco de dados local. Acesse {Log.LogLocal} para mais detalhes.", ex);
                 }
-
-                return false;
             }
         }
         public virtual async Task<bool> InserirOuAtualizar(object objeto)
@@ -72,9 +69,8 @@ namespace VMIClientePix.Model.DAO
                 {
                     await transacao.RollbackAsync();
                     Log.EscreveLogBancoLocal(ex, "inserir ou atualizar único");
+                    throw new Exception($"Erro ao inserir ou atualizar em banco de dados local. Acesse {Log.LogLocal} para mais detalhes.", ex);
                 }
-
-                return false;
             }
         }
         public virtual async Task<bool> InserirOuAtualizar(IList<E> objetos)
@@ -96,12 +92,11 @@ namespace VMIClientePix.Model.DAO
                 {
                     await transacao.RollbackAsync();
                     Log.EscreveLogBancoLocal(ex, "inserir ou atualizar lista");
+                    throw new Exception($"Erro ao inserir ou atualizar lista em banco de dados local. Acesse {Log.LogLocal} para mais detalhes.", ex);
                 }
-
-                return false;
             }
         }
-        public virtual async Task<bool> Atualizar(object objeto)
+        public virtual async Task Atualizar(object objeto)
         {
             using (var transacao = session.BeginTransaction())
             {
@@ -109,15 +104,13 @@ namespace VMIClientePix.Model.DAO
                 {
                     await session.UpdateAsync(objeto);
                     await transacao.CommitAsync();
-                    return true;
                 }
                 catch (Exception ex)
                 {
                     await transacao.RollbackAsync();
                     Log.EscreveLogBancoLocal(ex, "atualizar único");
+                    throw new Exception($"Erro ao atualizar em banco de dados local. Acesse {Log.LogLocal} para mais detalhes.", ex);
                 }
-
-                return false;
             }
         }
         public virtual async Task<bool> Merge(object objeto)
@@ -134,7 +127,7 @@ namespace VMIClientePix.Model.DAO
                 {
                     await transacao.RollbackAsync();
                     Log.EscreveLogBancoLocal(ex, "merge único");
-                    return false;
+                    throw new Exception($"Erro ao realizar merge em banco de dados local. Acesse {Log.LogLocal} para mais detalhes.", ex);
                 }
             }
         }
@@ -157,9 +150,8 @@ namespace VMIClientePix.Model.DAO
                 {
                     await transacao.RollbackAsync();
                     Log.EscreveLogBancoLocal(ex, "merge lista");
+                    throw new Exception($"Erro ao realizar merge em lista em banco de dados local. Acesse {Log.LogLocal} para mais detalhes.", ex);
                 }
-
-                return false;
             }
         }
         public virtual async Task<bool> Deletar(object objeto)
@@ -168,8 +160,6 @@ namespace VMIClientePix.Model.DAO
             {
                 try
                 {
-                    //AModel model = objeto as AModel;
-                    //model.Deletado = true;
                     await session.DeleteAsync(objeto);
                     await transacao.CommitAsync();
 
@@ -179,9 +169,8 @@ namespace VMIClientePix.Model.DAO
                 {
                     await transacao.RollbackAsync();
                     Log.EscreveLogBancoLocal(ex, "deletar único");
+                    throw new Exception($"Erro ao deletar em banco de dados local. Acesse {Log.LogLocal} para mais detalhes.", ex);
                 }
-
-                return false;
             }
         }
         public virtual async Task<bool> Deletar(IList<E> objetos)
@@ -192,8 +181,6 @@ namespace VMIClientePix.Model.DAO
                 {
                     foreach (E e in objetos)
                     {
-                        //AModel model = e as AModel;
-                        //model.Deletado = true;
                         await session.DeleteAsync(e);
                     }
 
@@ -205,17 +192,17 @@ namespace VMIClientePix.Model.DAO
                 {
                     await transacao.RollbackAsync();
                     Log.EscreveLogBancoLocal(ex, "deletar lista");
+                    throw new Exception($"Erro ao deletar lista em banco de dados local. Acesse {Log.LogLocal} para mais detalhes.", ex);
                 }
-
-                return false;
             }
         }
         public virtual async Task<IList<E>> Listar(string orderBy = null)
         {
-            try
+            using (ITransaction tx = session.BeginTransaction())
             {
-                using (ITransaction tx = session.BeginTransaction())
+                try
                 {
+
                     var criteria = CriarCriteria();
                     if (orderBy != null)
                     {
@@ -226,14 +213,15 @@ namespace VMIClientePix.Model.DAO
                     var results = await criteria.ListAsync<E>();
                     await tx.CommitAsync();
                     return results;
+
+                }
+                catch (Exception ex)
+                {
+                    await tx.RollbackAsync();
+                    Log.EscreveLogBancoLocal(ex, "listar");
+                    throw new Exception($"Erro ao listar em banco de dados local. Acesse {Log.LogLocal} para mais detalhes.", ex);
                 }
             }
-            catch (Exception ex)
-            {
-                Log.EscreveLogBancoLocal(ex, "listar");
-            }
-
-            return null;
         }
         /// <summary>
         /// Retorna Uma Lista De Itens Baseado No Criteria Informado E Que Não Estejam Deletados
@@ -242,33 +230,36 @@ namespace VMIClientePix.Model.DAO
         /// <returns>Lista De Itens Do Tipo E</returns>
         public virtual async Task<IList<E>> Listar(ICriteria criteria)
         {
-            try
+            using (ITransaction tx = session.BeginTransaction())
             {
-                using (ITransaction tx = session.BeginTransaction())
+                try
                 {
+
                     //criteria.Add(Restrictions.Eq("Deletado", false));
                     criteria.SetCacheable(true);
                     criteria.SetCacheMode(CacheMode.Normal);
                     var results = await criteria.ListAsync<E>();
                     await tx.CommitAsync();
                     return results;
+
+                }
+                catch (Exception ex)
+                {
+                    await tx.RollbackAsync();
+                    Log.EscreveLogBancoLocal(ex, "listar");
+                    throw new Exception($"Erro ao listar em banco de dados local. Acesse {Log.LogLocal} para mais detalhes.", ex);
                 }
             }
-            catch (Exception ex)
-            {
-                Log.EscreveLogBancoLocal(ex, "listar");
-            }
-
-            return null;
         }
         public virtual async Task<IList<E>> ListarComNovaSession(ICriteria criteria)
         {
-            try
+            using (ISession session = SessionProvider.GetSession())
             {
-                using (ISession session = SessionProvider.GetSession())
+                using (ITransaction tx = session.BeginTransaction())
                 {
-                    using (ITransaction tx = session.BeginTransaction())
+                    try
                     {
+
                         //criteria.Add(Restrictions.Eq("Deletado", false));
                         criteria.SetCacheable(true);
                         criteria.SetCacheMode(CacheMode.Normal);
@@ -276,24 +267,75 @@ namespace VMIClientePix.Model.DAO
                         await tx.CommitAsync();
                         return results;
                     }
+                    catch (Exception ex)
+                    {
+                        await tx.RollbackAsync();
+                        Log.EscreveLogBancoLocal(ex, "listar com nova session");
+                        throw new Exception($"Erro ao listar com nova session em banco de dados local. Acesse {Log.LogLocal} para mais detalhes.", ex);
+                    }
                 }
             }
-            catch (Exception ex)
-            {
-                Log.EscreveLogBancoLocal(ex, "listar com nova session");
-            }
-
-            return null;
         }
         public async Task<E> ListarPorId(object id)
         {
-            return await session.GetAsync<E>(id);
+            using (ITransaction tx = session.BeginTransaction())
+            {
+                try
+                {
+                    return await session.GetAsync<E>(id);
+                }
+                catch (Exception ex)
+                {
+                    await tx.RollbackAsync();
+                    Log.EscreveLogBancoLocal(ex, "listar por id");
+                    throw new Exception($"Erro ao listar por id em banco de dados local. Acesse {Log.LogLocal} para mais detalhes.", ex);
+                }
+            }
         }
         public async Task<long> RetornaMaiorValor(string idProperty)
         {
-            var criteria = session.CreateCriteria<E>();
-            criteria.SetProjection(Projections.Max(idProperty));
-            return await criteria.UniqueResultAsync<long>();
+            using (ITransaction tx = session.BeginTransaction())
+            {
+                try
+                {
+
+                    var criteria = session.CreateCriteria<E>();
+                    criteria.SetProjection(Projections.Max(idProperty));
+                    return await criteria.UniqueResultAsync<long>();
+
+                }
+                catch (Exception ex)
+                {
+                    await tx.RollbackAsync();
+                    Log.EscreveLogBancoLocal(ex, "retorna maior valor");
+                    throw new Exception($"Erro ao retornar maior valor em banco de dados local. Acesse {Log.LogLocal} para mais detalhes.", ex);
+                }
+            }
+        }
+        public async Task RefreshEntidade(object obj)
+        {
+            try
+            {
+                await session.RefreshAsync(obj);
+            }
+            catch (Exception ex)
+            {
+                Log.EscreveLogBancoLocal(ex, "refresh");
+                throw new Exception($"Erro ao dar refresh em entidade em banco de dados local. Acesse {Log.LogLocal} para mais detalhes.", ex);
+            }
+        }
+        public async Task RefreshEntidade(IList<E> objs)
+        {
+            try
+            {
+                foreach (var obj in objs)
+                    await session.RefreshAsync(obj);
+            }
+            catch (Exception ex)
+            {
+                Log.EscreveLogBancoLocal(ex, "refresh");
+                throw new Exception($"Erro ao dar refresh em lista de entidades em banco de dados local. Acesse {Log.LogLocal} para mais detalhes.", ex);
+            }
         }
         public ICriteria CriarCriteria()
         {

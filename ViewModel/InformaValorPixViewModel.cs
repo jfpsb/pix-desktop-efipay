@@ -7,34 +7,48 @@ using System.Globalization;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using VMIClientePix.BancoDeDados.ConnectionFactory;
 using VMIClientePix.Model;
 using VMIClientePix.Model.DAO;
 using VMIClientePix.Util;
 using VMIClientePix.View;
 using VMIClientePix.View.Interfaces;
+using VMIClientePix.ViewModel.Interfaces;
 using VMIClientePix.ViewModel.Services.Concretos;
 using VMIClientePix.ViewModel.Services.Interfaces;
 
 namespace VMIClientePix.ViewModel
 {
-    public class InformaValorPixViewModel : ObservableObject
+    public class InformaValorPixViewModel : ObservableObject, IOnClosing
     {
         public ICommand GerarQRCodeComando { get; set; }
         private double _valorPix;
         private IMessageBoxService messageBoxService;
         private DAOCobranca daoCobranca;
-        private ISession _session;
+        private ISession session;
 
-        public InformaValorPixViewModel(ISession session, IMessageBoxService messageBoxService)
+        public InformaValorPixViewModel(IMessageBoxService messageBoxService)
         {
-            _session = session;
-            daoCobranca = new DAOCobranca(session);
+            IniciaSessionEDAO();
             GerarQRCodeComando = new RelayCommand(GerarQRCode);
             this.messageBoxService = messageBoxService;
         }
 
+        private void IniciaSessionEDAO()
+        {
+            SessionProvider.FechaSession(session);
+            session = SessionProvider.GetSession();
+            daoCobranca = new DAOCobranca(session);
+        }
+
         private async void GerarQRCode(object obj)
         {
+            if (ValorPix == 0)
+            {
+                messageBoxService.Show("Valor De Cobrança Pix Não Pode Ser Zero!", "Informe O Valor Do Pix", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                return;
+            }
+
             try
             {
                 var gnEndPoints = Credentials.GNEndpoints();
@@ -64,22 +78,22 @@ namespace VMIClientePix.ViewModel
                 var cobrancaPix = endpoints.PixCreateImmediateCharge(null, body);
                 Cobranca cobranca = JsonConvert.DeserializeObject<Cobranca>(cobrancaPix);
 
-                var result = await daoCobranca.Inserir(cobranca);
-
-                if (result)
+                try
                 {
-                    _session.Refresh(cobranca);
+                    await daoCobranca.Inserir(cobranca);
+                    await daoCobranca.RefreshEntidade(cobranca);
                     ComunicaoPelaRede.NotificaListarCobrancas(cobranca.Txid);
-                    ApresentaQRCodeEDadosViewModel dadosPixViewModel = new ApresentaQRCodeEDadosViewModel(_session, cobranca, new MessageBoxService(), (ICloseable)obj);
+                    ApresentaQRCodeEDadosViewModel dadosPixViewModel = new ApresentaQRCodeEDadosViewModel(cobranca.Txid, new MessageBoxService(), (ICloseable)obj);
                     ApresentaQRCodeEDados view = new ApresentaQRCodeEDados()
                     {
                         DataContext = dadosPixViewModel
                     };
                     view.ShowDialog();
                 }
-                else
+                catch (Exception ex)
                 {
-                    messageBoxService.Show($"Erro ao criar cobrança.\nAcesse {Log.LogLocal} para mais detalhes.", "Erro ao criar cobrança", MessageBoxButton.OK, MessageBoxImage.Error);
+                    messageBoxService.Show(ex.Message, "Informe O Valor Do Pix", MessageBoxButton.OK, MessageBoxImage.Error);
+                    IniciaSessionEDAO();
                 }
             }
             catch (GnException e)
@@ -91,6 +105,11 @@ namespace VMIClientePix.ViewModel
             {
                 messageBoxService.Show($"Não Foi Possível Criar Cobrança Pix. Cheque Sua Conexão Com A Internet.\n\n{ex.GetType().Name}\n{ex.Message}\n{ex.ToString()}", "Criar Cobrança Pix", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
+        }
+
+        public void OnClosing()
+        {
+            SessionProvider.FechaSession(session);
         }
 
         public double ValorPix

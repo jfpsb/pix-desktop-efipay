@@ -58,7 +58,7 @@ namespace VMIClientePix.Util
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Erro ao conectar com servidor de comunicação local. A aplicação ainda funcionará normalmente, mas sem alguns recursos.\n\n" + ex.Message, "Conexão ao Servidor de Comunicação", MessageBoxButton.OK, MessageBoxImage.Error);
+                Log.EscreveLogComunicacao(ex);
             }
         }
 

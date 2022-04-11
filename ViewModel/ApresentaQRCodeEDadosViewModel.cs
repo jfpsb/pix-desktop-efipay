@@ -10,6 +10,7 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using VMIClientePix.BancoDeDados.ConnectionFactory;
 using VMIClientePix.Model;
 using VMIClientePix.Model.DAO;
 using VMIClientePix.Util;
@@ -29,7 +30,7 @@ namespace VMIClientePix.ViewModel
         private string _nomeLoja;
         private ImageSource _imagemQrCode;
         private ICloseable _closeableOwner;
-        private ISession _session;
+        private ISession session;
         private Cobranca _cobranca;
         private IMessageBoxService _messageBox;
         private DAOCobranca daoCobranca;
@@ -46,11 +47,12 @@ namespace VMIClientePix.ViewModel
         public ICommand ImprimirQRCodeComando { get; set; }
         public ICommand ImprimirComprovanteComando { get; set; }
 
-        public ApresentaQRCodeEDadosViewModel(ISession session, Cobranca cobranca, IMessageBoxService messageBoxService, ICloseable closeableOwner = null)
+        public ApresentaQRCodeEDadosViewModel(string cobrancaId, IMessageBoxService messageBoxService, ICloseable closeableOwner = null)
         {
-            _session = session;
+
+            IniciaSessionEDAO();
+            GetCobranca(cobrancaId);
             _closeableOwner = closeableOwner;
-            Cobranca = cobranca;
             _messageBox = messageBoxService;
 
             ImprimirQRCodeComando = new RelayCommand(ImprimirQRCode, IsQRCodeValido);
@@ -79,7 +81,7 @@ namespace VMIClientePix.ViewModel
                         IsPagamentoEfetuado = false;
                         IsCobrancaExpirado = false;
 
-                        daoCobranca = new DAOCobranca(_session);
+                        daoCobranca = new DAOCobranca(session);
 
                         timerExpiracaoQrCode = new Timer(1000);
                         timerExpiracaoQrCode.Elapsed += TimerExpiracaoQrCode_Elapsed;
@@ -98,6 +100,26 @@ namespace VMIClientePix.ViewModel
 
             posPrinter = new ACBrPosPrinter();
             ConfiguraPosPrinter();
+        }
+
+        private async void GetCobranca(string cobrancaId)
+        {
+            try
+            {
+                Cobranca = await daoCobranca.ListarPorId(cobrancaId);
+            }
+            catch (Exception ex)
+            {
+                _messageBox.Show(ex.Message, "QRCode E Dados De Cobrança Pix", MessageBoxButton.OK, MessageBoxImage.Error);
+                IniciaSessionEDAO();
+            }
+        }
+
+        private void IniciaSessionEDAO()
+        {
+            SessionProvider.FechaSession(session);
+            session = SessionProvider.GetSession();
+            daoCobranca = new DAOCobranca(session);
         }
 
         private void ChamaImprimirComprovante(object obj)
@@ -153,19 +175,19 @@ namespace VMIClientePix.ViewModel
                     timerExpiracaoQrCode.Stop();
                     timerExpiracaoQrCode.Dispose();
 
-                    //ImprimirComprovante();
+                    ImprimirComprovante();
 
-                    var result = await daoCobranca.Atualizar(Cobranca);
-
-                    if (result)
+                    try
                     {
+                        await daoCobranca.Atualizar(Cobranca);
                         Cobranca.PropertyChanged -= Cobranca_PropertyChanged;
-                        _session.Refresh(Cobranca);
+                        session.Refresh(Cobranca);
                         ComunicaoPelaRede.NotificaListarCobrancas(Cobranca.Txid);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        _messageBox.Show($"Erro ao salvar cobrança.\nAcesse {Log.LogLocal} para mais detalhes.", "Erro ao salvar cobrança", MessageBoxButton.OK, MessageBoxImage.Error);
+                        _messageBox.Show(ex.Message, "QRCode E Dados De Cobrança Pix", MessageBoxButton.OK, MessageBoxImage.Error);
+                        IniciaSessionEDAO();
                     }
                 }
             }
@@ -306,7 +328,6 @@ namespace VMIClientePix.ViewModel
             try
             {
                 posPrinter.ConfigLer();
-                //posPrinter.Ativar();
             }
             catch (Exception ex)
             {
@@ -342,19 +363,18 @@ namespace VMIClientePix.ViewModel
                     qrCode.ImagemQrcode = ((string)qrCodeJson["imagemQrcode"]).Replace("data:image/png;base64,", "");
                     Cobranca.QrCode = qrCode;
 
-                    var result = await daoCobranca.Atualizar(Cobranca);
-
-                    if (result)
+                    try
                     {
+                        await daoCobranca.Atualizar(Cobranca);
                         PopulaDados();
-                        _session.Refresh(Cobranca);
+                        session.Refresh(Cobranca);
                         ComunicaoPelaRede.NotificaListarCobrancas(Cobranca.Txid);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        _messageBox.Show($"Erro ao salvar dados de QR Code.\nAcesse {Log.LogLocal} para mais detalhes.", "Erro ao salvar QR Code", MessageBoxButton.OK, MessageBoxImage.Error);
+                        _messageBox.Show(ex.Message, "QRCode E Dados De Cobrança Pix", MessageBoxButton.OK, MessageBoxImage.Error);
+                        IniciaSessionEDAO();
                     }
-
                 }
                 catch (GnException e)
                 {
@@ -560,8 +580,10 @@ namespace VMIClientePix.ViewModel
             if (_closeableOwner != null)
                 _closeableOwner.Close();
 
-            //posPrinter.Desativar();
-            posPrinter.Dispose();
+            if (posPrinter != null)
+                posPrinter.Dispose();
+
+            SessionProvider.FechaSession(session);
         }
     }
 }
