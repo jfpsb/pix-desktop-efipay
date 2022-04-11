@@ -2,6 +2,9 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 using VMIClientePix.ViewModel.Services.Concretos;
@@ -41,7 +44,24 @@ namespace VMIClientePix.Util
             try
             {
                 JObject encrypted = JObject.Parse(File.ReadAllText("hibernate_config_encrypted.json"));
-                return (string)encrypted["server"];
+                var addresses = Dns.GetHostAddresses((string)encrypted["server"]);
+
+                if (addresses != null)
+                {
+                    var ipv4 = addresses.Where(w => w.AddressFamily == AddressFamily.InterNetwork && IPAddress.IsLoopback(w) == false).ToList();
+
+                    if (ipv4.Count > 1)
+                    {
+                        throw new Exception("Mais de um IP IPV4 encontrado");
+                    }
+
+                    if (ipv4.Count == 1)
+                    {
+                        return ipv4[0].ToString();
+                    }
+                }
+
+                return null;
             }
             catch (Exception ex)
             {
