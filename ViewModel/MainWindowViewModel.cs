@@ -25,7 +25,9 @@ namespace VMIClientePix.ViewModel
     {
         private MessageBoxService messageBoxService;
         private ObservableCollection<Cobranca> _cobrancas = new ObservableCollection<Cobranca>();
+        private ObservableCollection<Pix> _listaPix = new ObservableCollection<Pix>();
         private DAOCobranca daoCobranca;
+        private DAOPix daoPix;
         private ISession session;
         private Timer timerSync;
         public ICommand CriarCobrancaPixComando { get; set; }
@@ -73,6 +75,9 @@ namespace VMIClientePix.ViewModel
                 SessionProvider.SessionFactory = SessionProvider.BuildSessionFactory();
                 IniciaSessionEDAO();
                 ListarCobrancas();
+                ListarPix();
+
+                AtualizarListaPixPelaGN();
 
                 if (configApp != null)
                 {
@@ -108,6 +113,7 @@ namespace VMIClientePix.ViewModel
             SessionProvider.FechaSession(session);
             session = SessionProvider.GetSession();
             daoCobranca = new DAOCobranca(session);
+            daoPix = new DAOPix(session);
             //ListarCobrancas();
         }
 
@@ -200,6 +206,87 @@ namespace VMIClientePix.ViewModel
             {
                 messageBoxService.Show(ex.Message, "Erro ao listar cobranças", MessageBoxButton.OK, MessageBoxImage.Error);
                 IniciaSessionEDAO();
+            }
+        }
+
+        private async void ListarPix()
+        {
+            try
+            {
+                var pix = await daoPix.ListarPorDia(DateTime.Now);
+
+                if (pix != null)
+                {
+                    //await daoPix.RefreshEntidade(pix);
+                    ListaPix = new ObservableCollection<Pix>(pix);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageBoxService.Show(ex.Message, "Erro ao listar pix", MessageBoxButton.OK, MessageBoxImage.Error);
+                IniciaSessionEDAO();
+            }
+        }
+
+        private async void AtualizarListaPixPelaGN()
+        {
+            var gnEndPoints = Credentials.GNEndpoints();
+
+            if (gnEndPoints == null)
+            {
+                messageBoxService.Show($"Erro ao recuperar credenciais da GerenciaNet.\nAcesse {Log.LogCredenciais} para mais detalhes.", "Erro em Credenciais GerenciaNet", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            dynamic endpoints = new Endpoints(gnEndPoints);
+
+            var param = new
+            {
+                inicio = JsonConvert.SerializeObject(DateTime.Now.Date.ToUniversalTime()).Replace("\"", ""),
+                fim = JsonConvert.SerializeObject(DateTime.Now.Date.AddDays(1).AddSeconds(-1).ToUniversalTime()).Replace("\"", "")
+            };
+
+            try
+            {
+                var response = endpoints.PixListReceived(param);
+                ListaPixs listaPixs = JsonConvert.DeserializeObject<ListaPixs>(response);
+                IList<Pix> pixAtt = new List<Pix>();
+
+                foreach (var pix in listaPixs.Pixs)
+                {
+                    var pixLocal = ListaPix.Where(w => w.EndToEndId == pix.EndToEndId).FirstOrDefault(); //Pix salvo no banco de dados local
+                    if (pixLocal != null)
+                    {
+                        pix.Pagador = pixLocal.Pagador;
+                        pix.Cobranca = pixLocal.Cobranca;
+                        pix.Devolucoes.Clear();
+                        foreach (var p in pixLocal.Devolucoes)
+                        {
+                            pix.Devolucoes.Add(p);
+                        }
+                    }
+
+                    pixAtt.Add(pix);
+                }
+
+                try
+                {
+                    session.Clear();
+                    var result = await daoPix.InserirOuAtualizar(pixAtt);
+
+                    if (result)
+                        ListarPix();
+                }
+                catch (Exception ex)
+                {
+                    messageBoxService.Show(ex.Message, "Erro ao listar pix", MessageBoxButton.OK, MessageBoxImage.Error);
+                    IniciaSessionEDAO();
+                }
+            }
+            catch (GnException e)
+            {
+                Log.EscreveLogGn(e);
+                messageBoxService.Show($"Erro ao listar cobranças da instituição GerenciaNet.\n\nAcesse {Log.LogGn} para mais detalhes.", "Erro ao consultar cobranças", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -315,6 +402,20 @@ namespace VMIClientePix.ViewModel
             {
                 _cobrancas = value;
                 OnPropertyChanged("Cobrancas");
+            }
+        }
+
+        public ObservableCollection<Pix> ListaPix
+        {
+            get
+            {
+                return _listaPix;
+            }
+
+            set
+            {
+                _listaPix = value;
+                OnPropertyChanged("ListaPix");
             }
         }
     }

@@ -6,7 +6,7 @@ namespace VMIClientePix.Util
 {
     public class Log
     {
-        public static readonly string LogLocal = Path.Combine("Logs, BancoLocalLog.txt");
+        public static readonly string LogLocal = Path.Combine("Logs", "BancoLocalLog.txt");
         public static readonly string LogBackup = Path.Combine("Logs", "BancoBackupLog.txt");
         public static readonly string LogGn = Path.Combine("Logs", "GnLog.txt");
         public static readonly string LogCredenciais = Path.Combine("Logs", "CredenciaisLog.txt");

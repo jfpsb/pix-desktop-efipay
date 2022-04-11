@@ -4,12 +4,13 @@
                    namespace="VMIClientePix.Model">
 
 	<class name="Pix" table="pix">
-		<id name="Txid" />
+		<id name="EndToEndId" />
 		<many-to-one name="Pagador" class="VMIClientePix.Model.Pagador" cascade="save-update" />
 		<many-to-one name="Cobranca" class="VMIClientePix.Model.Cobranca" />
-		<property name="EndToEndId" />
+		<property name="Txid" />
 		<property name="Valor" />
 		<property name="Horario" />
+		<property name="Chave" />
 		<property name="InfoPagador" />
 		<property name="CriadoEm" />
 		<property name="ModificadoEm" />

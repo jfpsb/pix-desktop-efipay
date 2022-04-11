@@ -1,20 +1,22 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using VMIClientePix.Util;
 
 namespace VMIClientePix.Model
 {
     public class Pix : AModel
     {
+        private string _endToEndId;
         private string _txid;
         private Pagador _pagador;
         private Cobranca _cobranca;
-        private string _endToEndId;
         private double _valor;
+        private string _chave;
         private DateTime _horario;
         private string _infoPagador;
         private IList<Devolucao> _devolucoes = new List<Devolucao>();
 
+        [JsonProperty(PropertyName = "txid")]
         public virtual string Txid
         {
             get
@@ -82,6 +84,15 @@ namespace VMIClientePix.Model
             {
                 _horario = value;
                 OnPropertyChanged("Horario");
+                OnPropertyChanged("HorarioLocalTime");
+            }
+        }
+
+        public virtual DateTime HorarioLocalTime
+        {
+            get
+            {
+                return Horario.ToLocalTime();
             }
         }
 
@@ -124,6 +135,20 @@ namespace VMIClientePix.Model
             {
                 _cobranca = value;
                 OnPropertyChanged("Cobranca");
+            }
+        }
+
+        public virtual string Chave
+        {
+            get
+            {
+                return _chave;
+            }
+
+            set
+            {
+                _chave = value;
+                OnPropertyChanged("Chave");
             }
         }
     }
