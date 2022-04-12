@@ -38,7 +38,7 @@ namespace VMIClientePix.Model.DAO
             }
         }
 
-        public async Task<IList<Pix>> ListarPorDia(DateTime dia)
+        public async Task<IList<Pix>> ListarPorDiaPorChave(DateTime dia, string chaveEstatica)
         {
             using (ITransaction tx = session.BeginTransaction())
             {
@@ -48,9 +48,9 @@ namespace VMIClientePix.Model.DAO
                     var criteria = CriarCriteria();
                     criteria.AddOrder(Order.Asc("Horario"));
                     criteria.Add(Restrictions.Between("Horario", dia.Date.ToUniversalTime(), dia.Date.ToUniversalTime().AddDays(1).AddSeconds(-1)));
+                    criteria.Add(Restrictions.Eq("Chave", chaveEstatica));
 
                     return await Listar(criteria);
-
                 }
                 catch (Exception ex)
                 {

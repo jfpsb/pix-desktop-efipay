@@ -73,7 +73,7 @@ namespace VMIClientePix.Model.DAO
                 }
             }
         }
-        public virtual async Task<bool> InserirOuAtualizar(IList<E> objetos)
+        public virtual async Task InserirOuAtualizar(IList<E> objetos)
         {
             using (var transacao = session.BeginTransaction())
             {
@@ -85,8 +85,6 @@ namespace VMIClientePix.Model.DAO
                     }
 
                     await transacao.CommitAsync();
-
-                    return true;
                 }
                 catch (Exception ex)
                 {

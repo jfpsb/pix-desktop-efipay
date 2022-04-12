@@ -5,6 +5,7 @@ using NHibernate;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -37,11 +38,17 @@ namespace VMIClientePix.ViewModel
         public ICommand AbrirConfigImpressoraComando { get; set; }
         public ICommand ConfigCredenciaisComando { get; set; }
         public ICommand AbrirConfigAppComando { get; set; }
+        public ICommand ConsultarRecebimentoPixComando { get; set; }
+
         public delegate void AposSalvarCobrancaEventHandler(AposSalvarCobrancaEventArgs e);
         public event AposSalvarCobrancaEventHandler AposSalvarCobranca;
 
         public MainWindowViewModel()
         {
+#if DEBUG
+            if (DesignerProperties.GetIsInDesignMode(new DependencyObject())) return;
+#endif
+
             VMISplashScreen telaInicial = new VMISplashScreen();
             telaInicial.Show();
 
@@ -54,6 +61,7 @@ namespace VMIClientePix.ViewModel
             AbrirConfigImpressoraComando = new RelayCommand(AbrirConfigImpressora);
             ConfigCredenciaisComando = new RelayCommand(ConfigCredenciais);
             AbrirConfigAppComando = new RelayCommand(AbrirConfigApp);
+            ConsultarRecebimentoPixComando = new RelayCommand(ConsultarRecebimentoPix);
 
             AposSalvarCobranca += MainWindowViewModel_AposSalvarCobranca;
 
@@ -77,7 +85,6 @@ namespace VMIClientePix.ViewModel
                 IniciaSessionEDAO();
                 ListarCobrancas();
                 ListarPix();
-
                 AtualizarListaPixPelaGN();
 
                 if (configApp != null)
@@ -104,6 +111,11 @@ namespace VMIClientePix.ViewModel
             }
 
             telaInicial.Close();
+        }
+
+        private void ConsultarRecebimentoPix(object obj)
+        {
+            AtualizarListaPixPelaGN();
         }
 
         /// <summary>
@@ -214,11 +226,11 @@ namespace VMIClientePix.ViewModel
         {
             try
             {
-                var pix = await daoPix.ListarPorDia(DateTime.Now);
+                var dados = JObject.Parse(File.ReadAllText("dados_recebedor.json"));
+                var pix = await daoPix.ListarPorDiaPorChave(DateTime.Now, (string)dados["chave_estatica"]);
 
                 if (pix != null)
                 {
-                    //await daoPix.RefreshEntidade(pix);
                     ListaPix = new ObservableCollection<Pix>(pix);
                 }
             }
@@ -232,6 +244,7 @@ namespace VMIClientePix.ViewModel
         private async void AtualizarListaPixPelaGN()
         {
             var gnEndPoints = Credentials.GNEndpoints();
+            var dados = JObject.Parse(File.ReadAllText("dados_recebedor.json"));
 
             if (gnEndPoints == null)
             {
@@ -253,7 +266,7 @@ namespace VMIClientePix.ViewModel
                 ListaPixs listaPixs = JsonConvert.DeserializeObject<ListaPixs>(response);
                 IList<Pix> pixAtt = new List<Pix>();
 
-                foreach (var pix in listaPixs.Pixs)
+                foreach (var pix in listaPixs.Pixs.Where(w => w.Chave.Equals((string)dados["chave_estatica"])))
                 {
                     var pixLocal = ListaPix.Where(w => w.EndToEndId == pix.EndToEndId).FirstOrDefault(); //Pix salvo no banco de dados local
                     if (pixLocal != null)
@@ -273,10 +286,8 @@ namespace VMIClientePix.ViewModel
                 try
                 {
                     session.Clear();
-                    var result = await daoPix.InserirOuAtualizar(pixAtt);
-
-                    if (result)
-                        ListarPix();
+                    await daoPix.InserirOuAtualizar(pixAtt);
+                    ListarPix();
                 }
                 catch (Exception ex)
                 {
@@ -336,10 +347,8 @@ namespace VMIClientePix.ViewModel
                 try
                 {
                     session.Clear();
-                    var result = await daoCobranca.InserirOuAtualizar(cobrancasAtt);
-
-                    if (result)
-                        ListarCobrancas();
+                    await daoCobranca.InserirOuAtualizar(cobrancasAtt);
+                    ListarCobrancas();
                 }
                 catch (Exception ex)
                 {

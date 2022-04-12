@@ -50,9 +50,7 @@
             </MenuItem>
         </Menu>
         <Grid DockPanel.Dock="Bottom">
-            <Button Content="Criar Cobrança Pix"
-                    Style="{StaticResource ButtonAppStyle}"
-                    Command="{Binding CriarCobrancaPixComando}" />
+
         </Grid>
         <TabControl FontSize="24"
                     FontFamily="Century Gothic"
@@ -68,6 +66,7 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <Label Content="Listando Cobranças De Hoje"
                            Language="pt-BR"
@@ -143,78 +142,90 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
+                    <Button Grid.Row="3"
+                            Grid.ColumnSpan="2"
+                            Content="Criar Cobrança Pix"
+                            Style="{StaticResource ButtonAppStyle}"
+                            Command="{Binding CriarCobrancaPixComando}" />
                 </Grid>
             </TabItem>
             <TabItem Header="Pagamentos Pix Por Chave"
                      Padding="12">
-                <ListView x:Name="ListViewListaPix"
-                          Grid.Row="2"
-                          Grid.ColumnSpan="2"
-                          HorizontalContentAlignment="Stretch"
-                          ItemsSource="{Binding ListaPix}"
-                          ScrollViewer.CanContentScroll="True">
-                    <b:Interaction.Behaviors>
-                        <local:ScrollIntoViewBehavior />
-                    </b:Interaction.Behaviors>
-                    <b:Interaction.Triggers>
-                        <b:EventTrigger EventName="MouseLeftButtonUp">
-                            <b:InvokeCommandAction Command="{Binding ListViewListaPixLeftMouseClickComando}"
-                                                   CommandParameter="{Binding ElementName=ListViewListaPix, Path=SelectedItem}" />
+                <DockPanel LastChildFill="True"
+                           Margin="5">
+                    <Button DockPanel.Dock="Bottom"
+                            Content="Consultar Recebimentos De Pix"
+                            Style="{StaticResource ButtonAppStyle}"
+                            Command="{Binding ConsultarRecebimentoPixComando}" />
+                    <ListView x:Name="ListViewListaPix"
+                              Grid.Row="2"
+                              Grid.ColumnSpan="2"
+                              HorizontalContentAlignment="Stretch"
+                              ItemsSource="{Binding ListaPix}"
+                              ScrollViewer.CanContentScroll="True">
+                        <b:Interaction.Behaviors>
+                            <local:ScrollIntoViewBehavior />
+                        </b:Interaction.Behaviors>
+                        <b:Interaction.Triggers>
+                            <b:EventTrigger EventName="MouseLeftButtonUp">
+                                <b:InvokeCommandAction Command="{Binding ListViewListaPixLeftMouseClickComando}"
+                                                       CommandParameter="{Binding ElementName=ListViewListaPix, Path=SelectedItem}" />
 
 
-                        </b:EventTrigger>
-                    </b:Interaction.Triggers>
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <Border BorderThickness="1"
-                                    BorderBrush="Black">
-                                <Grid Margin="2"
-                                      HorizontalAlignment="Stretch">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-                                    <Label ContentStringFormat="EndToEndId: {0}"
-                                           Content="{Binding EndToEndId}"
-                                           FontSize="18"
-                                           FontWeight="Bold"
-                                           Language="pt-BR" />
-                                    <Label Grid.Row="1"
-                                           ContentStringFormat="ID de Transação: {0}"
-                                           FontSize="17"
-                                           Content="{Binding Txid}" />
-                                    <Label Grid.Column="1"
-                                           Grid.RowSpan="2"
-                                           HorizontalAlignment="Right"
-                                           VerticalContentAlignment="Center"
-                                           ContentStringFormat="Valor: {0:C}"
-                                           Language="pt-BR"
-                                           Content="{Binding Valor}"
-                                           FontSize="30"
-                                           FontWeight="Bold" />
-                                    <Label Grid.Row="2"
-                                           Grid.ColumnSpan="2"
-                                           FontSize="24"
-                                           BorderThickness="1"
-                                           BorderBrush="Black"
-                                           FontWeight="Bold"
-                                           Padding="7"
-                                           Background="LightGreen"
-                                           HorizontalAlignment="Stretch"
-                                           HorizontalContentAlignment="Center"
-                                           ContentStringFormat="Pagamento Em {0:G}"
-                                           Language="pt-BR"
-                                           Content="{Binding HorarioLocalTime}" />
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
+                            </b:EventTrigger>
+                        </b:Interaction.Triggers>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderThickness="1"
+                                        BorderBrush="Black">
+                                    <Grid Margin="2"
+                                          HorizontalAlignment="Stretch">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <Label ContentStringFormat="EndToEndId: {0}"
+                                               Content="{Binding EndToEndId}"
+                                               FontSize="18"
+                                               FontWeight="Bold"
+                                               Language="pt-BR" />
+                                        <Label Grid.Row="1"
+                                               ContentStringFormat="ID de Transação: {0}"
+                                               FontSize="17"
+                                               Content="{Binding Txid}" />
+                                        <Label Grid.Column="1"
+                                               Grid.RowSpan="2"
+                                               HorizontalAlignment="Right"
+                                               VerticalContentAlignment="Center"
+                                               ContentStringFormat="Valor: {0:C}"
+                                               Language="pt-BR"
+                                               Content="{Binding Valor}"
+                                               FontSize="30"
+                                               FontWeight="Bold" />
+                                        <Label Grid.Row="2"
+                                               Grid.ColumnSpan="2"
+                                               FontSize="24"
+                                               BorderThickness="1"
+                                               BorderBrush="Black"
+                                               FontWeight="Bold"
+                                               Padding="7"
+                                               Background="LightGreen"
+                                               HorizontalAlignment="Stretch"
+                                               HorizontalContentAlignment="Center"
+                                               ContentStringFormat="Pagamento Em {0:G}"
+                                               Language="pt-BR"
+                                               Content="{Binding HorarioLocalTime}" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </DockPanel>
             </TabItem>
         </TabControl>
     </DockPanel>

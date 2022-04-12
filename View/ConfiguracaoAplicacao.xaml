@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:VMIClientePix.View"
         mc:Ignorable="d"
         Title="Configuração da Aplicação"
-        Height="550"
+        Height="575"
         Width="700"
         WindowStartupLocation="CenterScreen">
     <Grid Margin="5">
@@ -62,6 +62,10 @@
                        FontSize="14" />
                 <TextBox FontSize="14"
                          Text="{Binding ChavePIX}" />
+                <Label Content="Chave PIX Estática:"
+                       FontSize="14" />
+                <TextBox FontSize="14"
+                         Text="{Binding ChavePIXEstatica}" />
             </StackPanel>
         </GroupBox>
         <Button Grid.Row="2"

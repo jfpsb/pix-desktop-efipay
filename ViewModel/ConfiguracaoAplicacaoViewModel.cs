@@ -1,11 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using VMIClientePix.Util;
@@ -21,6 +17,7 @@ namespace VMIClientePix.ViewModel
         private string _cnpj;
         private string _loja;
         private string _chavePIX;
+        private string _chavePIXEstatica;
 
         private IMessageBoxService messageBox;
 
@@ -53,6 +50,7 @@ namespace VMIClientePix.ViewModel
                 Cnpj = (string)Jdados["cnpj"];
                 Loja = (string)Jdados["loja"];
                 ChavePIX = (string)Jdados["chave"];
+                ChavePIXEstatica = (string)Jdados["chave_estatica"];
             }
         }
 
@@ -86,7 +84,8 @@ namespace VMIClientePix.ViewModel
                     cnpj = Cnpj,
                     instituicao = "GERENCIANET",
                     loja = Loja,
-                    chave = ChavePIX
+                    chave = ChavePIX,
+                    chave_estatica = ChavePIXEstatica
                 };
 
                 var dadosJson = JsonConvert.SerializeObject(dados_recebedor, Formatting.Indented);
@@ -184,6 +183,20 @@ namespace VMIClientePix.ViewModel
             {
                 _fazBackup = value;
                 OnPropertyChanged("FazBackup");
+            }
+        }
+
+        public string ChavePIXEstatica
+        {
+            get
+            {
+                return _chavePIXEstatica;
+            }
+
+            set
+            {
+                _chavePIXEstatica = value;
+                OnPropertyChanged("ChavePIXEstatica");
             }
         }
     }
