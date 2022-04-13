@@ -6,7 +6,7 @@
 	<class name="Pix" table="pix">
 		<id name="EndToEndId" />
 		<many-to-one name="Pagador" class="VMIClientePix.Model.Pagador" cascade="save-update" />
-		<many-to-one name="Cobranca" class="VMIClientePix.Model.Cobranca" />
+		<many-to-one name="Cobranca" class="VMIClientePix.Model.Cobranca" cascade="save-update" />
 		<property name="Txid" />
 		<property name="Valor" />
 		<property name="Horario" />

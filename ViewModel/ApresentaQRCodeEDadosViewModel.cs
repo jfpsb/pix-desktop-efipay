@@ -583,6 +583,17 @@ namespace VMIClientePix.ViewModel
             if (posPrinter != null)
                 posPrinter.Dispose();
 
+            if (timerConsultaCobranca != null)
+            {
+                timerConsultaCobranca.Stop();
+                timerConsultaCobranca.Dispose();
+            }
+            if (timerExpiracaoQrCode != null)
+            {
+                timerExpiracaoQrCode.Stop();
+                timerExpiracaoQrCode.Dispose();
+            }
+
             SessionProvider.FechaSession(session);
         }
     }

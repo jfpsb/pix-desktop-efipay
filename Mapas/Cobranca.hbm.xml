@@ -6,7 +6,7 @@
 	<class name="Cobranca" table="cobranca">
 		<id name="Txid" />
 		<many-to-one name="Calendario" class="VMIClientePix.Model.Calendario" cascade="save-update" />
-		<many-to-one name="Valor" class="VMIClientePix.Model.Valor" cascade="save-update"/>
+		<many-to-one name="Valor" class="VMIClientePix.Model.Valor" cascade="save-update" />
 		<many-to-one name="Loc" class="VMIClientePix.Model.Loc" cascade="save-update"/>
 		<many-to-one name="QrCode" class="VMIClientePix.Model.QRCode" cascade="save-update"/>
 		<property name="Revisao" />

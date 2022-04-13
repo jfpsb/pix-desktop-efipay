@@ -33,7 +33,8 @@ namespace VMIClientePix.ViewModel
         private ISession session;
         private Timer timerSync;
         public ICommand CriarCobrancaPixComando { get; set; }
-        public ICommand ListViewLeftMouseClickComando { get; set; }
+        public ICommand ListViewCobrancaLeftMouseClickComando { get; set; }
+        public ICommand ListViewPixLeftMouseClickComando { get; set; }
         public ICommand AtualizarListaComando { get; set; }
         public ICommand AbrirConfigImpressoraComando { get; set; }
         public ICommand ConfigCredenciaisComando { get; set; }
@@ -56,7 +57,8 @@ namespace VMIClientePix.ViewModel
 
             messageBoxService = new MessageBoxService();
             CriarCobrancaPixComando = new RelayCommand(CriarCobrancaPix);
-            ListViewLeftMouseClickComando = new RelayCommand(ListViewLeftMouseClick);
+            ListViewCobrancaLeftMouseClickComando = new RelayCommand(ListViewLeftMouseClick);
+            ListViewPixLeftMouseClickComando = new RelayCommand(ListViewPixLeftMouseClick);
             AtualizarListaComando = new RelayCommand(AtualizarLista);
             AbrirConfigImpressoraComando = new RelayCommand(AbrirConfigImpressora);
             ConfigCredenciaisComando = new RelayCommand(ConfigCredenciais);
@@ -111,6 +113,16 @@ namespace VMIClientePix.ViewModel
             }
 
             telaInicial.Close();
+        }
+
+        private void ListViewPixLeftMouseClick(object obj)
+        {
+            if (obj != null)
+            {
+                ApresentaDadosTransfPixViewModel viewModel = new ApresentaDadosTransfPixViewModel(((Pix)obj).EndToEndId, new MessageBoxService());
+                ApresentaDadosTransfPix view = new ApresentaDadosTransfPix() { DataContext = viewModel };
+                view.ShowDialog();
+            }
         }
 
         private void ConsultarRecebimentoPix(object obj)
@@ -266,27 +278,16 @@ namespace VMIClientePix.ViewModel
                 ListaPixs listaPixs = JsonConvert.DeserializeObject<ListaPixs>(response);
                 IList<Pix> pixAtt = new List<Pix>();
 
-                foreach (var pix in listaPixs.Pixs.Where(w => w.Chave.Equals((string)dados["chave_estatica"])))
+                foreach (var pixConsulta in listaPixs.Pixs.Where(w => w.Chave.Equals((string)dados["chave_estatica"])))
                 {
-                    var pixLocal = ListaPix.Where(w => w.EndToEndId == pix.EndToEndId).FirstOrDefault(); //Pix salvo no banco de dados local
-                    if (pixLocal != null)
-                    {
-                        pix.Pagador = pixLocal.Pagador;
-                        pix.Cobranca = pixLocal.Cobranca;
-                        pix.Devolucoes.Clear();
-                        foreach (var p in pixLocal.Devolucoes)
-                        {
-                            pix.Devolucoes.Add(p);
-                        }
-                    }
-
-                    pixAtt.Add(pix);
+                    var pixLocal = await daoPix.ListarPorId(pixConsulta.EndToEndId);
+                    if (pixLocal != null) continue; //Não insere pix que já existem no banco local
+                    pixAtt.Add(pixConsulta); //Novo pix para inserir no banco
                 }
 
                 try
                 {
-                    session.Clear();
-                    await daoPix.InserirOuAtualizar(pixAtt);
+                    await daoPix.Inserir(pixAtt);
                     ListarPix();
                 }
                 catch (Exception ex)
@@ -326,27 +327,46 @@ namespace VMIClientePix.ViewModel
                 ListaCobrancas listaCobranca = JsonConvert.DeserializeObject<ListaCobrancas>(response);
                 IList<Cobranca> cobrancasAtt = new List<Cobranca>();
 
-                foreach (var cobranca in listaCobranca.Cobrancas)
+                foreach (var cobrancaConsulta in listaCobranca.Cobrancas)
                 {
-                    var cobrancaLocal = Cobrancas.Where(w => w.Txid == cobranca.Txid).FirstOrDefault(); //Cobrança salva no banco de dados local
-                    if (cobrancaLocal == null) continue;
-                    cobranca.Calendario = cobrancaLocal.Calendario;
-                    cobranca.Valor = cobrancaLocal.Valor;
-                    cobranca.Loc = cobrancaLocal.Loc;
-                    cobranca.QrCode = cobrancaLocal.QrCode;
-                    foreach (var p in cobranca.Pix)
-                    {
-                        p.Cobranca = cobranca;
-                    }
-                    if (cobranca.Pix.Count > 0)
-                        cobranca.PagoEm = cobranca.Pix[0].Horario;
+                    var cobrancaLocal = await daoCobranca.ListarPorId(cobrancaConsulta.Txid);
 
-                    cobrancasAtt.Add(cobranca);
+                    //Cobrança já existe no banco local
+                    if (cobrancaLocal != null)
+                    {
+                        cobrancaLocal.Pix.Clear();
+                        foreach (var p in cobrancaConsulta.Pix)
+                        {
+                            p.Cobranca = cobrancaLocal;
+                            cobrancaLocal.Pix.Add(p);
+                        }
+
+                        cobrancaLocal.Revisao = cobrancaConsulta.Revisao;
+                        cobrancaLocal.Status = cobrancaConsulta.Status;
+                        cobrancaLocal.Chave = cobrancaConsulta.Chave;
+                        cobrancaLocal.Location = cobrancaConsulta.Location;
+
+                        if (cobrancaConsulta.Pix.Count > 0)
+                            cobrancaLocal.PagoEm = cobrancaConsulta.Pix[0].Horario;
+
+                        cobrancasAtt.Add(cobrancaLocal);
+                    }
+                    else
+                    {
+                        foreach (var p in cobrancaConsulta.Pix)
+                        {
+                            p.Cobranca = cobrancaConsulta;
+                        }
+
+                        if (cobrancaConsulta.Pix.Count > 0)
+                            cobrancaConsulta.PagoEm = cobrancaConsulta.Pix[0].Horario;
+
+                        cobrancasAtt.Add(cobrancaConsulta);
+                    }
                 }
 
                 try
                 {
-                    session.Clear();
                     await daoCobranca.InserirOuAtualizar(cobrancasAtt);
                     ListarCobrancas();
                 }

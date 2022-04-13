@@ -51,7 +51,6 @@ namespace VMIClientePix.Model.DAO
                     criteria.CreateAlias("Calendario", "Calendario");
                     criteria.AddOrder(Order.Asc("Calendario.Criacao"));
                     criteria.Add(Restrictions.Between("Calendario.Criacao", dia.Date.ToUniversalTime(), dia.Date.ToUniversalTime().AddDays(1).AddSeconds(-1)));
-
                     return await Listar(criteria);
 
                 }
