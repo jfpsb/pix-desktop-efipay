@@ -8,7 +8,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Timers;
 using System.Windows;
 using System.Windows.Input;
@@ -18,12 +17,13 @@ using VMIClientePix.Model;
 using VMIClientePix.Model.DAO;
 using VMIClientePix.Util;
 using VMIClientePix.View;
+using VMIClientePix.View.Interfaces;
 using VMIClientePix.ViewModel.Interfaces;
 using VMIClientePix.ViewModel.Services.Concretos;
 
 namespace VMIClientePix.ViewModel
 {
-    public class MainWindowViewModel : ObservableObject, IOnClosing
+    public class MainWindowViewModel : ObservableObject, IRequestClose, IOnClosing
     {
         private MessageBoxService messageBoxService;
         private ObservableCollection<Cobranca> _cobrancas = new ObservableCollection<Cobranca>();
@@ -32,9 +32,12 @@ namespace VMIClientePix.ViewModel
         private DAOPix daoPix;
         private ISession session;
         private Timer timerSync;
+        private double _totalCobrancas;
+        private double _totalTransferencias;
         public ICommand CriarCobrancaPixComando { get; set; }
         public ICommand ListViewCobrancaLeftMouseClickComando { get; set; }
         public ICommand ListViewPixLeftMouseClickComando { get; set; }
+        public ICommand ImprimirRelatorioPixComando { get; set; }
         public ICommand AtualizarListaComando { get; set; }
         public ICommand AbrirConfigImpressoraComando { get; set; }
         public ICommand ConfigCredenciaisComando { get; set; }
@@ -43,6 +46,7 @@ namespace VMIClientePix.ViewModel
 
         public delegate void AposSalvarCobrancaEventHandler(AposSalvarCobrancaEventArgs e);
         public event AposSalvarCobrancaEventHandler AposSalvarCobranca;
+        public event EventHandler<EventArgs> RequestClose;
 
         public MainWindowViewModel()
         {
@@ -59,6 +63,7 @@ namespace VMIClientePix.ViewModel
             CriarCobrancaPixComando = new RelayCommand(CriarCobrancaPix);
             ListViewCobrancaLeftMouseClickComando = new RelayCommand(ListViewLeftMouseClick);
             ListViewPixLeftMouseClickComando = new RelayCommand(ListViewPixLeftMouseClick);
+            ImprimirRelatorioPixComando = new RelayCommand(ImprimirRelatorioPix);
             AtualizarListaComando = new RelayCommand(AtualizarLista);
             AbrirConfigImpressoraComando = new RelayCommand(AbrirConfigImpressora);
             ConfigCredenciaisComando = new RelayCommand(ConfigCredenciais);
@@ -66,6 +71,7 @@ namespace VMIClientePix.ViewModel
             ConsultarRecebimentoPixComando = new RelayCommand(ConsultarRecebimentoPix);
 
             AposSalvarCobranca += MainWindowViewModel_AposSalvarCobranca;
+            PropertyChanged += MainWindowViewModel_PropertyChanged;
 
             JObject configApp = null;
 
@@ -85,8 +91,6 @@ namespace VMIClientePix.ViewModel
             {
                 SessionProvider.SessionFactory = SessionProvider.BuildSessionFactory();
                 IniciaSessionEDAO();
-                ListarCobrancas();
-                ListarPix();
                 AtualizarListaPixPelaGN();
 
                 if (configApp != null)
@@ -115,6 +119,26 @@ namespace VMIClientePix.ViewModel
             telaInicial.Close();
         }
 
+        private void MainWindowViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "Cobrancas":
+                    TotalCobrancas = Cobrancas.Where(w => w.Status.Equals("CONCLUIDA")).Sum(s => s.Valor.Original);
+                    break;
+                case "ListaPix":
+                    TotalTransferencias = ListaPix.Sum(s => s.Valor);
+                    break;
+            }
+        }
+
+        private void ImprimirRelatorioPix(object obj)
+        {
+            //Atualiza listas caso estejam desatualizadas
+            ListarCobrancas();
+            ListarPix();
+        }
+
         private void ListViewPixLeftMouseClick(object obj)
         {
             if (obj != null)
@@ -139,7 +163,16 @@ namespace VMIClientePix.ViewModel
             session = SessionProvider.GetSession();
             daoCobranca = new DAOCobranca(session);
             daoPix = new DAOPix(session);
-            //ListarCobrancas();
+            try
+            {
+                ListarCobrancas();
+                ListarPix();
+            }
+            catch (StackOverflowException ex)
+            {
+                messageBoxService.Show("Erro ao listar dados após recriação de session. A aplicação será fechada.\n\n" + ex.Message);
+                RequestClose.Invoke(this, new EventArgs());
+            }
         }
 
         private async void MainWindowViewModel_AposSalvarCobranca(AposSalvarCobrancaEventArgs e)
@@ -301,6 +334,11 @@ namespace VMIClientePix.ViewModel
                 Log.EscreveLogGn(e);
                 messageBoxService.Show($"Erro ao listar cobranças da instituição GerenciaNet.\n\nAcesse {Log.LogGn} para mais detalhes.", "Erro ao consultar cobranças", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            catch (Exception ex)
+            {
+                messageBoxService.Show(ex.Message, "Erro ao Consultar Transferências Pix", MessageBoxButton.OK, MessageBoxImage.Error);
+                IniciaSessionEDAO();
+            }
         }
 
         private async void AtualizarCobrancasPelaGN()
@@ -407,7 +445,7 @@ namespace VMIClientePix.ViewModel
             ListarCobrancas();
         }
 
-        public void OnClosing()
+        public void OnClosingFromVM()
         {
             SessionProvider.FechaSession(session);
             SessionProvider.FechaSessionFactory();
@@ -446,6 +484,34 @@ namespace VMIClientePix.ViewModel
             {
                 _listaPix = value;
                 OnPropertyChanged("ListaPix");
+            }
+        }
+
+        public double TotalCobrancas
+        {
+            get
+            {
+                return _totalCobrancas;
+            }
+
+            set
+            {
+                _totalCobrancas = value;
+                OnPropertyChanged("TotalCobrancas");
+            }
+        }
+
+        public double TotalTransferencias
+        {
+            get
+            {
+                return _totalTransferencias;
+            }
+
+            set
+            {
+                _totalTransferencias = value;
+                OnPropertyChanged("TotalTransferencias");
             }
         }
     }

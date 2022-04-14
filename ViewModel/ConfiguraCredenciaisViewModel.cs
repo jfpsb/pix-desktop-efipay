@@ -11,7 +11,7 @@ using VMIClientePix.ViewModel.Services.Interfaces;
 
 namespace VMIClientePix.ViewModel
 {
-    public class ConfiguraCredenciaisViewModel : ObservableObject
+    public class ConfiguraCredenciaisViewModel : ObservableObject, IRequestClose
     {
         private string _clientID;
         private string _clientSecret;
@@ -26,6 +26,7 @@ namespace VMIClientePix.ViewModel
         private string _caminhoCertificado;
         private IMessageBoxService messageBox;
 
+        public event EventHandler<EventArgs> RequestClose;
         public ICommand SalvarCredenciaisComando { get; set; }
         public ICommand AbrirProcurarComando { get; set; }
 
@@ -127,8 +128,7 @@ namespace VMIClientePix.ViewModel
 
                 messageBox.Show("Credenciais Salvas Com Sucesso!");
 
-                ICloseable janela = obj as ICloseable;
-                janela.Close();
+                RequestClose.Invoke(this, new EventArgs());
             }
             catch (Exception ex)
             {

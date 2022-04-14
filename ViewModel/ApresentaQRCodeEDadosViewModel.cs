@@ -29,10 +29,10 @@ namespace VMIClientePix.ViewModel
         private double _valor;
         private string _nomeLoja;
         private ImageSource _imagemQrCode;
-        private ICloseable _closeableOwner;
         private ISession session;
         private Cobranca _cobranca;
         private IMessageBoxService _messageBox;
+        private ICloseable _owner;
         private DAOCobranca daoCobranca;
         private double _segundosDesdeCriacao;
         private string _segundosAteExpiracaoEmString;
@@ -47,12 +47,12 @@ namespace VMIClientePix.ViewModel
         public ICommand ImprimirQRCodeComando { get; set; }
         public ICommand ImprimirComprovanteComando { get; set; }
 
-        public ApresentaQRCodeEDadosViewModel(string cobrancaId, IMessageBoxService messageBoxService, ICloseable closeableOwner = null)
+        public ApresentaQRCodeEDadosViewModel(string cobrancaId, IMessageBoxService messageBoxService, ICloseable owner = null)
         {
 
             IniciaSessionEDAO();
             GetCobranca(cobrancaId);
-            _closeableOwner = closeableOwner;
+            _owner = owner;
             _messageBox = messageBoxService;
 
             ImprimirQRCodeComando = new RelayCommand(ImprimirQRCode, IsQRCodeValido);
@@ -575,11 +575,8 @@ namespace VMIClientePix.ViewModel
             }
         }
 
-        public void OnClosing()
+        public void OnClosingFromVM()
         {
-            if (_closeableOwner != null)
-                _closeableOwner.Close();
-
             if (posPrinter != null)
                 posPrinter.Dispose();
 
@@ -593,6 +590,9 @@ namespace VMIClientePix.ViewModel
                 timerExpiracaoQrCode.Stop();
                 timerExpiracaoQrCode.Dispose();
             }
+
+            if (_owner != null)
+                _owner.CloseView();
 
             SessionProvider.FechaSession(session);
         }

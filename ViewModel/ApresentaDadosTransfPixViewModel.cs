@@ -91,7 +91,7 @@ namespace VMIClientePix.ViewModel
             Pix = await daoPix.ListarPorId(pixId);
         }
 
-        public void OnClosing()
+        public void OnClosingFromVM()
         {
             SessionProvider.FechaSession(session);
 

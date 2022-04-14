@@ -43,7 +43,7 @@ namespace VMIClientePix.ViewModel
 
         private async void GerarQRCode(object obj)
         {
-            if (ValorPix == 0)
+            if (ValorPix == 0.0)
             {
                 messageBoxService.Show("Valor De Cobrança Pix Não Pode Ser Zero!", "Informe O Valor Do Pix", MessageBoxButton.OK, MessageBoxImage.Exclamation);
                 return;
@@ -83,7 +83,7 @@ namespace VMIClientePix.ViewModel
                     await daoCobranca.Inserir(cobranca);
                     await daoCobranca.RefreshEntidade(cobranca);
                     ComunicaoPelaRede.NotificaListarCobrancas(cobranca.Txid);
-                    ApresentaQRCodeEDadosViewModel dadosPixViewModel = new ApresentaQRCodeEDadosViewModel(cobranca.Txid, new MessageBoxService(), (ICloseable)obj);
+                    ApresentaQRCodeEDadosViewModel dadosPixViewModel = new ApresentaQRCodeEDadosViewModel(cobranca.Txid, new MessageBoxService(), obj as ICloseable);
                     ApresentaQRCodeEDados view = new ApresentaQRCodeEDados()
                     {
                         DataContext = dadosPixViewModel
@@ -107,7 +107,7 @@ namespace VMIClientePix.ViewModel
             }
         }
 
-        public void OnClosing()
+        public void OnClosingFromVM()
         {
             SessionProvider.FechaSession(session);
         }

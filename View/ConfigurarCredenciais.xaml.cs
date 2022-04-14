@@ -7,7 +7,7 @@ namespace VMIClientePix.View
     /// <summary>
     /// Interaction logic for ConfigurarCredenciais.xaml
     /// </summary>
-    public partial class ConfigurarCredenciais : Window, ICloseable, IOpenFileDialog
+    public partial class ConfigurarCredenciais : Window, IOpenFileDialog
     {
         public ConfigurarCredenciais()
         {
@@ -24,6 +24,14 @@ namespace VMIClientePix.View
             }
 
             return null;
+        }
+
+        private void TelaConfigurarCredenciais_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is IRequestClose)
+            {
+                (DataContext as IRequestClose).RequestClose += (_, __) => this.Close();
+            }
         }
     }
 }

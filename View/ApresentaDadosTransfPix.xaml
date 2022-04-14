@@ -8,9 +8,9 @@
         Title="Dados De Transferência Pix"
         Height="425"
         Width="500"
-        Closing="Window_Closing"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize">
+        ResizeMode="NoResize"
+        Loaded="Window_Loaded">
     <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />

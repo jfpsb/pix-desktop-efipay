@@ -14,15 +14,22 @@ namespace VMIClientePix.View
             InitializeComponent();
         }
 
+        public void CloseView()
+        {
+            Close();
+        }
+
         private void TelaInformarValorPix_Loaded(object sender, RoutedEventArgs e)
         {
             TxtValor.SelectAll();
-        }
 
-        private void TelaInformarValorPix_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            var onClosingDataContext = DataContext as IOnClosing;
-            onClosingDataContext.OnClosing();
+            if (DataContext is IOnClosing)
+            {
+                Closing += (_, _) =>
+                {
+                    (DataContext as IOnClosing).OnClosingFromVM();
+                };
+            }
         }
     }
 }

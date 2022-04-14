@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using VMIClientePix.View.Interfaces;
 using VMIClientePix.ViewModel.Interfaces;
 
 namespace VMIClientePix.View
@@ -13,10 +14,15 @@ namespace VMIClientePix.View
             InitializeComponent();
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            var onClosingDataContext = DataContext as IOnClosing;
-            onClosingDataContext.OnClosing();
+            if (DataContext is IOnClosing)
+            {
+                Closing += (_, _) =>
+                {
+                    (DataContext as IOnClosing).OnClosingFromVM();
+                };
+            }
         }
     }
 }

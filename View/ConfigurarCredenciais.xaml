@@ -10,7 +10,8 @@
         Height="600"
         Width="800"
         WindowStartupLocation="CenterScreen"
-        WindowState="Maximized">
+        WindowState="Maximized"
+        Loaded="TelaConfigurarCredenciais_Loaded">
     <ScrollViewer HorizontalContentAlignment="Center">
         <Grid Margin="5"
               MaxWidth="800">

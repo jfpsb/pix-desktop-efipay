@@ -64,7 +64,6 @@ namespace VMIClientePix.BancoDeDados.ConnectionFactory
         {
             if (session != null && session.IsOpen)
             {
-                session.Clear();
                 session.Dispose();
                 Console.WriteLine($"Sessão Fechada");
             }

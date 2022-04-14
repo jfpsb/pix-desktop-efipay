@@ -12,7 +12,7 @@
         Width="1050"
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
-        Closing="Window_Closing">
+        Loaded="Window_Loaded">
     <Window.DataContext>
         <ViewModel:MainWindowViewModel />
     </Window.DataContext>
@@ -39,20 +39,22 @@
     </Window.Resources>
     <DockPanel LastChildFill="True">
         <Menu DockPanel.Dock="Top">
-            <MenuItem Header="Configurações"
+            <MenuItem Header="Opções"
                       FontSize="16">
-                <MenuItem Header="Credenciais"
-                          Command="{Binding ConfigCredenciaisComando}" />
-                <MenuItem Header="Impressora"
-                          Command="{Binding AbrirConfigImpressoraComando}" />
-                <MenuItem Header="Aplicação"
-                          Command="{Binding AbrirConfigAppComando}" />
+                <MenuItem Header="Imprimir Relatório Pix"
+                          Command="{Binding ImprimirRelatorioPixComando}" />
+                <Separator />
+                <MenuItem Header="Configurações">
+                    <MenuItem Header="Credenciais"
+                              Command="{Binding ConfigCredenciaisComando}" />
+                    <MenuItem Header="Impressora"
+                              Command="{Binding AbrirConfigImpressoraComando}" />
+                    <MenuItem Header="Aplicação"
+                              Command="{Binding AbrirConfigAppComando}" />
+                </MenuItem>
             </MenuItem>
         </Menu>
-        <Grid DockPanel.Dock="Bottom">
-
-        </Grid>
-        <TabControl FontSize="24"
+        <TabControl FontSize="26"
                     FontFamily="Century Gothic"
                     FontWeight="Bold">
             <TabItem Header="Cobranças"
@@ -67,14 +69,16 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
                     <Label Content="Listando Cobranças De Hoje"
                            Language="pt-BR"
-                           FontSize="24"
+                           FontSize="22"
                            FontWeight="Bold" />
                     <Button Grid.Column="1"
                             Content="Atualizar Lista de Cobranças"
                             FontSize="20"
+                            FontWeight="Normal"
                             HorizontalAlignment="Right"
                             Command="{Binding AtualizarListaComando}" />
                     <ListView x:Name="ListViewCobrancas"
@@ -142,21 +146,37 @@
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
-                    <Button Grid.Row="3"
+                    <Label Grid.Column="1"
+                           Grid.Row="3"
+                           ContentStringFormat="Valor Total (PAGAMENTO REALIZADO): {0:C}"
+                           Language="pt-BR"
+                           Content="{Binding TotalCobrancas}"
+                           FontSize="30"
+                           HorizontalAlignment="Right" />
+                    <Button Grid.Row="4"
                             Grid.ColumnSpan="2"
                             Content="Criar Cobrança Pix"
                             Style="{StaticResource ButtonAppStyle}"
                             Command="{Binding CriarCobrancaPixComando}" />
                 </Grid>
             </TabItem>
-            <TabItem Header="Pagamentos Pix Por Chave"
+            <TabItem Header="Transferências Pix Por Chave"
                      Padding="12">
                 <DockPanel LastChildFill="True"
                            Margin="5">
+                    <Label Content="Listando Transferências De Hoje"
+                           DockPanel.Dock="Top"
+                           FontSize="22" />
                     <Button DockPanel.Dock="Bottom"
                             Content="Consultar Recebimentos De Pix"
                             Style="{StaticResource ButtonAppStyle}"
                             Command="{Binding ConsultarRecebimentoPixComando}" />
+                    <Label DockPanel.Dock="Bottom"
+                           ContentStringFormat="Valor Total: {0:C}"
+                           Content="{Binding TotalTransferencias}"
+                           Language="pt-BR"
+                           FontSize="30"
+                           HorizontalAlignment="Right" />
                     <ListView x:Name="ListViewListaPix"
                               Grid.Row="2"
                               Grid.ColumnSpan="2"

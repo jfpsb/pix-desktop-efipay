@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
 
-namespace VMIClientePix.ViewModel
+namespace VMIClientePix.Util
 {
     class RelayCommand : ICommand
     {

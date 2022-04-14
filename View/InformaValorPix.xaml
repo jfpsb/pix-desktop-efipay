@@ -11,8 +11,7 @@
         Width="450"
         WindowStartupLocation="CenterScreen"
         Loaded="TelaInformarValorPix_Loaded"
-        FocusManager.FocusedElement="{Binding ElementName=TxtValor}"
-        Closing="TelaInformarValorPix_Closing">
+        FocusManager.FocusedElement="{Binding ElementName=TxtValor}">
     <DockPanel LastChildFill="True">
         <Button DockPanel.Dock="Bottom"
                 Content="Gerar QR Code"

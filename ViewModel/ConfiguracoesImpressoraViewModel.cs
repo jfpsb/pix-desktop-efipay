@@ -66,11 +66,10 @@ namespace VMIClientePix.ViewModel
             Porta = posPrinter.Config.Porta;
         }
 
-        public void OnClosing()
+        public void OnClosingFromVM()
         {
             if (posPrinter != null)
             {
-                //posPrinter.Desativar();
                 posPrinter.Dispose();
             }
         }
