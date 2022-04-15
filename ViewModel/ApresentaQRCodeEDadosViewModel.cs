@@ -235,6 +235,11 @@ namespace VMIClientePix.ViewModel
                     Log.EscreveLogGn(gne);
                     _messageBox.Show($"Erro ao consultar cobrança Pix na GerenciaNet.\nAcesse {Log.LogGn} para mais detalhes.", "Erro ao consultar cobrança", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+                catch (Exception ex)
+                {
+                    Log.EscreveExceptionGenerica(ex);
+                    _messageBox.Show($"Erro ao consultar situação de cobrança Pix. Cheque sua conexão com a internet.\nAcesse {Log.LogExceptionGenerica} para mais detalhes.", "Erro ao consultar cobrança", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
 
                 try
                 {

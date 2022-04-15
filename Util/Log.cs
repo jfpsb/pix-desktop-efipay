@@ -11,6 +11,7 @@ namespace VMIClientePix.Util
         public static readonly string LogGn = Path.Combine("Logs", "GnLog.txt");
         public static readonly string LogCredenciais = Path.Combine("Logs", "CredenciaisLog.txt");
         public static readonly string LogComunicacaoPorRede = Path.Combine("Logs", "CredenciaisLog.txt");
+        public static readonly string LogExceptionGenerica = Path.Combine("Logs", "ExceptionGenerica.txt");
         public static void EscreveLogBancoLocal(Exception ex, string operacao)
         {
             string msg = $"Operação: {operacao.ToUpper()};\nData/Hora: {DateTime.Now};\nMensagem: \n{ex.Message}";
@@ -38,6 +39,19 @@ namespace VMIClientePix.Util
             string msg = $"Data/Hora: {DateTime.Now};\nMensagem: \n{ex.Message};\nErrorType: \n{ex.ErrorType}";
             msg += $"\nStackTrace: \n{ex.StackTrace}\n\n";
             File.AppendAllText(LogGn, msg);
+        }
+
+        public static void EscreveExceptionGenerica(Exception ex)
+        {
+            string msg = $"Data/Hora: {DateTime.Now};\nMensagem:\n{ex.Message}\n";
+
+            if (ex.InnerException != null)
+            {
+                msg += $"InnerException:\n{ex.InnerException.Message}\n";
+            }
+
+            msg += $"\nStackTrace: \n{ex.StackTrace}\n\n";
+            File.AppendAllText(LogExceptionGenerica, msg);
         }
 
         public static void EscreveLogCredenciais(Exception ex)

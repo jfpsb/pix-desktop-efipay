@@ -544,23 +544,31 @@ namespace VMIClientePix.ViewModel
             ListarCobrancas();
         }
 
-        private void ListViewLeftMouseClick(object obj)
+        private async void ListViewLeftMouseClick(object obj)
         {
             if (obj != null)
             {
                 ApresentaQRCodeEDadosViewModel viewModel = new ApresentaQRCodeEDadosViewModel(((Cobranca)obj).Txid, new MessageBoxService());
                 ApresentaQRCodeEDados view = new ApresentaQRCodeEDados() { DataContext = viewModel };
                 view.ShowDialog();
+                //atualiza na session cobrança caso tenha sido modificada
+                await daoCobranca.RefreshEntidade((Cobranca)obj);
                 ListarCobrancas();
             }
         }
 
-        private void CriarCobrancaPix(object obj)
+        private async void CriarCobrancaPix(object obj)
         {
             InformaValorPixViewModel viewModel = new InformaValorPixViewModel(new MessageBoxService());
             InformaValorPix view = new InformaValorPix() { DataContext = viewModel };
             view.ShowDialog();
-            ListarCobrancas();
+            //insere na session cobrança caso tenha sido criada
+            var txid = (view.DataContext as IReturnData).GetData();
+            if (txid != null)
+            {
+                await daoCobranca.ListarPorId(txid);
+                ListarCobrancas();
+            }
         }
 
         public void OnClosingFromVM()

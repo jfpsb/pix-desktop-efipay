@@ -20,7 +20,7 @@ using VMIClientePix.ViewModel.Services.Interfaces;
 
 namespace VMIClientePix.ViewModel
 {
-    public class InformaValorPixViewModel : ObservableObject, IOnClosing
+    public class InformaValorPixViewModel : ObservableObject, IOnClosing, IReturnData
     {
         public ICommand GerarQRCodeComando { get; set; }
         private double _valorPix;
@@ -28,6 +28,7 @@ namespace VMIClientePix.ViewModel
         private DAOCobranca daoCobranca;
         private ISession session;
         private bool _botaoEnabled = true;
+        private Cobranca cobranca;
 
         public InformaValorPixViewModel(IMessageBoxService messageBoxService)
         {
@@ -86,7 +87,7 @@ namespace VMIClientePix.ViewModel
                 };
 
                 var cobrancaPix = endpoints.PixCreateImmediateCharge(null, body);
-                Cobranca cobranca = JsonConvert.DeserializeObject<Cobranca>(cobrancaPix);
+                cobranca = JsonConvert.DeserializeObject<Cobranca>(cobrancaPix);
 
                 try
                 {
@@ -120,6 +121,13 @@ namespace VMIClientePix.ViewModel
         public void OnClosingFromVM()
         {
             SessionProvider.FechaSession(session);
+        }
+
+        public object GetData()
+        {
+            if (cobranca != null && cobranca.Txid != null)
+                return cobranca.Txid;
+            return null;
         }
 
         public double ValorPix
