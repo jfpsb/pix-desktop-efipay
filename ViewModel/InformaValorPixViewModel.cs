@@ -5,6 +5,7 @@ using NHibernate;
 using System;
 using System.Globalization;
 using System.IO;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using VMIClientePix.BancoDeDados.ConnectionFactory;
@@ -26,12 +27,18 @@ namespace VMIClientePix.ViewModel
         private IMessageBoxService messageBoxService;
         private DAOCobranca daoCobranca;
         private ISession session;
+        private bool _botaoEnabled = true;
 
         public InformaValorPixViewModel(IMessageBoxService messageBoxService)
         {
             IniciaSessionEDAO();
-            GerarQRCodeComando = new RelayCommand(GerarQRCode);
+            GerarQRCodeComando = new RelayCommand(GerarQRCode, PodePressionar);
             this.messageBoxService = messageBoxService;
+        }
+
+        private bool PodePressionar(object arg)
+        {
+            return _botaoEnabled;
         }
 
         private void IniciaSessionEDAO()
@@ -43,9 +50,12 @@ namespace VMIClientePix.ViewModel
 
         private async void GerarQRCode(object obj)
         {
+            _botaoEnabled = false;
+
             if (ValorPix == 0.0)
             {
                 messageBoxService.Show("Valor De Cobrança Pix Não Pode Ser Zero!", "Informe O Valor Do Pix", MessageBoxButton.OK, MessageBoxImage.Exclamation);
+                _botaoEnabled = true;
                 return;
             }
 
@@ -82,7 +92,7 @@ namespace VMIClientePix.ViewModel
                 {
                     await daoCobranca.Inserir(cobranca);
                     await daoCobranca.RefreshEntidade(cobranca);
-                    ComunicaoPelaRede.NotificaListarCobrancas(cobranca.Txid);
+                    ComunicaoPelaRede.NotificaListar();
                     ApresentaQRCodeEDadosViewModel dadosPixViewModel = new ApresentaQRCodeEDadosViewModel(cobranca.Txid, new MessageBoxService(), obj as ICloseable);
                     ApresentaQRCodeEDados view = new ApresentaQRCodeEDados()
                     {

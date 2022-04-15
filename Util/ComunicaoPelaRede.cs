@@ -5,8 +5,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Timers;
 using System.Windows;
-using VMIClientePix.ViewModel;
-using static VMIClientePix.ViewModel.MainWindowViewModel;
 
 namespace VMIClientePix.Util
 {
@@ -15,14 +13,13 @@ namespace VMIClientePix.Util
         private static Socket socket;
         private static byte[] mensagem = new byte[128];
         private static IList<Socket> usuariosEmSessao = new List<Socket>();
-        private static event AposSalvarCobrancaEventHandler AposSalvarCobranca;
         private static Timer timerIniciaListener;
 
-        public static void IniciaServidor(AposSalvarCobrancaEventHandler aposSalvarCobranca)
+        public static event EventHandler AposReceberComandoListar;
+        public static void IniciaServidor()
         {
             try
             {
-                AposSalvarCobranca = aposSalvarCobranca;
                 socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 3500);
                 socket.Bind(endPoint);
@@ -36,9 +33,8 @@ namespace VMIClientePix.Util
             }
         }
 
-        public static void IniciaListener(AposSalvarCobrancaEventHandler aposSalvarCobranca)
+        public static void IniciaListener()
         {
-            AposSalvarCobranca = aposSalvarCobranca;
             ConectaComServidor();
             timerIniciaListener = new Timer(1000);
             timerIniciaListener.AutoReset = true;
@@ -114,25 +110,18 @@ namespace VMIClientePix.Util
 
                 Console.WriteLine($"RECEBIDA MENSAGEM: {mensagemRecebida}\n");
 
-                if (mensagemRecebida.StartsWith("listarcobrancas"))
+                if (mensagemRecebida.StartsWith("listar"))
                 {
-                    Console.WriteLine("COMANDO LISTAR COBRANÇAS\n");
+                    Console.WriteLine("COMANDO LISTAR\n");
 
-                    var txid = mensagemRecebida.Split(' ')[1];
-
-                    AposSalvarCobrancaEventArgs e = new AposSalvarCobrancaEventArgs
-                    {
-                        TxIdCobranca = txid
-                    };
-
-                    AposSalvarCobranca.Invoke(e);
+                    AposReceberComandoListar.Invoke(null, null);
 
                     //Somente executa se for servidor
                     foreach (var s in usuariosEmSessao)
                     {
                         if (IsSocketConnected(s) && s != socketReceive)
                         {
-                            Console.WriteLine($"REPLICANDO MENSAGEM RECEBIDA PARA CLIENTE CONECTADO: {mensagemRecebida}\n");
+                            Console.WriteLine($"REPLICANDO MENSAGEM RECEBIDA PARA CLIENTES CONECTADOS: {mensagemRecebida}\n");
                             socketReceive.BeginSend(mensagem, 0, mensagem.Length, SocketFlags.None, SendCallback, socketReceive);
                         }
                     }
@@ -142,9 +131,9 @@ namespace VMIClientePix.Util
             }
         }
 
-        public static void NotificaListarCobrancas(string txid)
+        public static void NotificaListar()
         {
-            string mensagem = $"listarcobrancas {txid}";
+            string mensagem = $"listar";
             byte[] mensagemEmByte = Encoding.UTF8.GetBytes(mensagem);
 
             if (socket != null)

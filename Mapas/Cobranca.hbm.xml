@@ -19,7 +19,7 @@
 		<property name="DeletadoEm" />
 		<property name="Deletado" />
 
-		<bag name="Pix" table="pix" cascade="save-update" inverse="true">
+		<bag name="Pix" table="pix" cascade="save-update" inverse="true" lazy="false">
 			<key column="cobranca" />
 			<one-to-many class="VMIClientePix.Model.Pix"/>
 		</bag>

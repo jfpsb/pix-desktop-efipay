@@ -1,4 +1,5 @@
-﻿using Gerencianet.NETCore.SDK;
+﻿using ACBrLib.PosPrinter;
+using Gerencianet.NETCore.SDK;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NHibernate;
@@ -6,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Timers;
@@ -23,7 +25,7 @@ using VMIClientePix.ViewModel.Services.Concretos;
 
 namespace VMIClientePix.ViewModel
 {
-    public class MainWindowViewModel : ObservableObject, IRequestClose, IOnClosing
+    public class MainWindowViewModel : ObservableObject, IOnClosing
     {
         private MessageBoxService messageBoxService;
         private ObservableCollection<Cobranca> _cobrancas = new ObservableCollection<Cobranca>();
@@ -34,6 +36,7 @@ namespace VMIClientePix.ViewModel
         private Timer timerSync;
         private double _totalCobrancas;
         private double _totalTransferencias;
+        private ACBrPosPrinter posPrinter;
         public ICommand CriarCobrancaPixComando { get; set; }
         public ICommand ListViewCobrancaLeftMouseClickComando { get; set; }
         public ICommand ListViewPixLeftMouseClickComando { get; set; }
@@ -43,10 +46,6 @@ namespace VMIClientePix.ViewModel
         public ICommand ConfigCredenciaisComando { get; set; }
         public ICommand AbrirConfigAppComando { get; set; }
         public ICommand ConsultarRecebimentoPixComando { get; set; }
-
-        public delegate void AposSalvarCobrancaEventHandler(AposSalvarCobrancaEventArgs e);
-        public event AposSalvarCobrancaEventHandler AposSalvarCobranca;
-        public event EventHandler<EventArgs> RequestClose;
 
         public MainWindowViewModel()
         {
@@ -70,8 +69,8 @@ namespace VMIClientePix.ViewModel
             AbrirConfigAppComando = new RelayCommand(AbrirConfigApp);
             ConsultarRecebimentoPixComando = new RelayCommand(ConsultarRecebimentoPix);
 
-            AposSalvarCobranca += MainWindowViewModel_AposSalvarCobranca;
             PropertyChanged += MainWindowViewModel_PropertyChanged;
+            ComunicaoPelaRede.AposReceberComandoListar += ComunicaoPelaRede_AposReceberComandoListar;
 
             JObject configApp = null;
 
@@ -91,7 +90,10 @@ namespace VMIClientePix.ViewModel
             {
                 SessionProvider.SessionFactory = SessionProvider.BuildSessionFactory();
                 IniciaSessionEDAO();
+                AtualizarCobrancasPelaGN();
                 AtualizarListaPixPelaGN();
+                ListarPix();
+                ListarCobrancas();
 
                 if (configApp != null)
                 {
@@ -102,11 +104,11 @@ namespace VMIClientePix.ViewModel
                         timerSync.AutoReset = false;
                         timerSync.Enabled = true;
 
-                        ComunicaoPelaRede.IniciaServidor(AposSalvarCobranca);
+                        ComunicaoPelaRede.IniciaServidor();
                     }
                     else
                     {
-                        ComunicaoPelaRede.IniciaListener(AposSalvarCobranca);
+                        ComunicaoPelaRede.IniciaListener();
                     }
                 }
             }
@@ -119,15 +121,55 @@ namespace VMIClientePix.ViewModel
             telaInicial.Close();
         }
 
+        private void ConfiguraPosPrinter()
+        {
+            try
+            {
+                posPrinter.ConfigLer();
+            }
+            catch (Exception ex)
+            {
+                messageBoxService.Show("Erro ao iniciar impressora. Cheque se a impressora está conectada corretamente e que está ligada.\n\n" + ex.Message, "Impressão De Comprovante Pix", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
+        }
+
+        private async void ComunicaoPelaRede_AposReceberComandoListar(object sender, EventArgs e)
+        {
+            try
+            {
+                var cobs = await daoCobranca.ListarPorDia(DateTime.Now);
+
+                if (cobs != null)
+                {
+                    if (cobs.Count > 0)
+                        await daoCobranca.RefreshEntidade(cobs.Where(w => w.Status.Equals("ATIVA")).ToList());
+                    Cobrancas = new ObservableCollection<Cobranca>(cobs);
+                }
+            }
+            catch (Exception ex)
+            {
+                messageBoxService.Show(ex.Message, "Erro ao listar cobranças após comando", MessageBoxButton.OK, MessageBoxImage.Error);
+                IniciaSessionEDAO();
+            }
+
+            ListarPix();
+        }
+
         private void MainWindowViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
                 case "Cobrancas":
-                    TotalCobrancas = Cobrancas.Where(w => w.Status.Equals("CONCLUIDA")).Sum(s => s.Valor.Original);
+                    if (Cobrancas != null && Cobrancas.Count > 0)
+                        TotalCobrancas = Cobrancas.Where(w => w.Status.Equals("CONCLUIDA")).Sum(s => s.Valor.Original);
+                    else
+                        TotalCobrancas = 0;
                     break;
                 case "ListaPix":
-                    TotalTransferencias = ListaPix.Sum(s => s.Valor);
+                    if (ListaPix != null && ListaPix.Count > 0)
+                        TotalTransferencias = ListaPix.Sum(s => s.Valor);
+                    else
+                        TotalTransferencias = 0;
                     break;
             }
         }
@@ -135,8 +177,92 @@ namespace VMIClientePix.ViewModel
         private void ImprimirRelatorioPix(object obj)
         {
             //Atualiza listas caso estejam desatualizadas
+            //Ao mesmo tempo atualiza campos de total
             ListarCobrancas();
             ListarPix();
+
+            posPrinter = new ACBrPosPrinter();
+            ConfiguraPosPrinter();
+
+            int numCobs = Cobrancas.Where(w => w.Status.Equals("CONCLUIDA")).ToList().Count;
+            int colunas = posPrinter.Config.ColunasFonteNormal;
+            int numEspacos = 0;
+
+            string s = "</zera>" + "\n";
+            s += "</ce>" + "\n";
+            s += "</logo>" + "\n";
+            s += "<e>RELATÓRIO PIX</e>" + "\n";
+            s += "</ae>" + "\n";
+            s += "<n>DATA</n>" + "\n";
+            s += $"</fa>{DateTime.Now.ToString("d", CultureInfo.CurrentCulture)}" + "\n";
+            s += "</pular_linhas>\n";
+            s += $"<e><n>COBRANÇAS</n></e>" + "\n";
+
+            if (numCobs > 0)
+            {
+                string horario = "Horário";
+                string valor = "Valor";
+                numEspacos = colunas - horario.Length - valor.Length;
+                s += string.Concat("<n>", horario, "</n>", new string(' ', numEspacos), "<n>", valor, "</n>", "\n");
+
+                foreach (var c in Cobrancas.Where(w => w.Status.Equals("CONCLUIDA")))
+                {
+                    string data = c.Pix[0].HorarioLocalTime.ToString("T", CultureInfo.CurrentCulture);
+                    string valorCob = c.Valor.Original.ToString("C", CultureInfo.CurrentCulture);
+                    numEspacos = colunas - data.Length - valorCob.Length;
+                    s += string.Concat("</fn>", data, new string(' ', numEspacos), valorCob, "\n");
+                }
+
+                s += $"</ad><n>Total: {TotalCobrancas.ToString("C", CultureInfo.CurrentCulture)}</n>";
+            }
+            else
+            {
+                s += "</fn>Não Houve Cobranças No Dia\n";
+            }
+
+            s += "</pular_linhas>\n";
+            s += "</ae>";
+            s += "<e><n>TRANSFERÊNCIAS</n></e>\n";
+
+            if (ListaPix.Count > 0)
+            {
+                string horario = "Horário";
+                string valor = "Valor";
+                numEspacos = colunas - horario.Length - valor.Length;
+                s += string.Concat("<n>", horario, "</n>", new string(' ', numEspacos), "<n>", valor, "</n>", "\n");
+
+                foreach (var p in ListaPix)
+                {
+                    string data = p.HorarioLocalTime.ToString("T", CultureInfo.CurrentCulture);
+                    string valorPix = p.Valor.ToString("C", CultureInfo.CurrentCulture);
+                    numEspacos = colunas - data.Length - valorPix.Length;
+                    s += string.Concat("</fn>", data, new string(' ', numEspacos), valorPix, "\n");
+                }
+
+                s += $"</ad><n>Total: {TotalTransferencias.ToString("C", CultureInfo.CurrentCulture)}</n>";
+            }
+            else
+            {
+                s += "</fn>Não Houve Transferências No Dia\n";
+            }
+
+            s += "</pular_linhas>\n";
+
+            s += $"</ad><e><n>TOTAL GERAL: {(TotalCobrancas + TotalTransferencias).ToString("C", CultureInfo.CurrentCulture)}</n></e>\n";
+            s += "</pular_linhas>\n";
+            s += "</pular_linhas>\n";
+            s += "</corte_total>\n";
+
+            try
+            {
+                posPrinter.Imprimir(s);
+                if (posPrinter != null)
+                    posPrinter.Dispose();
+            }
+            catch (Exception ex)
+            {
+                messageBoxService.Show("Erro ao imprimir relatório Pix. Cheque se a impressora está conectada corretamente e que está ligada.\n\n" + ex.Message, "Impressão De QR Code Pix", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            }
         }
 
         private void ListViewPixLeftMouseClick(object obj)
@@ -152,10 +278,11 @@ namespace VMIClientePix.ViewModel
         private void ConsultarRecebimentoPix(object obj)
         {
             AtualizarListaPixPelaGN();
+            ListarPix();
         }
 
         /// <summary>
-        /// Cria nova session e recria DAOs
+        /// Cria nova session e (re)cria DAOs
         /// </summary>
         private void IniciaSessionEDAO()
         {
@@ -163,23 +290,6 @@ namespace VMIClientePix.ViewModel
             session = SessionProvider.GetSession();
             daoCobranca = new DAOCobranca(session);
             daoPix = new DAOPix(session);
-            try
-            {
-                ListarCobrancas();
-                ListarPix();
-            }
-            catch (StackOverflowException ex)
-            {
-                messageBoxService.Show("Erro ao listar dados após recriação de session. A aplicação será fechada.\n\n" + ex.Message);
-                RequestClose.Invoke(this, new EventArgs());
-            }
-        }
-
-        private async void MainWindowViewModel_AposSalvarCobranca(AposSalvarCobrancaEventArgs e)
-        {
-            var cob = await daoCobranca.ListarPorId(e.TxIdCobranca);
-            await daoCobranca.RefreshEntidade(cob);
-            ListarCobrancas();
         }
 
         private void AbrirConfigApp(object obj)
@@ -256,7 +366,6 @@ namespace VMIClientePix.ViewModel
 
                 if (cobs != null)
                 {
-                    await daoCobranca.RefreshEntidade(cobs);
                     Cobrancas = new ObservableCollection<Cobranca>(cobs);
                 }
             }
@@ -318,15 +427,18 @@ namespace VMIClientePix.ViewModel
                     pixAtt.Add(pixConsulta); //Novo pix para inserir no banco
                 }
 
-                try
+                if (pixAtt.Count > 0)
                 {
-                    await daoPix.Inserir(pixAtt);
-                    ListarPix();
-                }
-                catch (Exception ex)
-                {
-                    messageBoxService.Show(ex.Message, "Erro ao listar pix", MessageBoxButton.OK, MessageBoxImage.Error);
-                    IniciaSessionEDAO();
+                    try
+                    {
+                        await daoPix.Inserir(pixAtt);
+                        ComunicaoPelaRede.NotificaListar();
+                    }
+                    catch (Exception ex)
+                    {
+                        messageBoxService.Show(ex.Message, "Erro ao inserir/listar pix", MessageBoxButton.OK, MessageBoxImage.Error);
+                        IniciaSessionEDAO();
+                    }
                 }
             }
             catch (GnException e)
@@ -375,8 +487,9 @@ namespace VMIClientePix.ViewModel
                         cobrancaLocal.Pix.Clear();
                         foreach (var p in cobrancaConsulta.Pix)
                         {
-                            p.Cobranca = cobrancaLocal;
-                            cobrancaLocal.Pix.Add(p);
+                            var pixLocal = await daoPix.ListarPorId(p.EndToEndId);
+                            pixLocal.Cobranca = cobrancaLocal;
+                            cobrancaLocal.Pix.Add(pixLocal);
                         }
 
                         cobrancaLocal.Revisao = cobrancaConsulta.Revisao;
@@ -406,11 +519,10 @@ namespace VMIClientePix.ViewModel
                 try
                 {
                     await daoCobranca.InserirOuAtualizar(cobrancasAtt);
-                    ListarCobrancas();
                 }
                 catch (Exception ex)
                 {
-                    messageBoxService.Show(ex.Message, "Erro ao listar cobranças", MessageBoxButton.OK, MessageBoxImage.Error);
+                    messageBoxService.Show(ex.Message, "Erro ao inserir ou atualizar cobranças", MessageBoxButton.OK, MessageBoxImage.Error);
                     IniciaSessionEDAO();
                 }
             }
@@ -419,11 +531,17 @@ namespace VMIClientePix.ViewModel
                 Log.EscreveLogGn(e);
                 messageBoxService.Show($"Erro ao listar cobranças da instituição GerenciaNet.\n\nAcesse {Log.LogGn} para mais detalhes.", "Erro ao consultar cobranças", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            catch (Exception ex)
+            {
+                messageBoxService.Show(ex.Message, "Erro ao Consultar Cobranças Pix", MessageBoxButton.OK, MessageBoxImage.Error);
+                IniciaSessionEDAO();
+            }
         }
 
         private void AtualizarLista(object obj)
         {
             AtualizarCobrancasPelaGN();
+            ListarCobrancas();
         }
 
         private void ListViewLeftMouseClick(object obj)

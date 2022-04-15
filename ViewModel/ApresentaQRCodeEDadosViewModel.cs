@@ -149,6 +149,7 @@ namespace VMIClientePix.ViewModel
             s += "</linha_dupla>" + "\n";
             s += "</ce>" + "\n";
             s += $"<a>PAGAMENTO EFETUADO EM {Cobranca.PagoEmLocalTime.ToString(CultureInfo.CurrentCulture)}" + "\n";
+            s += "</pular_linhas>\n";
             s += "</corte_total>" + "\n";
 
             try
@@ -175,14 +176,12 @@ namespace VMIClientePix.ViewModel
                     timerExpiracaoQrCode.Stop();
                     timerExpiracaoQrCode.Dispose();
 
-                    ImprimirComprovante();
-
                     try
                     {
                         await daoCobranca.Atualizar(Cobranca);
                         Cobranca.PropertyChanged -= Cobranca_PropertyChanged;
                         session.Refresh(Cobranca);
-                        ComunicaoPelaRede.NotificaListarCobrancas(Cobranca.Txid);
+                        ComunicaoPelaRede.NotificaListar();
                     }
                     catch (Exception ex)
                     {
@@ -311,6 +310,7 @@ namespace VMIClientePix.ViewModel
             s += "PARA EFETUAR O PAGAMENTO</a>" + "\n";
             s += $"</fn>QR Code válido até {expiraEm.ToString(CultureInfo.CurrentCulture)}" + "\n";
             s += $"<qrcode>{Cobranca.QrCode.Qrcode}</qrcode>" + "\n";
+            s += "</pular_linhas>\n";
             s += "</corte_total>" + "\n";
 
             try
@@ -367,8 +367,8 @@ namespace VMIClientePix.ViewModel
                     {
                         await daoCobranca.Atualizar(Cobranca);
                         PopulaDados();
-                        session.Refresh(Cobranca);
-                        ComunicaoPelaRede.NotificaListarCobrancas(Cobranca.Txid);
+                        await daoCobranca.RefreshEntidade(Cobranca);
+                        ComunicaoPelaRede.NotificaListar();
                     }
                     catch (Exception ex)
                     {
