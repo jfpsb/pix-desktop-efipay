@@ -37,6 +37,7 @@ namespace VMIClientePix.ViewModel
         private double _totalCobrancas;
         private double _totalTransferencias;
         private ACBrPosPrinter posPrinter;
+        private OpenView openView;
         public ICommand CriarCobrancaPixComando { get; set; }
         public ICommand ListViewCobrancaLeftMouseClickComando { get; set; }
         public ICommand ListViewPixLeftMouseClickComando { get; set; }
@@ -55,6 +56,8 @@ namespace VMIClientePix.ViewModel
 
             VMISplashScreen telaInicial = new VMISplashScreen();
             telaInicial.Show();
+
+            openView = new OpenView();
 
             Directory.CreateDirectory("Logs");
 
@@ -557,18 +560,20 @@ namespace VMIClientePix.ViewModel
             }
         }
 
-        private async void CriarCobrancaPix(object obj)
+        private void CriarCobrancaPix(object obj)
         {
             InformaValorPixViewModel viewModel = new InformaValorPixViewModel(new MessageBoxService());
-            InformaValorPix view = new InformaValorPix() { DataContext = viewModel };
-            view.ShowDialog();
-            //insere na session cobrança caso tenha sido criada
-            var txid = (view.DataContext as IReturnData).GetData();
-            if (txid != null)
-            {
-                await daoCobranca.ListarPorId(txid);
-                ListarCobrancas();
-            }
+            openView.ShowDialog(viewModel);
+            //InformaValorPixViewModel viewModel = new InformaValorPixViewModel(new MessageBoxService());
+            //InformaValorPix view = new InformaValorPix() { DataContext = viewModel };
+            //view.ShowDialog();
+            ////insere na session cobrança caso tenha sido criada
+            //var txid = (view.DataContext as IReturnData).GetData();
+            //if (txid != null)
+            //{
+            //    await daoCobranca.ListarPorId(txid);
+            //    ListarCobrancas();
+            //}
         }
 
         public void OnClosingFromVM()

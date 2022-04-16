@@ -1,17 +1,15 @@
-﻿<Window x:Name="TelaInformarValorPix"
-        x:Class="VMIClientePix.View.InformaValorPix"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:VMIClientePix.View"
-        mc:Ignorable="d"
-        Title="Informe O Valor Do Pix"
-        Height="200"
-        Width="450"
-        WindowStartupLocation="CenterScreen"
-        Loaded="TelaInformarValorPix_Loaded"
-        FocusManager.FocusedElement="{Binding ElementName=TxtValor}">
+﻿<UserControl x:Name="TelaInformarValorPix"
+             x:Class="VMIClientePix.View.InformaValorPix"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:VMIClientePix.View"
+             mc:Ignorable="d"
+             Height="200"
+             Width="450"
+             Loaded="TelaInformarValorPix_Loaded"
+             FocusManager.FocusedElement="{Binding ElementName=TxtValor}">
     <DockPanel LastChildFill="True">
         <Button DockPanel.Dock="Bottom"
                 Content="Gerar QR Code"
@@ -39,4 +37,4 @@
             </TextBox>
         </Grid>
     </DockPanel>
-</Window>
+</UserControl>

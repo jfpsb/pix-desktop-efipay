@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using VMIClientePix.View.Interfaces;
 using VMIClientePix.ViewModel.Interfaces;
 
@@ -7,7 +8,7 @@ namespace VMIClientePix.View
     /// <summary>
     /// Interaction logic for InformaValorPix.xaml
     /// </summary>
-    public partial class InformaValorPix : Window, ICloseable
+    public partial class InformaValorPix : UserControl, ICloseable
     {
         public InformaValorPix()
         {
@@ -16,20 +17,20 @@ namespace VMIClientePix.View
 
         public void CloseView()
         {
-            Close();
+            //Close();
         }
 
         private void TelaInformarValorPix_Loaded(object sender, RoutedEventArgs e)
         {
             TxtValor.SelectAll();
 
-            if (DataContext is IOnClosing)
-            {
-                Closing += (_, _) =>
-                {
-                    (DataContext as IOnClosing).OnClosingFromVM();
-                };
-            }
+            //if (DataContext is IOnClosing)
+            //{
+            //    Closing += (_, _) =>
+            //    {
+            //        (DataContext as IOnClosing).OnClosingFromVM();
+            //    };
+            //}
         }
     }
 }
