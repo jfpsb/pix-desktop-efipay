@@ -188,7 +188,7 @@ namespace VMIClientePix.ViewModel
             ConfiguraPosPrinter();
 
             int numCobs = Cobrancas.Where(w => w.Status.Equals("CONCLUIDA")).ToList().Count;
-            int colunas = posPrinter.Config.ColunasFonteNormal;
+            int colunas = 48;
             int numEspacos = 0;
 
             string s = "</zera>" + "\n";
