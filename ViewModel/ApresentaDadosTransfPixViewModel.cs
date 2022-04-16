@@ -56,6 +56,7 @@ namespace VMIClientePix.ViewModel
             s += "</linha_dupla>" + "\n";
             s += "</ce>" + "\n";
             s += $"<a>TRANSFERÊNCIA EFETUADA EM {Pix.HorarioLocalTime.ToString(CultureInfo.CurrentCulture)}" + "\n";
+            s += "</pular_linhas>\n";
             s += "</corte_total>";
 
             try

@@ -46,7 +46,7 @@
                FontSize="16"
                Language="pt-BR"
                ContentStringFormat="G"
-               Content="{Binding Pix.Horario}" />
+               Content="{Binding Pix.HorarioLocalTime}" />
         <Label Grid.Row="6"
                FontSize="16"
                FontWeight="Bold"
