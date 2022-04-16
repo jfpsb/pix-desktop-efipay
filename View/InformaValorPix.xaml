@@ -6,10 +6,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:local="clr-namespace:VMIClientePix.View"
              mc:Ignorable="d"
-             Height="200"
+             Height="Auto"
              Width="450"
+             Background="White"
              Loaded="TelaInformarValorPix_Loaded"
-             FocusManager.FocusedElement="{Binding ElementName=TxtValor}">
+             >
     <DockPanel LastChildFill="True">
         <Button DockPanel.Dock="Bottom"
                 Content="Gerar QR Code"
@@ -27,6 +28,7 @@
             <TextBox x:Name="TxtValor"
                      Grid.Row="1"
                      FontSize="24"
+                     Margin="0,5,0,5"
                      HorizontalContentAlignment="Center"
                      Text="{Binding ValorPix, StringFormat=C, ConverterCulture=pt-BR}">
                 <TextBox.InputBindings>

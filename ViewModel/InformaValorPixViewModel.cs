@@ -20,7 +20,7 @@ using VMIClientePix.ViewModel.Services.Interfaces;
 
 namespace VMIClientePix.ViewModel
 {
-    public class InformaValorPixViewModel : ObservableObject, IOnClosing, IReturnData
+    public class InformaValorPixViewModel : ObservableObject, IOnClosing, IReturnData, IViewModel
     {
         public ICommand GerarQRCodeComando { get; set; }
         private double _valorPix;
@@ -128,6 +128,11 @@ namespace VMIClientePix.ViewModel
             if (cobranca != null && cobranca.Txid != null)
                 return cobranca.Txid;
             return null;
+        }
+
+        public string TituloJanela()
+        {
+            return "Informar Valor De Cobrança Pix";
         }
 
         public double ValorPix

@@ -10,6 +10,8 @@ namespace VMIClientePix.View
     /// </summary>
     public partial class InformaValorPix : UserControl, ICloseable
     {
+        private Window window;
+
         public InformaValorPix()
         {
             InitializeComponent();
@@ -17,20 +19,22 @@ namespace VMIClientePix.View
 
         public void CloseView()
         {
-            //Close();
+            window.Close();
         }
 
         private void TelaInformarValorPix_Loaded(object sender, RoutedEventArgs e)
         {
+            TxtValor.Focus();
             TxtValor.SelectAll();
 
-            //if (DataContext is IOnClosing)
-            //{
-            //    Closing += (_, _) =>
-            //    {
-            //        (DataContext as IOnClosing).OnClosingFromVM();
-            //    };
-            //}
+            window = Window.GetWindow(this);
+            window.Closing += (_, _) =>
+            {
+                if (DataContext is IOnClosing)
+                {
+                    (DataContext as IOnClosing).OnClosingFromVM();
+                }
+            };
         }
     }
 }

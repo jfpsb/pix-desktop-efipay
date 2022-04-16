@@ -560,20 +560,16 @@ namespace VMIClientePix.ViewModel
             }
         }
 
-        private void CriarCobrancaPix(object obj)
+        private async void CriarCobrancaPix(object obj)
         {
             InformaValorPixViewModel viewModel = new InformaValorPixViewModel(new MessageBoxService());
             openView.ShowDialog(viewModel);
-            //InformaValorPixViewModel viewModel = new InformaValorPixViewModel(new MessageBoxService());
-            //InformaValorPix view = new InformaValorPix() { DataContext = viewModel };
-            //view.ShowDialog();
-            ////insere na session cobrança caso tenha sido criada
-            //var txid = (view.DataContext as IReturnData).GetData();
-            //if (txid != null)
-            //{
-            //    await daoCobranca.ListarPorId(txid);
-            //    ListarCobrancas();
-            //}
+            var txid = (viewModel as IReturnData).GetData();
+            if (txid != null)
+            {
+                await daoCobranca.ListarPorId(txid);
+                ListarCobrancas();
+            }
         }
 
         public void OnClosingFromVM()
