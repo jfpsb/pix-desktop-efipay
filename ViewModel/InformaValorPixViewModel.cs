@@ -20,7 +20,7 @@ using VMIClientePix.ViewModel.Services.Interfaces;
 
 namespace VMIClientePix.ViewModel
 {
-    public class InformaValorPixViewModel : ObservableObject, IOnClosing, IReturnData, IViewModel
+    public class InformaValorPixViewModel : ObservableObject, IOnClosing, IReturnData
     {
         public ICommand GerarQRCodeComando { get; set; }
         private double _valorPix;
@@ -29,10 +29,12 @@ namespace VMIClientePix.ViewModel
         private ISession session;
         private bool _botaoEnabled = true;
         private Cobranca cobranca;
+        private OpenView openView;
 
         public InformaValorPixViewModel(IMessageBoxService messageBoxService)
         {
             IniciaSessionEDAO();
+            openView = new OpenView();
             GerarQRCodeComando = new RelayCommand(GerarQRCode, PodePressionar);
             this.messageBoxService = messageBoxService;
         }
@@ -95,11 +97,7 @@ namespace VMIClientePix.ViewModel
                     await daoCobranca.RefreshEntidade(cobranca);
                     ComunicaoPelaRede.NotificaListar();
                     ApresentaQRCodeEDadosViewModel dadosPixViewModel = new ApresentaQRCodeEDadosViewModel(cobranca.Txid, new MessageBoxService(), obj as ICloseable);
-                    ApresentaQRCodeEDados view = new ApresentaQRCodeEDados()
-                    {
-                        DataContext = dadosPixViewModel
-                    };
-                    view.ShowDialog();
+                    openView.ShowDialog(dadosPixViewModel);
                 }
                 catch (Exception ex)
                 {

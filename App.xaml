@@ -13,8 +13,31 @@
 
             <FontFamily x:Key="GothamBold">pack://application:,,,/Fonts/#Gotham Bold</FontFamily>
 
-            <DataTemplate 
-                          DataType="{x:Type ViewModel:InformaValorPixViewModel}">
+            <DataTemplate DataType="{x:Type ViewModel:ApresentaDadosTransfPixViewModel}">
+                <View:ApresentaDadosTransfPix />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type ViewModel:ApresentaQRCodeEDadosViewModel}">
+                <View:ApresentaQRCodeEDados />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type ViewModel:ConfiguracoesImpressoraViewModel}">
+                <View:ConfiguracaoImpressora />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type ViewModel:ConfiguraCredenciaisViewModel}">
+                <View:ConfigurarCredenciais />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type ViewModel:ConfiguracaoAplicacaoViewModel}">
+                <View:ConfiguracaoAplicacao />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type ViewModel:VMISplashScreenViewModel}">
+                <View:VMISplashScreen />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type ViewModel:InformaValorPixViewModel}">
                 <View:InformaValorPix />
             </DataTemplate>
 

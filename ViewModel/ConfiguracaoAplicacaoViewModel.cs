@@ -5,6 +5,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using VMIClientePix.Util;
+using VMIClientePix.ViewModel.Interfaces;
 using VMIClientePix.ViewModel.Services.Interfaces;
 
 namespace VMIClientePix.ViewModel

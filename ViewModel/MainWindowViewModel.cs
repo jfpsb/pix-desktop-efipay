@@ -54,10 +54,10 @@ namespace VMIClientePix.ViewModel
             if (DesignerProperties.GetIsInDesignMode(new DependencyObject())) return;
 #endif
 
-            VMISplashScreen telaInicial = new VMISplashScreen();
-            telaInicial.Show();
-
             openView = new OpenView();
+
+            var splashScreenVM = new VMISplashScreenViewModel();
+            openView.Show(splashScreenVM);
 
             Directory.CreateDirectory("Logs");
 
@@ -121,7 +121,7 @@ namespace VMIClientePix.ViewModel
                 messageBoxService.Show($"Erro Ao Conectar Banco de Dados Local\nAcesse {Log.LogLocal} para mais detalhes.");
             }
 
-            telaInicial.Close();
+            splashScreenVM.CloseView();
         }
 
         private void ConfiguraPosPrinter()
@@ -273,8 +273,7 @@ namespace VMIClientePix.ViewModel
             if (obj != null)
             {
                 ApresentaDadosTransfPixViewModel viewModel = new ApresentaDadosTransfPixViewModel(((Pix)obj).EndToEndId, new MessageBoxService());
-                ApresentaDadosTransfPix view = new ApresentaDadosTransfPix() { DataContext = viewModel };
-                view.ShowDialog();
+                openView.ShowDialog(viewModel);
             }
         }
 
@@ -298,11 +297,7 @@ namespace VMIClientePix.ViewModel
         private void AbrirConfigApp(object obj)
         {
             ConfiguracaoAplicacaoViewModel viewModel = new ConfiguracaoAplicacaoViewModel(messageBoxService);
-            ConfiguracaoAplicacao view = new ConfiguracaoAplicacao
-            {
-                DataContext = viewModel
-            };
-            view.ShowDialog();
+            openView.ShowDialog(viewModel);
         }
 
         private async void TimerSync_Elapsed(object sender, ElapsedEventArgs e)
@@ -350,15 +345,13 @@ namespace VMIClientePix.ViewModel
         private void ConfigCredenciais(object obj)
         {
             ConfiguraCredenciaisViewModel viewModel = new ConfiguraCredenciaisViewModel();
-            ConfigurarCredenciais view = new ConfigurarCredenciais() { DataContext = viewModel };
-            view.ShowDialog();
+            openView.ShowDialog(viewModel);
         }
 
         private void AbrirConfigImpressora(object obj)
         {
             ConfiguracoesImpressoraViewModel viewModel = new ConfiguracoesImpressoraViewModel(messageBoxService);
-            ConfiguracaoImpressora view = new ConfiguracaoImpressora() { DataContext = viewModel };
-            view.ShowDialog();
+            openView.ShowDialog(viewModel);
         }
 
         private async void ListarCobrancas()
@@ -552,9 +545,8 @@ namespace VMIClientePix.ViewModel
             if (obj != null)
             {
                 ApresentaQRCodeEDadosViewModel viewModel = new ApresentaQRCodeEDadosViewModel(((Cobranca)obj).Txid, new MessageBoxService());
-                ApresentaQRCodeEDados view = new ApresentaQRCodeEDados() { DataContext = viewModel };
-                view.ShowDialog();
-                //atualiza na session cobrança caso tenha sido modificada
+                openView.ShowDialog(viewModel);
+                //atualiza cobrança na session
                 await daoCobranca.RefreshEntidade((Cobranca)obj);
                 ListarCobrancas();
             }

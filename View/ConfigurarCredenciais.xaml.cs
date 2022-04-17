@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using System.Windows;
+using System.Windows.Controls;
 using VMIClientePix.View.Interfaces;
 
 namespace VMIClientePix.View
@@ -7,8 +8,9 @@ namespace VMIClientePix.View
     /// <summary>
     /// Interaction logic for ConfigurarCredenciais.xaml
     /// </summary>
-    public partial class ConfigurarCredenciais : Window, IOpenFileDialog
+    public partial class ConfigurarCredenciais : UserControl, IOpenFileDialog
     {
+        private Window window;
         public ConfigurarCredenciais()
         {
             InitializeComponent();
@@ -28,10 +30,16 @@ namespace VMIClientePix.View
 
         private void TelaConfigurarCredenciais_Loaded(object sender, RoutedEventArgs e)
         {
-            if (DataContext is IRequestClose)
+            window = Window.GetWindow(this);
+            window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            window.Title = "Configurar Credenciais";
+            window.Closing += (_, _) =>
             {
-                (DataContext as IRequestClose).RequestClose += (_, __) => this.Close();
-            }
+                if (DataContext is IRequestClose)
+                {
+                    (DataContext as IRequestClose).RequestClose += (_, _) => window.Close();
+                }
+            };
         }
     }
 }

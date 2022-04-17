@@ -1,14 +1,13 @@
-﻿<Window x:Class="VMIClientePix.View.ApresentaQRCodeEDados"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d"
-        Title="QRCode E Dados De Cobrança Pix"
-        Height="610"
-        Width="800"
-        WindowStartupLocation="CenterScreen"
-        Loaded="Window_Loaded">
+﻿<UserControl x:Class="VMIClientePix.View.ApresentaQRCodeEDados"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             Height="610"
+             Width="800"
+             Background="White"
+             Loaded="UserControl_Loaded">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -282,4 +281,4 @@
                          Value="{Binding SegundosDesdeCriacao}" />
         </Grid>
     </Grid>
-</Window>
+</UserControl>

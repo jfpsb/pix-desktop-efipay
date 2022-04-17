@@ -1,4 +1,5 @@
 ﻿using System.Windows;
+using System.Windows.Controls;
 using VMIClientePix.ViewModel.Interfaces;
 
 namespace VMIClientePix.View
@@ -6,22 +7,27 @@ namespace VMIClientePix.View
     /// <summary>
     /// Interaction logic for ApresentaQRCodeEDados.xaml
     /// </summary>
-    public partial class ApresentaQRCodeEDados : Window
+    public partial class ApresentaQRCodeEDados : UserControl
     {
+        private Window window;
         public ApresentaQRCodeEDados()
         {
             InitializeComponent();
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            if (DataContext is IOnClosing)
-            {
-                Closing += (_, _) =>
-                {
-                    (DataContext as IOnClosing).OnClosingFromVM();
-                };
-            }
+            window = Window.GetWindow(this);
+            window.Title = "Dados e QRCode De Cobrança Pix";
+            window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            window.ResizeMode = ResizeMode.NoResize;
+            window.Closing += (_, _) =>
+             {
+                 if (DataContext is IOnClosing)
+                 {
+                     (DataContext as IOnClosing).OnClosingFromVM();
+                 }
+             };
         }
     }
 }

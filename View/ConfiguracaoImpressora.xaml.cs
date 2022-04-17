@@ -1,5 +1,5 @@
 ﻿using System.Windows;
-using VMIClientePix.View.Interfaces;
+using System.Windows.Controls;
 using VMIClientePix.ViewModel.Interfaces;
 
 namespace VMIClientePix.View
@@ -7,22 +7,27 @@ namespace VMIClientePix.View
     /// <summary>
     /// Interaction logic for ConfiguracaoImpressora.xaml
     /// </summary>
-    public partial class ConfiguracaoImpressora : Window
+    public partial class ConfiguracaoImpressora : UserControl
     {
+        private Window window;
         public ConfiguracaoImpressora()
         {
             InitializeComponent();
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        private void UserControl_Loaded(object sender, RoutedEventArgs e)
         {
-            if (DataContext is IOnClosing)
+            window = Window.GetWindow(this);
+            window.Title = "Configuração De Impressora";
+            window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            window.ResizeMode = ResizeMode.NoResize;
+            window.Closing += (_, _) =>
             {
-                Closing += (_, _) =>
+                if (DataContext is IOnClosing)
                 {
                     (DataContext as IOnClosing).OnClosingFromVM();
-                };
-            }
+                }
+            };
         }
     }
 }

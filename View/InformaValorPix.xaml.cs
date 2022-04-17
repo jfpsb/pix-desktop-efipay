@@ -28,6 +28,9 @@ namespace VMIClientePix.View
             TxtValor.SelectAll();
 
             window = Window.GetWindow(this);
+            window.Title = "Informar Valor De Cobrança Pix";
+            window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            window.ResizeMode = ResizeMode.NoResize;
             window.Closing += (_, _) =>
             {
                 if (DataContext is IOnClosing)
