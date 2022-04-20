@@ -33,13 +33,11 @@ namespace VMIClientePix.View
             window = Window.GetWindow(this);
             window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             window.Title = "Configurar Credenciais";
-            window.Closing += (_, _) =>
+
+            if (DataContext is IRequestClose)
             {
-                if (DataContext is IRequestClose)
-                {
-                    (DataContext as IRequestClose).RequestClose += (_, _) => window.Close();
-                }
-            };
+                (DataContext as IRequestClose).RequestClose += (_, _) => window.Close();
+            }
         }
     }
 }

@@ -36,6 +36,7 @@ namespace VMIClientePix.ViewModel
             SalvarCredenciaisComando = new RelayCommand(SalvarCredenciais);
             AbrirProcurarComando = new RelayCommand(AbrirProcurar);
 
+
             Porta = "3306"; //Porta padrão do Mysql
         }
 
@@ -128,7 +129,7 @@ namespace VMIClientePix.ViewModel
 
                 messageBox.Show("Credenciais Salvas Com Sucesso!");
 
-                RequestClose.Invoke(this, new EventArgs());
+                RequestClose?.Invoke(this, new EventArgs());
             }
             catch (Exception ex)
             {
