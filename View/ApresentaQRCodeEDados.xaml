@@ -129,7 +129,7 @@
                 </Label.Style>
             </Label>
             <Button Grid.Row="3"
-                    Content="Imprimir QRCode"
+                    Content="Imprimir QR Code"
                     VerticalAlignment="Bottom"
                     Margin="10"
                     FontSize="22"

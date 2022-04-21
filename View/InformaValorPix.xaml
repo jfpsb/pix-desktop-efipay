@@ -22,7 +22,7 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
-            <Label Content="Informe o Valor Da Transferência Pix:"
+            <Label Content="Informe o Valor Da Cobrança Pix:"
                    FontSize="20"
                    HorizontalContentAlignment="Center" />
             <TextBox x:Name="TxtValor"

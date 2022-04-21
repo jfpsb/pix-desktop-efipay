@@ -442,9 +442,13 @@ namespace VMIClientePix.ViewModel
                 Log.EscreveLogGn(e);
                 messageBoxService.Show($"Erro ao listar cobranças da instituição GerenciaNet.\n\nAcesse {Log.LogGn} para mais detalhes.", "Erro ao consultar cobranças", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            catch (JsonReaderException jex)
+            {
+                messageBoxService.Show($"Erro ao listar cobranças da instituição GerenciaNet. Cheque se está conectado a internet.\n\n{jex.Message}", "Erro ao Consultar Cobranças Pix", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
             catch (Exception ex)
             {
-                messageBoxService.Show(ex.Message, "Erro ao Consultar Transferências Pix", MessageBoxButton.OK, MessageBoxImage.Error);
+                messageBoxService.Show($"Erro ao listar cobranças da instituição GerenciaNet. Cheque se está conectado a internet.\n\n{ex.Message}\n\n{ex.InnerException?.Message}", "Erro ao Consultar Cobranças Pix", MessageBoxButton.OK, MessageBoxImage.Error);
                 IniciaSessionEDAO();
             }
         }
@@ -527,9 +531,13 @@ namespace VMIClientePix.ViewModel
                 Log.EscreveLogGn(e);
                 messageBoxService.Show($"Erro ao listar cobranças da instituição GerenciaNet.\n\nAcesse {Log.LogGn} para mais detalhes.", "Erro ao consultar cobranças", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+            catch (JsonReaderException jex)
+            {
+                messageBoxService.Show($"Erro ao listar cobranças da instituição GerenciaNet. Cheque se está conectado a internet.\n\n{jex.Message}", "Erro ao Consultar Cobranças Pix", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
             catch (Exception ex)
             {
-                messageBoxService.Show(ex.Message, "Erro ao Consultar Cobranças Pix", MessageBoxButton.OK, MessageBoxImage.Error);
+                messageBoxService.Show($"Erro ao listar cobranças da instituição GerenciaNet. Cheque se está conectado a internet.\n\n{ex.Message}\n\n{ex.InnerException?.Message}", "Erro ao Consultar Cobranças Pix", MessageBoxButton.OK, MessageBoxImage.Error);
                 IniciaSessionEDAO();
             }
         }
