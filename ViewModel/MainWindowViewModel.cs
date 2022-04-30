@@ -93,8 +93,8 @@ namespace VMIClientePix.ViewModel
             {
                 SessionProvider.SessionFactory = SessionProvider.BuildSessionFactory();
                 IniciaSessionEDAO();
-                AtualizarCobrancasPelaGN();
-                AtualizarListaPixPelaGN();
+                AtualizarCobrancasPelaGN(false);
+                AtualizarListaPixPelaGN(false);
                 ListarPix();
                 ListarCobrancas();
 
@@ -106,7 +106,6 @@ namespace VMIClientePix.ViewModel
                         timerSync.Elapsed += TimerSync_Elapsed;
                         timerSync.AutoReset = false;
                         timerSync.Enabled = true;
-
                         ComunicaoPelaRede.IniciaServidor();
                     }
                     else
@@ -181,6 +180,8 @@ namespace VMIClientePix.ViewModel
         {
             //Atualiza listas caso estejam desatualizadas
             //Ao mesmo tempo atualiza campos de total
+            AtualizarCobrancasPelaGN(false);
+            AtualizarListaPixPelaGN(false);
             ListarCobrancas();
             ListarPix();
 
@@ -279,7 +280,7 @@ namespace VMIClientePix.ViewModel
 
         private void ConsultarRecebimentoPix(object obj)
         {
-            AtualizarListaPixPelaGN();
+            AtualizarListaPixPelaGN(true);
             ListarPix();
         }
 
@@ -391,7 +392,11 @@ namespace VMIClientePix.ViewModel
             }
         }
 
-        private async void AtualizarListaPixPelaGN()
+        /// <summary>
+        /// Consulta A API da GerenciaNet para retornar os Pix do dia atual
+        /// </summary>
+        /// <param name="throwEx">Determina se eventuais exceções devem mostrar aviso ao usuário ou se serão tratadas silenciosamente</param>
+        private async void AtualizarListaPixPelaGN(bool throwEx)
         {
             var gnEndPoints = Credentials.GNEndpoints();
             var dados = JObject.Parse(File.ReadAllText("dados_recebedor.json"));
@@ -440,20 +445,33 @@ namespace VMIClientePix.ViewModel
             catch (GnException e)
             {
                 Log.EscreveLogGn(e);
-                messageBoxService.Show($"Erro ao listar cobranças da instituição GerenciaNet.\n\nAcesse {Log.LogGn} para mais detalhes.", "Erro ao consultar cobranças", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (!throwEx)
+                {
+                    messageBoxService.Show($"Erro ao listar pix da instituição GerenciaNet.\n\nAcesse {Log.LogGn} para mais detalhes.", "Erro ao consultar pix", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
             catch (JsonReaderException jex)
             {
-                messageBoxService.Show($"Erro ao listar cobranças da instituição GerenciaNet. Cheque se está conectado a internet.\n\n{jex.Message}", "Erro ao Consultar Cobranças Pix", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (!throwEx)
+                {
+                    messageBoxService.Show($"Erro ao listar pix da instituição GerenciaNet. Cheque se está conectado a internet.\n\n{jex.Message}", "Erro ao Consultar Pix", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
             catch (Exception ex)
             {
-                messageBoxService.Show($"Erro ao listar cobranças da instituição GerenciaNet. Cheque se está conectado a internet.\n\n{ex.Message}\n\n{ex.InnerException?.Message}", "Erro ao Consultar Cobranças Pix", MessageBoxButton.OK, MessageBoxImage.Error);
-                IniciaSessionEDAO();
+                if (!throwEx)
+                {
+                    messageBoxService.Show($"Erro ao listar pix da instituição GerenciaNet. Cheque se está conectado a internet.\n\n{ex.Message}\n\n{ex.InnerException?.Message}", "Erro ao Consultar Pix", MessageBoxButton.OK, MessageBoxImage.Error);
+                    IniciaSessionEDAO();
+                }
             }
         }
 
-        private async void AtualizarCobrancasPelaGN()
+        /// <summary>
+        /// Consulta A API da GerenciaNet para retornar as cobranças do dia atual com seus respectivos status
+        /// </summary>
+        /// <param name="throwEx">Determina se eventuais exceções devem mostrar aviso ao usuário ou se serão tratadas silenciosamente</param>
+        private async void AtualizarCobrancasPelaGN(bool throwEx)
         {
             var gnEndPoints = Credentials.GNEndpoints();
 
@@ -529,22 +547,31 @@ namespace VMIClientePix.ViewModel
             catch (GnException e)
             {
                 Log.EscreveLogGn(e);
-                messageBoxService.Show($"Erro ao listar cobranças da instituição GerenciaNet.\n\nAcesse {Log.LogGn} para mais detalhes.", "Erro ao consultar cobranças", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (!throwEx)
+                {
+                    messageBoxService.Show($"Erro ao listar cobranças da instituição GerenciaNet.\n\nAcesse {Log.LogGn} para mais detalhes.", "Erro ao consultar cobranças", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
             catch (JsonReaderException jex)
             {
-                messageBoxService.Show($"Erro ao listar cobranças da instituição GerenciaNet. Cheque se está conectado a internet.\n\n{jex.Message}", "Erro ao Consultar Cobranças Pix", MessageBoxButton.OK, MessageBoxImage.Error);
+                if (!throwEx)
+                {
+                    messageBoxService.Show($"Erro ao listar cobranças da instituição GerenciaNet. Cheque se está conectado a internet.\n\n{jex.Message}", "Erro ao Consultar Cobranças Pix", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
             catch (Exception ex)
             {
-                messageBoxService.Show($"Erro ao listar cobranças da instituição GerenciaNet. Cheque se está conectado a internet.\n\n{ex.Message}\n\n{ex.InnerException?.Message}", "Erro ao Consultar Cobranças Pix", MessageBoxButton.OK, MessageBoxImage.Error);
-                IniciaSessionEDAO();
+                if (!throwEx)
+                {
+                    messageBoxService.Show($"Erro ao listar cobranças da instituição GerenciaNet. Cheque se está conectado a internet.\n\n{ex.Message}\n\n{ex.InnerException?.Message}", "Erro ao Consultar Cobranças Pix", MessageBoxButton.OK, MessageBoxImage.Error);
+                    IniciaSessionEDAO();
+                }
             }
         }
 
         private void AtualizarLista(object obj)
         {
-            AtualizarCobrancasPelaGN();
+            AtualizarCobrancasPelaGN(true);
             ListarCobrancas();
         }
 
