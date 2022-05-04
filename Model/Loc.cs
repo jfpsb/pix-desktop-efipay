@@ -7,6 +7,12 @@ namespace VMIClientePix.Model
         private int _id;
         private string _location;
         private string _tipoCob;
+        private Cobranca _cobranca;
+
+        public override object GetIdentifier()
+        {
+            return Id;
+        }
 
         public virtual int Id
         {
@@ -48,6 +54,25 @@ namespace VMIClientePix.Model
                 _tipoCob = value;
                 OnPropertyChanged("TipoCob");
             }
+        }
+
+        public virtual Cobranca Cobranca
+        {
+            get
+            {
+                return _cobranca;
+            }
+
+            set
+            {
+                _cobranca = value;
+                OnPropertyChanged("Cobranca");
+            }
+        }
+
+        public override void InicializaLazy()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

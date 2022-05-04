@@ -16,6 +16,11 @@ namespace VMIClientePix.Model
         private string _infoPagador;
         private IList<Devolucao> _devolucoes = new List<Devolucao>();
 
+        public override object GetIdentifier()
+        {
+            return EndToEndId;
+        }
+
         [JsonProperty(PropertyName = "txid")]
         public virtual string Txid
         {
@@ -151,16 +156,21 @@ namespace VMIClientePix.Model
                 OnPropertyChanged("Chave");
             }
         }
+
+        public override void InicializaLazy()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class Pagador : AModel
     {
-        private long _id;
+        private int _id;
         private string _cpf;
         private string _cnpj;
         private string _nome;
 
-        public virtual long Id
+        public virtual int Id
         {
             get
             {
@@ -214,6 +224,16 @@ namespace VMIClientePix.Model
                 _nome = value;
                 OnPropertyChanged("Nome");
             }
+        }
+
+        public override object GetIdentifier()
+        {
+            return Id;
+        }
+
+        public override void InicializaLazy()
+        {
+            throw new NotImplementedException();
         }
     }
 }

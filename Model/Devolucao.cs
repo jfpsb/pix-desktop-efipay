@@ -12,6 +12,11 @@ namespace VMIClientePix.Model
         private double _valor;
         private string _status;
 
+        public override object GetIdentifier()
+        {
+            return Id;
+        }
+
         public virtual string Id
         {
             get
@@ -95,15 +100,20 @@ namespace VMIClientePix.Model
                 OnPropertyChanged("Horario");
             }
         }
+
+        public override void InicializaLazy()
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class Horario : AModel
     {
-        private long _id;
+        private int _id;
         private DateTime _solicitacao;
         private DateTime _liquidacao;
 
-        public virtual long Id
+        public virtual int Id
         {
             get
             {
@@ -143,6 +153,16 @@ namespace VMIClientePix.Model
                 _liquidacao = value;
                 OnPropertyChanged("Liquidacao");
             }
+        }
+
+        public override object GetIdentifier()
+        {
+            return Id;
+        }
+
+        public override void InicializaLazy()
+        {
+            throw new NotImplementedException();
         }
     }
 }

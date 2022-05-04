@@ -1,13 +1,16 @@
-﻿using VMIClientePix.Util;
-
-namespace VMIClientePix.Model
+﻿namespace VMIClientePix.Model
 {
     public class Valor : AModel
     {
-        private long _id;
+        private int _id;
         private double _original;
 
-        public virtual long Id
+        public override object GetIdentifier()
+        {
+            return Id;
+        }
+
+        public virtual int Id
         {
             get
             {
@@ -33,6 +36,11 @@ namespace VMIClientePix.Model
                 _original = value;
                 OnPropertyChanged("Original");
             }
+        }
+
+        public override void InicializaLazy()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

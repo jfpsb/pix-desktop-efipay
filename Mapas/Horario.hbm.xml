@@ -4,11 +4,10 @@
                    namespace="VMIClientePix.Model">
 
 	<class name="Horario" table="horario">
-		<id name="Id" column="id" type="Int64">
-			<generator class="hilo">
-				<param name="max_lo">1024</param>
-			</generator>
+		<id name="Id" column="id" type="Int32">
+			<generator class="increment" />
 		</id>
+		<property name="Uuid"/>
 		<property name="Solicitacao" />
 		<property name="Liquidacao" />
 		<property name="CriadoEm" />

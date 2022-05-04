@@ -4,11 +4,10 @@
                    namespace="VMIClientePix.Model">
 
 	<class name="Valor" table="valor">
-		<id name="Id" column="id" type="Int64">
-			<generator class="hilo">
-				<param name="max_lo">1024</param>
-			</generator>
+		<id name="Id" column="id" type="Int32">
+			<generator class="increment" />
 		</id>
+		<property name="Uuid"/>
 		<property name="Original" />
 		<property name="CriadoEm" />
 		<property name="ModificadoEm" />

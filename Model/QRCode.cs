@@ -1,17 +1,21 @@
 ﻿using System;
 using System.IO;
 using System.Windows.Media.Imaging;
-using VMIClientePix.Util;
 
 namespace VMIClientePix.Model
 {
     public class QRCode : AModel
     {
-        private long _id;
+        private int _id;
         private string _qrcode;
         private string _imagemQrcode;
 
-        public virtual long Id
+        public override object GetIdentifier()
+        {
+            return Id;
+        }
+
+        public virtual int Id
         {
             get
             {
@@ -64,6 +68,11 @@ namespace VMIClientePix.Model
 
                 return bitmapImage;
             }
+        }
+
+        public override void InicializaLazy()
+        {
+            throw new NotImplementedException();
         }
     }
 }

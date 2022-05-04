@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using NHibernate;
 using System;
 using System.Collections.Generic;
 
@@ -188,6 +189,39 @@ namespace VMIClientePix.Model
             {
                 _pix = value;
                 OnPropertyChanged("Pix");
+            }
+        }
+
+        public override object GetIdentifier()
+        {
+            return Txid;
+        }
+
+        public override void InicializaLazy()
+        {
+            if (!NHibernateUtil.IsInitialized(Calendario))
+            {
+                NHibernateUtil.Initialize(Calendario);
+            }
+
+            if (!NHibernateUtil.IsInitialized(Valor))
+            {
+                NHibernateUtil.Initialize(Valor);
+            }
+
+            if (!NHibernateUtil.IsInitialized(Loc))
+            {
+                NHibernateUtil.Initialize(Loc);
+            }
+
+            if (!NHibernateUtil.IsInitialized(Pix))
+            {
+                NHibernateUtil.Initialize(Pix);
+            }
+
+            if (!NHibernateUtil.IsInitialized(QrCode))
+            {
+                NHibernateUtil.Initialize(QrCode);
             }
         }
     }

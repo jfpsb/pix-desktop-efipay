@@ -5,11 +5,15 @@ namespace VMIClientePix.Model
 {
     public abstract class AModel : ObservableObject
     {
+        private Guid _uuid;
         private DateTime? _criadoEm;
         private DateTime? _modificadoEm;
         private DateTime? _deletadoEm;
         private bool _deletado;
         public virtual string Tipo => GetType().Name.ToLower();
+
+        public abstract void InicializaLazy();
+        public abstract object GetIdentifier();
 
         public virtual bool Deletado
         {
@@ -46,6 +50,20 @@ namespace VMIClientePix.Model
             {
                 _deletadoEm = value;
                 OnPropertyChanged("DeletadoEm");
+            }
+        }
+
+        public virtual Guid Uuid
+        {
+            get
+            {
+                return _uuid;
+            }
+
+            set
+            {
+                _uuid = value;
+                OnPropertyChanged("Uuid");
             }
         }
     }

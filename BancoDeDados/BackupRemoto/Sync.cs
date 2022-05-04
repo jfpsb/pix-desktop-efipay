@@ -38,37 +38,29 @@ namespace VMIClientePix.BancoDeDados.BackupRemoto
 
             using (var session = SessionProvider.GetSession())
             {
-                using (var tx = session.BeginTransaction())
+                try
                 {
-                    try
-                    {
-                        var criteria = session.CreateCriteria<E>();
-                        criteria.Add(Restrictions.Gt("CriadoEm", ultCriadoEm));
-                        inserts = await criteria.ListAsync<E>();
-                        await tx.CommitAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.EscreveLogBancoLocal(ex, "listar inserts criadoem");
-                    }
+                    var criteria = session.CreateCriteria<E>();
+                    criteria.Add(Restrictions.Gt("CriadoEm", ultCriadoEm));
+                    inserts = await criteria.ListAsync<E>();
+                }
+                catch (Exception ex)
+                {
+                    Log.EscreveLogBancoLocal(ex, "listar inserts criadoem");
                 }
             }
 
             using (var session = SessionProvider.GetSession())
             {
-                using (var tx = session.BeginTransaction())
+                try
                 {
-                    try
-                    {
-                        var criteria = session.CreateCriteria<E>();
-                        criteria.Add(Restrictions.Gt("ModificadoEm", ultModificadoEm));
-                        updates = await criteria.ListAsync<E>();
-                        await tx.CommitAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.EscreveLogBancoLocal(ex, "listar updates criadoem");
-                    }
+                    var criteria = session.CreateCriteria<E>();
+                    criteria.Add(Restrictions.Gt("ModificadoEm", ultModificadoEm));
+                    updates = await criteria.ListAsync<E>();
+                }
+                catch (Exception ex)
+                {
+                    Log.EscreveLogBancoLocal(ex, "listar updates criadoem");
                 }
             }
 
@@ -80,7 +72,7 @@ namespace VMIClientePix.BancoDeDados.BackupRemoto
                     {
                         using (var tx = session.BeginTransaction())
                         {
-                            foreach (var insert in inserts)
+                            foreach (E insert in inserts)
                             {
                                 await session.ReplicateAsync(insert, ReplicationMode.Overwrite);
                             }

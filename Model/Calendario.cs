@@ -4,12 +4,12 @@ namespace VMIClientePix.Model
 {
     public class Calendario : AModel
     {
-        private long _id;
+        private int _id;
         private DateTime _criacao;
         private DateTime _apresentacao;
         private int _expiracao;
 
-        public virtual long Id
+        public virtual int Id
         {
             get
             {
@@ -58,6 +58,16 @@ namespace VMIClientePix.Model
                 _expiracao = value;
                 OnPropertyChanged("Expiracao");
             }
+        }
+
+        public override object GetIdentifier()
+        {
+            return Id;
+        }
+
+        public override void InicializaLazy()
+        {
+            throw new NotImplementedException();
         }
     }
 }
