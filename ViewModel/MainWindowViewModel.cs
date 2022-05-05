@@ -100,18 +100,18 @@ namespace VMIClientePix.ViewModel
 
                 if (configApp != null)
                 {
-                    if ((bool)configApp["fazbackup"])
-                    {
-                        timerSync = new Timer(); //Inicia timer de imediato e dentro do timer configuro para rodar de 1 em 1 minuto
-                        timerSync.Elapsed += TimerSync_Elapsed;
-                        timerSync.AutoReset = false;
-                        timerSync.Enabled = true;
-                        ComunicaoPelaRede.IniciaServidor();
-                    }
-                    else
-                    {
-                        ComunicaoPelaRede.IniciaListener();
-                    }
+                    //if ((bool)configApp["fazbackup"])
+                    //{
+                    //    timerSync = new Timer(); //Inicia timer de imediato e dentro do timer configuro para rodar de 1 em 1 minuto
+                    //    timerSync.Elapsed += TimerSync_Elapsed;
+                    //    timerSync.AutoReset = false;
+                    //    timerSync.Enabled = true;
+                    //    ComunicaoPelaRede.IniciaServidor();
+                    //}
+                    //else
+                    //{
+                    //    ComunicaoPelaRede.IniciaListener();
+                    //}
                 }
             }
             catch (Exception ex)
@@ -308,9 +308,10 @@ namespace VMIClientePix.ViewModel
             try
             {
                 if (SessionProviderBackup.BackupSessionFactory == null)
+                {
                     SessionProviderBackup.BackupSessionFactory = SessionProviderBackup.BuildSessionFactory();
-
-                File.AppendAllText(Sync.ArquivoLog, $"\nData/Hora: {DateTime.Now}\nSessionFactory De Backup Iniciada Com Sucesso.");
+                    File.AppendAllText(Sync.ArquivoLog, $"\nData/Hora: {DateTime.Now}\nSessionFactory De Backup Iniciada Com Sucesso.");
+                }
             }
             catch (Exception ex)
             {

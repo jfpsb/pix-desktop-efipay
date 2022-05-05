@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="SincronizacaoServico"
+                   namespace="SincronizacaoServico.Model">
+
+	<class name="Calendario" table="calendario">
+		<id name="Id" column="id" type="Int32">
+			<generator class="increment" />
+		</id>
+		<property name="Uuid"/>
+		<property name="Criacao" />
+		<property name="Apresentacao" />
+		<property name="Expiracao" />
+		<property name="CriadoEm" />
+		<property name="ModificadoEm" />
+		<property name="DeletadoEm" />
+		<property name="Deletado" />
+	</class>
+
+</hibernate-mapping>
