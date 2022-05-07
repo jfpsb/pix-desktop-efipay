@@ -12,6 +12,9 @@ namespace SincronizacaoServico
 
         public Sincronizacao()
         {
+            //TODO: tratar caso build session factory dê erro
+            SessionProvider.BuildSessionFactory();
+            SessionProviderBackup.BuildSessionFactory();
             timer = new System.Timers.Timer(2000) { AutoReset = true };
             timer.Elapsed += ExecutaSync;
         }
@@ -75,11 +78,11 @@ namespace SincronizacaoServico
                 }
             }
         }
-        private async void SyncEntidade<E>(DateTime lastSync, bool setIdToNull = false) where E : AModel
+        private async void SyncEntidade<E>(DateTime lastSync, bool setIdToDefault = false) where E : AModel
         {
             Console.WriteLine($"Iniciando sincronização de {typeof(E).Name}");
 
-            IList<E> insertsRemotoParaLocal = new List<E>(); //Guarda 
+            IList<E> insertsRemotoParaLocal = new List<E>();
             IList<E> updatesRemotoParaLocal = new List<E>();
             IList<E> insertsLocalParaRemoto = new List<E>();
             IList<E> updatesLocalParaRemoto = new List<E>();
@@ -90,7 +93,25 @@ namespace SincronizacaoServico
                 {
                     var criteria = session.CreateCriteria<E>();
                     criteria.Add(Restrictions.Ge("CriadoEm", lastSync));
-                    insertsRemotoParaLocal = await criteria.ListAsync<E>();
+                    var lista = await criteria.ListAsync<E>();
+
+                    foreach (E e in lista)
+                    {
+                        //Entidade com mesmo UUID no banco local
+                        var ent = await ListarPorUuidLocal<E>(e.Uuid);
+                        bool AIIdEnt = ent is not Cobranca && ent is not Pix && ent is not Loc && ent is not Devolucao;
+
+                        if (ent != null)
+                        {
+                            if (AIIdEnt)
+                                e.Uuid = Guid.NewGuid();
+                        }
+
+                        if (setIdToDefault)
+                            e.SetIdentifierToDefault();
+
+                        insertsRemotoParaLocal.Add(e);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -135,7 +156,30 @@ namespace SincronizacaoServico
                 {
                     var criteria = session.CreateCriteria<E>();
                     criteria.Add(Restrictions.Ge("CriadoEm", lastSync));
-                    insertsLocalParaRemoto = await criteria.ListAsync<E>();
+                    var lista = await criteria.ListAsync<E>();
+
+                    foreach (E e in lista)
+                    {
+                        //Entidade com mesmo UUID no banco remoto
+                        var ent = await ListarPorUuidRemoto<E>(e.Uuid);
+
+                        if (ent == null)
+                        {
+                            insertsLocalParaRemoto.Add(e);
+                        }
+                        else
+                        {
+                            if (setIdToDefault)
+                                e.SetIdentifierToDefault();
+                            e.Uuid = Guid.NewGuid();
+
+                            using (ITransaction tx = session.BeginTransaction())
+                            {
+                                await session.InsertAsync(e);
+                                await tx.CommitAsync();
+                            }
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -183,7 +227,7 @@ namespace SincronizacaoServico
                     {
                         foreach (E insert in insertsRemotoParaLocal)
                         {
-                            if (setIdToNull)
+                            if (setIdToDefault)
                                 insert.SetIdentifierToDefault();
                             await session.InsertAsync(insert);
                         }
@@ -219,7 +263,7 @@ namespace SincronizacaoServico
                     {
                         foreach (E insert in insertsLocalParaRemoto)
                         {
-                            if (setIdToNull)
+                            if (setIdToDefault)
                                 insert.SetIdentifierToDefault();
                             await session.InsertAsync(insert);
                         }
