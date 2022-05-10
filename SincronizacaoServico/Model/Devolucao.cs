@@ -116,6 +116,11 @@
             RtrId = d.RtrId;
             Valor = d.Valor;
             Status = d.Status;
+
+            CriadoEm = d.CriadoEm;
+            ModificadoEm = d.ModificadoEm;
+            DeletadoEm = d.DeletadoEm;
+            Deletado = d.Deletado;
         }
     }
 
@@ -172,6 +177,11 @@
             Horario d = source as Horario;
             Solicitacao = d.Solicitacao;
             Liquidacao = d.Liquidacao;
+
+            CriadoEm = d.CriadoEm;
+            ModificadoEm = d.ModificadoEm;
+            DeletadoEm = d.DeletadoEm;
+            Deletado = d.Deletado;
         }
 
         public override object GetIdentifier()

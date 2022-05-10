@@ -233,16 +233,23 @@ namespace SincronizacaoServico.Model
         public override void Copiar(object source)
         {
             Cobranca cob = source as Cobranca;
+            Txid = cob.Txid;
+            Uuid = cob.Uuid;
             Calendario = cob.Calendario;
             Valor = cob.Valor;
             Loc = cob.Loc;
-            Pix = new List<Pix>(cob.Pix);
+            //Pix = new List<Pix>(cob.Pix);
             QrCode = cob.QrCode;
             Revisao = cob.Revisao;
             Status = cob.Status;
             Chave = cob.Chave;
             Location = cob.Location;
             PagoEm = cob.PagoEm;
+
+            CriadoEm = cob.CriadoEm;
+            ModificadoEm = cob.ModificadoEm;
+            DeletadoEm = cob.DeletadoEm;
+            Deletado = cob.Deletado;
         }
     }
 }

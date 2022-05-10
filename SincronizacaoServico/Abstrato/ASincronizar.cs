@@ -15,7 +15,7 @@ namespace SincronizacaoServico.Interfaces
             _isChaveAutoIncremento = isChaveAutoIncremento;
         }
 
-        public abstract Task<bool> Sincronizar(DateTime lastSync);
+        public abstract Task Sincronizar(DateTime lastSync);
 
         protected async Task<T> ListarPorUuidLocal<T>(Guid uuid) where T : AModel
         {

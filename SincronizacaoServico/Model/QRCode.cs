@@ -68,6 +68,11 @@
             QRCode q = source as QRCode;
             Qrcode = q.Qrcode;
             ImagemQrcode = q.ImagemQrcode;
+
+            CriadoEm = q.CriadoEm;
+            ModificadoEm = q.ModificadoEm;
+            DeletadoEm = q.DeletadoEm;
+            Deletado = q.Deletado;
         }
     }
 }

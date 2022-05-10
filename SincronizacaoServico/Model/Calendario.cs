@@ -66,6 +66,11 @@ namespace SincronizacaoServico.Model
             Criacao = c.Criacao;
             Apresentacao = c.Apresentacao;
             Expiracao = c.Expiracao;
+
+            CriadoEm = c.CriadoEm;
+            ModificadoEm = c.ModificadoEm;
+            DeletadoEm = c.DeletadoEm;
+            Deletado = c.Deletado;
         }
 
         public override object GetIdentifier()

@@ -51,6 +51,11 @@
         {
             Valor v = source as Valor;
             Original = v.Original;
+
+            CriadoEm = v.CriadoEm;
+            ModificadoEm = v.ModificadoEm;
+            DeletadoEm = v.DeletadoEm;
+            Deletado = v.Deletado;
         }
     }
 }

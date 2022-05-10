@@ -1,6 +1,8 @@
 ﻿using NHibernate;
 using NHibernate.Criterion;
+using SincronizacaoServico.Abstrato;
 using SincronizacaoServico.Banco;
+using SincronizacaoServico.Interfaces;
 using SincronizacaoServico.Model;
 using System.Timers;
 
@@ -43,251 +45,63 @@ namespace SincronizacaoServico
             LastSync lastSync;
             DateTime inicioSync = DateTime.Now;
 
-            lastSync = await GetLastSyncTime();
-
-            DateTime syncTime = lastSync != null ? lastSync.LastSyncTime : DateTime.MinValue;
-
-            SyncEntidade<Calendario>(syncTime);
-            SyncEntidade<Valor>(syncTime);
-            SyncEntidade<Loc>(syncTime);
-            SyncEntidade<QRCode>(syncTime);
-            SyncEntidade<Cobranca>(syncTime);
-            SyncEntidade<Pagador>(syncTime);
-            SyncEntidade<Pix>(syncTime);
-            SyncEntidade<Horario>(syncTime);
-            SyncEntidade<Devolucao>(syncTime);
-
-            if (lastSync == null)
+            try
             {
-                lastSync = new LastSync
+
+                lastSync = await GetLastSyncTime();
+
+                DateTime syncTime = lastSync != null ? lastSync.LastSyncTime : DateTime.MinValue;
+
+                ISession local = SessionProvider.GetSession();
+                ISession remote = SessionProviderBackup.GetSession();
+
+                ASincronizar<Calendario> aCalendario = new SincronizarGenerico<Calendario>(local, remote);
+                ASincronizar<Valor> aValor = new SincronizarGenerico<Valor>(local, remote);
+                ASincronizar<Loc> aLoc = new SincronizarGenerico<Loc>(local, remote);
+                ASincronizar<QRCode> aQRCode = new SincronizarGenerico<QRCode>(local, remote);
+                SincronizarCobranca aCobranca = new SincronizarCobranca(local, remote);
+                ASincronizar<Pagador> aPagador = new SincronizarGenerico<Pagador>(local, remote);
+                SincronizarPix aPix = new SincronizarPix(local, remote);
+                ASincronizar<Horario> aHorario = new SincronizarGenerico<Horario>(local, remote);
+                SincronizarDevolucao aDevolucao = new SincronizarDevolucao(local, remote);
+
+                await aCalendario.Sincronizar(syncTime);
+                await aValor.Sincronizar(syncTime);
+                await aLoc.Sincronizar(syncTime);
+                await aQRCode.Sincronizar(syncTime);
+                await aCobranca.Sincronizar(syncTime);
+                await aPagador.Sincronizar(syncTime);
+                await aPix.Sincronizar(syncTime);
+                await aHorario.Sincronizar(syncTime);
+                await aDevolucao.Sincronizar(syncTime);
+
+                SessionProvider.FechaSession(local);
+                SessionProviderBackup.FechaSession(remote);
+
+                if (lastSync == null)
                 {
-                    LastSyncTime = inicioSync
-                };
-            }
-            else
-            {
-                lastSync.LastSyncTime = inicioSync;
-            }
-
-            using (var session = SessionProvider.GetSession())
-            {
-                using (ITransaction tx = session.BeginTransaction())
-                {
-                    session.SaveOrUpdate(lastSync);
-                    tx.Commit();
-                }
-            }
-        }
-        private async void SyncEntidade<E>(DateTime lastSync, bool setIdToDefault = false) where E : AModel
-        {
-            Console.WriteLine($"Iniciando sincronização de {typeof(E).Name}");
-
-            IList<E> insertsRemotoParaLocal = new List<E>();
-            IList<E> updatesRemotoParaLocal = new List<E>();
-            IList<E> insertsLocalParaRemoto = new List<E>();
-            IList<E> updatesLocalParaRemoto = new List<E>();
-
-            using (var session = SessionProviderBackup.GetStatelessSession())
-            {
-                try
-                {
-                    var criteria = session.CreateCriteria<E>();
-                    criteria.Add(Restrictions.Ge("CriadoEm", lastSync));
-                    var lista = await criteria.ListAsync<E>();
-
-                    foreach (E e in lista)
+                    lastSync = new LastSync
                     {
-                        //Entidade com mesmo UUID no banco local
-                        var ent = await ListarPorUuidLocal<E>(e.Uuid);
-                        bool AIIdEnt = ent is not Cobranca && ent is not Pix && ent is not Loc && ent is not Devolucao;
-
-                        if (ent != null)
-                        {
-                            if (AIIdEnt)
-                                e.Uuid = Guid.NewGuid();
-                        }
-
-                        if (setIdToDefault)
-                            e.SetIdentifierToDefault();
-
-                        insertsRemotoParaLocal.Add(e);
-                    }
+                        LastSyncTime = inicioSync
+                    };
                 }
-                catch (Exception ex)
+                else
                 {
-                    Console.WriteLine(ex.Message, ex);
+                    lastSync.LastSyncTime = inicioSync;
                 }
-            }
 
-            using (var session = SessionProviderBackup.GetStatelessSession())
-            {
-                try
+                using (var session = SessionProvider.GetSession())
                 {
-                    var criteria = session.CreateCriteria<E>();
-                    criteria.Add(Restrictions.Ge("ModificadoEm", lastSync));
-                    var lista = await criteria.ListAsync<E>();
-
-                    foreach (E e in lista)
+                    using (ITransaction tx = session.BeginTransaction())
                     {
-                        //Entidade com mesmo UUID no banco local
-                        var ent = await ListarPorUuidLocal<E>(e.Uuid);
-
-                        if (ent == null)
-                        {
-                            insertsRemotoParaLocal.Add(e);
-                            continue;
-                        }
-
-                        //Copia os dados do banco remoto para atualizar no local, preservando uuid e id local
-                        ent.Copiar(e);
-                        //Coloca na coleção que será salva
-                        updatesRemotoParaLocal.Add(ent);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message, ex);
-                }
-            }
-
-            using (var session = SessionProvider.GetStatelessSession())
-            {
-                try
-                {
-                    var criteria = session.CreateCriteria<E>();
-                    criteria.Add(Restrictions.Ge("CriadoEm", lastSync));
-                    var lista = await criteria.ListAsync<E>();
-
-                    foreach (E e in lista)
-                    {
-                        //Entidade com mesmo UUID no banco remoto
-                        var ent = await ListarPorUuidRemoto<E>(e.Uuid);
-
-                        if (ent == null)
-                        {
-                            insertsLocalParaRemoto.Add(e);
-                        }
-                        else
-                        {
-                            if (setIdToDefault)
-                                e.SetIdentifierToDefault();
-                            e.Uuid = Guid.NewGuid();
-
-                            using (ITransaction tx = session.BeginTransaction())
-                            {
-                                await session.InsertAsync(e);
-                                await tx.CommitAsync();
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message, ex);
-                }
-            }
-
-            using (var session = SessionProviderBackup.GetStatelessSession())
-            {
-                try
-                {
-                    var criteria = session.CreateCriteria<E>();
-                    criteria.Add(Restrictions.Ge("ModificadoEm", lastSync));
-                    var lista = await criteria.ListAsync<E>();
-
-                    foreach (E e in lista)
-                    {
-                        //Entidade com mesmo UUID no banco remoto
-                        var ent = await ListarPorUuidRemoto<E>(e.Uuid);
-
-                        if (ent == null)
-                        {
-                            insertsLocalParaRemoto.Add(e);
-                            continue;
-                        }
-
-                        //Copia os dados do banco local para atualizar no remoto, preservando uuid e id remota
-                        ent.Copiar(e);
-                        //Coloca na coleção que será salva
-                        updatesLocalParaRemoto.Add(ent);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message, ex);
-                }
-            }
-
-            if (insertsRemotoParaLocal.Count > 0)
-            {
-                Console.WriteLine($"Inserindo {insertsRemotoParaLocal.Count} registro(s) do banco remoto para o local.");
-                using (var session = SessionProvider.GetStatelessSession())
-                {
-                    using (var tx = session.BeginTransaction())
-                    {
-                        foreach (E insert in insertsRemotoParaLocal)
-                        {
-                            if (setIdToDefault)
-                                insert.SetIdentifierToDefault();
-                            await session.InsertAsync(insert);
-                        }
-
-                        await tx.CommitAsync();
+                        session.SaveOrUpdate(lastSync);
+                        tx.Commit();
                     }
                 }
             }
-
-            if (updatesRemotoParaLocal.Count > 0)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Atualizando {insertsRemotoParaLocal.Count} registro(s) do banco remoto para o local.");
-                using (var session = SessionProvider.GetStatelessSession())
-                {
-                    using (var tx = session.BeginTransaction())
-                    {
-                        foreach (E update in updatesRemotoParaLocal)
-                        {
-                            await session.UpdateAsync(update);
-                        }
-
-                        await tx.CommitAsync();
-                    }
-                }
-            }
-
-            if (insertsLocalParaRemoto.Count > 0)
-            {
-                Console.WriteLine($"Inserindo {insertsRemotoParaLocal.Count} registro(s) do banco local para o remoto.");
-                using (var session = SessionProviderBackup.GetStatelessSession())
-                {
-                    using (var tx = session.BeginTransaction())
-                    {
-                        foreach (E insert in insertsLocalParaRemoto)
-                        {
-                            if (setIdToDefault)
-                                insert.SetIdentifierToDefault();
-                            await session.InsertAsync(insert);
-                        }
-
-                        await tx.CommitAsync();
-                    }
-                }
-            }
-
-            if (updatesLocalParaRemoto.Count > 0)
-            {
-                Console.WriteLine($"Atualizando {insertsRemotoParaLocal.Count} registro(s) do banco local para o remoto.");
-                using (var session = SessionProviderBackup.GetStatelessSession())
-                {
-                    using (var tx = session.BeginTransaction())
-                    {
-                        foreach (E update in updatesLocalParaRemoto)
-                        {
-                            await session.UpdateAsync(update);
-                        }
-
-                        await tx.CommitAsync();
-                    }
-                }
+                Console.WriteLine(ex.ToString());
             }
         }
 

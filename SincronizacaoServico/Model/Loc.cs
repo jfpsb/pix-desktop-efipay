@@ -1,6 +1,4 @@
-﻿using SincronizacaoServico.Util;
-
-namespace SincronizacaoServico.Model
+﻿namespace SincronizacaoServico.Model
 {
     public class Loc : AModel
     {
@@ -70,6 +68,11 @@ namespace SincronizacaoServico.Model
             Loc l = source as Loc;
             Location = l.Location;
             TipoCob = l.TipoCob;
+
+            CriadoEm = l.CriadoEm;
+            ModificadoEm = l.ModificadoEm;
+            DeletadoEm = l.DeletadoEm;
+            Deletado = l.Deletado;
         }
     }
 }

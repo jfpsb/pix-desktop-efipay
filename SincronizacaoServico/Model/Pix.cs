@@ -175,7 +175,12 @@ namespace SincronizacaoServico.Model
             Chave = pix.Chave;
             Horario = pix.Horario;
             InfoPagador = pix.InfoPagador;
-            Devolucoes = new List<Devolucao>(pix.Devolucoes);
+            //Devolucoes = new List<Devolucao>(pix.Devolucoes);
+
+            CriadoEm = pix.CriadoEm;
+            ModificadoEm = pix.ModificadoEm;
+            DeletadoEm = pix.DeletadoEm;
+            Deletado = pix.Deletado;
         }
     }
 
