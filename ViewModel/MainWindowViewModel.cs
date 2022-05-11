@@ -18,8 +18,6 @@ using VMIClientePix.BancoDeDados.ConnectionFactory;
 using VMIClientePix.Model;
 using VMIClientePix.Model.DAO;
 using VMIClientePix.Util;
-using VMIClientePix.View;
-using VMIClientePix.View.Interfaces;
 using VMIClientePix.ViewModel.Interfaces;
 using VMIClientePix.ViewModel.Services.Concretos;
 
@@ -33,7 +31,7 @@ namespace VMIClientePix.ViewModel
         private DAOCobranca daoCobranca;
         private DAOPix daoPix;
         private ISession session;
-        private Timer timerSync;
+        private System.Timers.Timer timerSync;
         private double _totalCobrancas;
         private double _totalTransferencias;
         private ACBrPosPrinter posPrinter;

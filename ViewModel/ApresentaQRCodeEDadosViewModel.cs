@@ -36,8 +36,8 @@ namespace VMIClientePix.ViewModel
         private DAOCobranca daoCobranca;
         private double _segundosDesdeCriacao;
         private string _segundosAteExpiracaoEmString;
-        private Timer timerExpiracaoQrCode;
-        private Timer timerConsultaCobranca;
+        private System.Timers.Timer timerExpiracaoQrCode;
+        private System.Timers.Timer timerConsultaCobranca;
         private DateTime expiraEm;
         private ACBrPosPrinter posPrinter;
 
@@ -83,12 +83,12 @@ namespace VMIClientePix.ViewModel
 
                         daoCobranca = new DAOCobranca(session);
 
-                        timerExpiracaoQrCode = new Timer(1000);
+                        timerExpiracaoQrCode = new System.Timers.Timer(1000);
                         timerExpiracaoQrCode.Elapsed += TimerExpiracaoQrCode_Elapsed;
                         timerExpiracaoQrCode.AutoReset = true;
                         timerExpiracaoQrCode.Enabled = true;
 
-                        timerConsultaCobranca = new Timer(5000);
+                        timerConsultaCobranca = new System.Timers.Timer(5000);
                         timerConsultaCobranca.Elapsed += TimerConsultaCobranca_Elapsed;
                         timerConsultaCobranca.AutoReset = true;
                         timerConsultaCobranca.Enabled = true;

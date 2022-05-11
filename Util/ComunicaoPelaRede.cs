@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Timers;
 using System.Windows;
+using Timer = System.Timers.Timer;
 
 namespace VMIClientePix.Util
 {
