@@ -10,10 +10,8 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Timers;
 using System.Windows;
 using System.Windows.Input;
-using VMIClientePix.BancoDeDados.BackupRemoto;
 using VMIClientePix.BancoDeDados.ConnectionFactory;
 using VMIClientePix.Model;
 using VMIClientePix.Model.DAO;
@@ -31,7 +29,6 @@ namespace VMIClientePix.ViewModel
         private DAOCobranca daoCobranca;
         private DAOPix daoPix;
         private ISession session;
-        private System.Timers.Timer timerSync;
         private double _totalCobrancas;
         private double _totalTransferencias;
         private ACBrPosPrinter posPrinter;
@@ -100,10 +97,6 @@ namespace VMIClientePix.ViewModel
                 {
                     //if ((bool)configApp["fazbackup"])
                     //{
-                    //    timerSync = new Timer(); //Inicia timer de imediato e dentro do timer configuro para rodar de 1 em 1 minuto
-                    //    timerSync.Elapsed += TimerSync_Elapsed;
-                    //    timerSync.AutoReset = false;
-                    //    timerSync.Enabled = true;
                     //    ComunicaoPelaRede.IniciaServidor();
                     //}
                     //else
@@ -299,48 +292,6 @@ namespace VMIClientePix.ViewModel
             openView.ShowDialog(viewModel);
         }
 
-        private async void TimerSync_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            Console.WriteLine($"INICIO SYNC em {e.SignalTime}");
-            timerSync.Stop();
-            try
-            {
-                if (SessionProviderBackup.BackupSessionFactory == null)
-                {
-                    SessionProviderBackup.BackupSessionFactory = SessionProviderBackup.BuildSessionFactory();
-                    File.AppendAllText(Sync.ArquivoLog, $"\nData/Hora: {DateTime.Now}\nSessionFactory De Backup Iniciada Com Sucesso.");
-                }
-            }
-            catch (Exception ex)
-            {
-                File.AppendAllText(Sync.ArquivoLog, $"\nOperação: ERRO EM CRIAÇÃO DE SESSION FACTORY DE BACKUP\nData/Hora: {DateTime.Now}\n{ex.Message}");
-                SessionProviderBackup.BackupSessionFactory = null;
-            }
-
-            if (SessionProviderBackup.BackupSessionFactory != null)
-            {
-                await Sync.Sincronizar<Calendario>();
-                await Sync.Sincronizar<Valor>();
-                await Sync.Sincronizar<Loc>();
-                await Sync.Sincronizar<QRCode>();
-                await Sync.Sincronizar<Cobranca>();
-                await Sync.Sincronizar<Pagador>();
-                await Sync.Sincronizar<Pix>();
-                await Sync.Sincronizar<Horario>();
-                await Sync.Sincronizar<Devolucao>();
-            }
-
-            if (timerSync.Interval == 100) //Intervalo padrão
-            {
-                timerSync.Stop();
-                timerSync.Interval = 60000; //Configura para 1 minuto
-                timerSync.AutoReset = true;
-                timerSync.Start();
-            }
-
-            Console.WriteLine($"FIM SYNC em {DateTime.Now}");
-            timerSync.Start();
-        }
 
         private void ConfigCredenciais(object obj)
         {
@@ -604,12 +555,6 @@ namespace VMIClientePix.ViewModel
             SessionProvider.FechaSessionFactory();
             SessionProviderBackup.FechaSessionFactory();
             ComunicaoPelaRede.FecharSocket();
-
-            if (timerSync != null)
-            {
-                timerSync.Stop();
-                timerSync.Dispose();
-            }
         }
 
         public ObservableCollection<Cobranca> Cobrancas
