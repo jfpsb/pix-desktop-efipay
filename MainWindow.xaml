@@ -55,7 +55,6 @@
             </MenuItem>
         </Menu>
         <TabControl FontSize="26"
-                    FontFamily="Century Gothic"
                     FontWeight="Bold">
             <TabItem Header="Cobranças"
                      Padding="12">

@@ -15,7 +15,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <GroupBox FontFamily="Century Gothic">
+        <GroupBox>
             <GroupBox.Header>
                 <Label Content="Backup"
                        FontWeight="Bold"
@@ -26,8 +26,7 @@
                       VerticalContentAlignment="Center"
                       IsChecked="{Binding FazBackup}" />
         </GroupBox>
-        <GroupBox Grid.Row="1"
-                  FontFamily="Century Gothic">
+        <GroupBox Grid.Row="1">
             <GroupBox.Header>
                 <Label Content="Dados Do Recebedor Do Pix"
                        FontWeight="Bold"

@@ -13,11 +13,12 @@ namespace VMIClientePix.Util
 {
     public class Credentials
     {
+        private static readonly string AppDocumentsFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "VMIClientePix");
         public static JObject GNEndpoints()
         {
             try
             {
-                JObject credentials_encrypted = JObject.Parse(File.ReadAllText("credentials_encrypted.json"));
+                JObject credentials_encrypted = JObject.Parse(ArquivosApp.GetCredentialsEncrypted());
 
                 byte[] clientIDEncrypted = Convert.FromBase64String((string)credentials_encrypted["client_id"]);
                 byte[] clientSecretEncrypted = Convert.FromBase64String((string)credentials_encrypted["client_secret"]);
@@ -43,7 +44,7 @@ namespace VMIClientePix.Util
         {
             try
             {
-                JObject encrypted = JObject.Parse(File.ReadAllText("hibernate_config_encrypted.json"));
+                JObject encrypted = JObject.Parse(ArquivosApp.GetCredentialsNHibernate());
                 var addresses = Dns.GetHostAddresses((string)encrypted["server"]);
 
                 if (addresses != null)
@@ -75,7 +76,7 @@ namespace VMIClientePix.Util
         {
             try
             {
-                JObject encrypted = JObject.Parse(File.ReadAllText("hibernate_config_encrypted.json"));
+                JObject encrypted = JObject.Parse(ArquivosApp.GetCredentialsNHibernate());
 
                 byte[] userIdEncrypted = Convert.FromBase64String((string)encrypted["userid"]);
                 byte[] passwordEncrypted = Convert.FromBase64String((string)encrypted["password"]);
@@ -103,11 +104,11 @@ namespace VMIClientePix.Util
             }
         }
 
-        public static string HibernateBackupConnString()
+        public static string HibernateRemotoConnString()
         {
             try
             {
-                JObject encrypted = JObject.Parse(File.ReadAllText("hibernate_backup_config_encrypted.json"));
+                JObject encrypted = JObject.Parse(ArquivosApp.GetCredentialsNHibernateRemoto());
 
                 byte[] userIdEncrypted = Convert.FromBase64String((string)encrypted["userid"]);
                 byte[] passwordEncrypted = Convert.FromBase64String((string)encrypted["password"]);

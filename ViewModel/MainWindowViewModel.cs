@@ -48,7 +48,6 @@ namespace VMIClientePix.ViewModel
 #if DEBUG
             if (DesignerProperties.GetIsInDesignMode(new DependencyObject())) return;
 #endif
-
             openView = new OpenView();
 
             var splashScreenVM = new VMISplashScreenViewModel();
@@ -74,7 +73,7 @@ namespace VMIClientePix.ViewModel
 
             try
             {
-                configApp = JObject.Parse(File.ReadAllText("Config.json"));
+                configApp = JObject.Parse(ArquivosApp.GetConfig());
             }
             catch (Exception ex)
             {
@@ -327,7 +326,7 @@ namespace VMIClientePix.ViewModel
         {
             try
             {
-                var dados = JObject.Parse(File.ReadAllText("dados_recebedor.json"));
+                var dados = JObject.Parse(ArquivosApp.GetDadosRecebedor());
                 var pix = await daoPix.ListarPorDiaPorChave(DateTime.Now, (string)dados["chave_estatica"]);
 
                 if (pix != null)
@@ -349,7 +348,7 @@ namespace VMIClientePix.ViewModel
         private async void AtualizarListaPixPelaGN(bool throwEx)
         {
             var gnEndPoints = Credentials.GNEndpoints();
-            var dados = JObject.Parse(File.ReadAllText("dados_recebedor.json"));
+            var dados = JObject.Parse(ArquivosApp.GetDadosRecebedor());
 
             if (gnEndPoints == null)
             {
@@ -553,7 +552,6 @@ namespace VMIClientePix.ViewModel
         {
             SessionProvider.FechaSession(session);
             SessionProvider.FechaSessionFactory();
-            SessionProviderBackup.FechaSessionFactory();
             ComunicaoPelaRede.FecharSocket();
         }
 
@@ -610,6 +608,82 @@ namespace VMIClientePix.ViewModel
             {
                 _totalTransferencias = value;
                 OnPropertyChanged("TotalTransferencias");
+            }
+        }
+
+        /// <summary>
+        /// Configura o webhook com a chave informada.
+        /// Somente irá funcionar caso a chave informada esteja cadastrada na conta usada na aplicação no momento do cadastro.
+        /// </summary>
+        /// <param name="chave">Chave PIX cadastrada em conta</param>
+        public static void ConfigurarWebhookPix(string chave)
+        {
+            dynamic endpoints = new Endpoints(Credentials.GNEndpoints());
+
+            var headers = "{\"x-skip-mtls-checking\": \"true\"}";
+
+            var param = new
+            {
+                chave = chave
+            };
+
+            var body = new
+            {
+                webhookUrl = "https://api.vandamodaintima.com.br/prod/webhook/"
+            };
+
+            try
+            {
+                var response = endpoints.PixConfigWebhook(param, body, headers);
+                Console.WriteLine(response);
+            }
+            catch (GnException e)
+            {
+                Console.WriteLine(e.ErrorType);
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        public static void ListarWebhooksCadastrados()
+        {
+            dynamic endpoints = new Endpoints(Credentials.GNEndpoints());
+
+            var param = new
+            {
+                inicio = "2022-01-01T16:01:35Z",
+                fim = "2022-06-01T16:01:35Z"
+            };
+
+            try
+            {
+                var response = endpoints.PixListWebhook(param);
+                Console.WriteLine(response);
+            }
+            catch (GnException e)
+            {
+                Console.WriteLine(e.ErrorType);
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        public static void DeletarWebhook(string chave)
+        {
+            dynamic endpoints = new Endpoints(Credentials.GNEndpoints());
+
+            var param = new
+            {
+                chave = chave
+            };
+
+            try
+            {
+                var response = endpoints.PixDeleteWebhook(param);
+                Console.WriteLine(response);
+            }
+            catch (GnException e)
+            {
+                Console.WriteLine(e.ErrorType);
+                Console.WriteLine(e.Message);
             }
         }
     }

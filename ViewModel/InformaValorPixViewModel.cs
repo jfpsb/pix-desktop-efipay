@@ -73,7 +73,7 @@ namespace VMIClientePix.ViewModel
                 }
 
                 dynamic endpoints = new Endpoints(gnEndPoints);
-                var dados = JObject.Parse(File.ReadAllText("dados_recebedor.json"));
+                var dados = JObject.Parse(ArquivosApp.GetDadosRecebedor());
 
                 var body = new
                 {

@@ -19,9 +19,7 @@
     <Page Remove="Shared\**" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="Fonts\Astral Sisters.ttf" />
-    <None Remove="Fonts\GothamBold.ttf" />
-    <None Remove="Fonts\GothamBook.ttf" />
+    <None Remove="Resources\Fonts\Astral Sisters.ttf" />
     <None Remove="hibernate.cfg.xml" />
     <None Remove="hibernateBackup.cfg.xml" />
     <None Remove="Mapas\Calendario.hbm.xml" />
@@ -33,6 +31,8 @@
     <None Remove="Mapas\Pix.hbm.xml" />
     <None Remove="Mapas\QRCode.hbm.xml" />
     <None Remove="Mapas\Valor.hbm.xml" />
+    <None Remove="Resources\Fonts\Gotham-Bold.ttf" />
+    <None Remove="Resources\Fonts\Gotham-Regular.ttf" />
     <None Remove="View\Imagens\Atualizar.png" />
     <None Remove="View\Imagens\CheckMark.png" />
     <None Remove="View\Imagens\ErrorMark.png" />
@@ -76,9 +76,9 @@
     <ProjectReference Include="Shared\ACBrLib.Core\ACBrLib.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Fonts\Astral Sisters.ttf" />
-    <Resource Include="Fonts\GothamBold.ttf" />
-    <Resource Include="Fonts\GothamBook.ttf" />
+    <Resource Include="Resources\Fonts\Astral Sisters.ttf" />
+    <Resource Include="Resources\Fonts\Gotham-Bold.ttf" />
+    <Resource Include="Resources\Fonts\Gotham-Regular.ttf" />
     <Resource Include="View\Imagens\Atualizar.png" />
     <Resource Include="View\Imagens\CheckMark.png" />
     <Resource Include="View\Imagens\ErrorMark.png" />

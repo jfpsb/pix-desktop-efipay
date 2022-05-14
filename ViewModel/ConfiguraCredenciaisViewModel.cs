@@ -35,8 +35,6 @@ namespace VMIClientePix.ViewModel
             messageBox = new MessageBoxService();
             SalvarCredenciaisComando = new RelayCommand(SalvarCredenciais);
             AbrirProcurarComando = new RelayCommand(AbrirProcurar);
-
-
             Porta = "3306"; //Porta padrão do Mysql
         }
 

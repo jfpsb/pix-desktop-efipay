@@ -1,11 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.IO;
 using System.Windows;
 using System.Windows.Input;
 using VMIClientePix.Util;
-using VMIClientePix.ViewModel.Interfaces;
 using VMIClientePix.ViewModel.Services.Interfaces;
 
 namespace VMIClientePix.ViewModel
@@ -29,9 +27,9 @@ namespace VMIClientePix.ViewModel
             messageBox = messageBoxService;
             SalvaConfigComando = new RelayCommand(SalvaConfig);
 
-            if (File.Exists("Config.json"))
+            if (ArquivosApp.ConfigExists())
             {
-                var config = File.ReadAllText("Config.json");
+                var config = ArquivosApp.GetConfig();
                 JObject Jconfig = JObject.Parse(config);
 
                 FazBackup = (bool)Jconfig["fazbackup"];
@@ -41,9 +39,9 @@ namespace VMIClientePix.ViewModel
                 FazBackup = true;
             }
 
-            if (File.Exists("dados_recebedor.json"))
+            if (ArquivosApp.DadosRecebedorExists())
             {
-                var dados = File.ReadAllText("dados_recebedor.json");
+                var dados = ArquivosApp.GetDadosRecebedor();
                 JObject Jdados = JObject.Parse(dados);
 
                 Fantasia = (string)Jdados["fantasia"];
@@ -67,7 +65,7 @@ namespace VMIClientePix.ViewModel
 
             try
             {
-                File.WriteAllText("Config.json", configJson);
+                ArquivosApp.WriteConfig(configJson);
                 messageBox.Show($"Sucesso ao salvar arquivo de configurações de aplicação.", "Salvar Configurações De Aplicação", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
@@ -93,7 +91,7 @@ namespace VMIClientePix.ViewModel
 
                 try
                 {
-                    File.WriteAllText("dados_recebedor.json", dadosJson);
+                    ArquivosApp.WriteDadosRecebedor(dadosJson);
                     messageBox.Show($"Sucesso ao salvar dados de recebedor.", "Salvar Configurações De Aplicação", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 catch (Exception ex)

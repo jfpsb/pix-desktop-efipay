@@ -7,11 +7,41 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Theme/FonteTheme.xaml" />
-            </ResourceDictionary.MergedDictionaries>
+            <FontFamily x:Key="Gotham">pack://application:,,,/Resources/Fonts/#Gotham</FontFamily>
 
-            <FontFamily x:Key="GothamBold">pack://application:,,,/Fonts/#Gotham Bold</FontFamily>
+            <Style x:Key="ControlBaseStyle"
+                   TargetType="Control">
+                <Setter Property="FontFamily"
+                        Value="{StaticResource Gotham}" />
+            </Style>
+
+            <Style x:Key="FrameworkElementBaseStyle"
+                   TargetType="FrameworkElement">
+                <Setter Property="TextElement.FontFamily"
+                        Value="{StaticResource Gotham}" />
+            </Style>
+
+            <Style TargetType="Window"
+                   BasedOn="{StaticResource ControlBaseStyle}">
+            </Style>
+
+            <Style TargetType="TextBlock"
+                   BasedOn="{StaticResource FrameworkElementBaseStyle}" />
+
+            <Style TargetType="Label"
+                   BasedOn="{StaticResource ControlBaseStyle}" />
+
+            <Style TargetType="Grid"
+                   BasedOn="{StaticResource FrameworkElementBaseStyle}" />
+
+            <Style x:Key="ButtonAppStyle"
+                   TargetType="Button"
+                   BasedOn="{StaticResource ControlBaseStyle}">
+                <Setter Property="FontSize"
+                        Value="30" />
+                <Setter Property="Padding"
+                        Value="20" />
+            </Style>
 
             <DataTemplate DataType="{x:Type ViewModel:ApresentaDadosTransfPixViewModel}">
                 <View:ApresentaDadosTransfPix />
@@ -40,26 +70,6 @@
             <DataTemplate DataType="{x:Type ViewModel:InformaValorPixViewModel}">
                 <View:InformaValorPix />
             </DataTemplate>
-
-            <Style x:Key="ButtonAppStyle"
-                   TargetType="Button"
-                   BasedOn="{StaticResource Fonte}">
-                <Setter Property="FontSize"
-                        Value="30" />
-                <Setter Property="Padding"
-                        Value="20" />
-            </Style>
-            <Style TargetType="{x:Type Label}"
-                   BasedOn="{StaticResource Fonte}" />
-
-            <Style TargetType="{x:Type Menu}"
-                   BasedOn="{StaticResource Fonte}" />
-
-            <Style TargetType="{x:Type MenuItem}"
-                   BasedOn="{StaticResource Fonte}" />
-
-            <Style TargetType="{x:Type ComboBox}"
-                   BasedOn="{StaticResource Fonte}" />
 
         </ResourceDictionary>
     </Application.Resources>

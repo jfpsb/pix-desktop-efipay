@@ -58,7 +58,6 @@
             </Image>
             <Label Grid.Row="1"
                    FontSize="24"
-                   FontFamily="Century Gothic"
                    HorizontalContentAlignment="Center">
                 <Label.Style>
                     <Style TargetType="{x:Type Label}">
@@ -97,7 +96,6 @@
             </Label>
             <Label Grid.Row="2"
                    FontSize="24"
-                   FontFamily="Century Gothic"
                    HorizontalContentAlignment="Center">
                 <Label.Style>
                     <Style TargetType="{x:Type Label}">

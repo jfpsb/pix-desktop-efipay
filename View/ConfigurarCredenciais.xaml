@@ -25,17 +25,14 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <TextBlock TextWrapping="Wrap"
-                       FontFamily="Century Gothic"
                        FontSize="14"
                        Text="   Nesta janela você irá configurar suas credenciais para uso no sistema. Essas credenciais consistem nas credenciais fornecidas pela GerenciaNet para uso da API Pix, das credenciais para autenticar e usar o banco de dados local e, se desejar, as credenciais para acessar e usar o banco de dados remoto que será usado como backup." />
             <TextBlock Grid.Row="1"
                        TextWrapping="Wrap"
-                       FontFamily="Century Gothic"
                        FontSize="14"
                        Text="   Os dados inseridos abaixo serão criptografados utilizando a API Data Protection da Microsoft e serão salvos no mesmo diretório da aplicação." />
             <GroupBox Grid.Row="2"
                       Header="GerenciaNet"
-                      FontFamily="Century Gothic"
                       FontSize="16"
                       FontWeight="Bold"
                       Margin="5">
@@ -77,7 +74,6 @@
             </GroupBox>
             <GroupBox Grid.Row="3"
                       Header="Hibernate Local"
-                      FontFamily="Century Gothic"
                       FontSize="16"
                       FontWeight="Bold"
                       Margin="5">
@@ -122,7 +118,6 @@
             </GroupBox>
             <GroupBox Grid.Row="4"
                       Header="Hibernate Backup"
-                      FontFamily="Century Gothic"
                       FontSize="16"
                       FontWeight="Bold"
                       Margin="5">

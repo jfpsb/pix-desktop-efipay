@@ -54,7 +54,6 @@
                    Language="pt-BR"
                    Margin="5"
                    TextWrapping="Wrap"
-                   FontFamily="Century Gothic"
                    Text="{Binding Pix.InfoPagador}" />
         <Label Grid.Row="8"
                Content="Valor:"

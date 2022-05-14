@@ -399,7 +399,7 @@ namespace VMIClientePix.ViewModel
 
         private void PopulaDados()
         {
-            var dados = JObject.Parse(File.ReadAllText("dados_recebedor.json"));
+            var dados = JObject.Parse(ArquivosApp.GetDadosRecebedor());
 
             if (!IsPagamentoEfetuado && !IsCobrancaExpirado)
                 ImagemQrCode = Cobranca.QrCode.QrCodeBitmap;
