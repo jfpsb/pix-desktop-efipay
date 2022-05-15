@@ -10,7 +10,6 @@ namespace VMIClientePix.ViewModel
 {
     public class ConfiguracaoAplicacaoViewModel : ObservableObject
     {
-        private bool _fazBackup;
         private string _fantasia;
         private string _razaoSocial;
         private string _cnpj;
@@ -26,18 +25,6 @@ namespace VMIClientePix.ViewModel
         {
             messageBox = messageBoxService;
             SalvaConfigComando = new RelayCommand(SalvaConfig);
-
-            if (ArquivosApp.ConfigExists())
-            {
-                var config = ArquivosApp.GetConfig();
-                JObject Jconfig = JObject.Parse(config);
-
-                FazBackup = (bool)Jconfig["fazbackup"];
-            }
-            else
-            {
-                FazBackup = true;
-            }
 
             if (ArquivosApp.DadosRecebedorExists())
             {
@@ -168,20 +155,6 @@ namespace VMIClientePix.ViewModel
             {
                 _chavePIX = value;
                 OnPropertyChanged("ChavePIX");
-            }
-        }
-
-        public bool FazBackup
-        {
-            get
-            {
-                return _fazBackup;
-            }
-
-            set
-            {
-                _fazBackup = value;
-                OnPropertyChanged("FazBackup");
             }
         }
 

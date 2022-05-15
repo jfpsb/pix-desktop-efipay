@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:VMIClientePix.View"
              xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              mc:Ignorable="d"
-             Height="220"
+             Height="200"
              Width="275"
              Background="White"
              Loaded="UserControl_Loaded">
@@ -54,7 +54,6 @@
                 Grid.ColumnSpan="2"
                 Style="{StaticResource ButtonAppStyle}"
                 Content="Salvar"
-                FontSize="18"
                 Padding="0"
                 Margin="0, 5, 0, 5"
                 Command="{Binding SalvarConfigComando}" />
