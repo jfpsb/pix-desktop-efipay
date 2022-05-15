@@ -95,7 +95,6 @@ namespace VMIClientePix.ViewModel
                 {
                     await daoCobranca.Inserir(cobranca);
                     await daoCobranca.RefreshEntidade(cobranca);
-                    ComunicaoPelaRede.NotificaListar();
                     ApresentaQRCodeEDadosViewModel dadosPixViewModel = new ApresentaQRCodeEDadosViewModel(cobranca.Txid, new MessageBoxService(), obj as ICloseable);
                     openView.ShowDialog(dadosPixViewModel);
                 }

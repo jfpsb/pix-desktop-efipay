@@ -181,7 +181,6 @@ namespace VMIClientePix.ViewModel
                         await daoCobranca.Atualizar(Cobranca);
                         Cobranca.PropertyChanged -= Cobranca_PropertyChanged;
                         session.Refresh(Cobranca);
-                        ComunicaoPelaRede.NotificaListar();
                     }
                     catch (Exception ex)
                     {
@@ -372,8 +371,7 @@ namespace VMIClientePix.ViewModel
                     {
                         await daoCobranca.Atualizar(Cobranca);
                         PopulaDados();
-                        await daoCobranca.RefreshEntidade(Cobranca);
-                        ComunicaoPelaRede.NotificaListar();
+                        await daoCobranca.RefreshEntidade(Cobranca);                        
                     }
                     catch (Exception ex)
                     {

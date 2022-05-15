@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Timers;
 using System.Windows;
 using System.Windows.Input;
 using VMIClientePix.BancoDeDados.ConnectionFactory;
@@ -33,6 +34,7 @@ namespace VMIClientePix.ViewModel
         private double _totalTransferencias;
         private ACBrPosPrinter posPrinter;
         private OpenView openView;
+        private Timer timerConsulta;
         public ICommand CriarCobrancaPixComando { get; set; }
         public ICommand ListViewCobrancaLeftMouseClickComando { get; set; }
         public ICommand ListViewPixLeftMouseClickComando { get; set; }
@@ -67,7 +69,6 @@ namespace VMIClientePix.ViewModel
             ConsultarRecebimentoPixComando = new RelayCommand(ConsultarRecebimentoPix);
 
             PropertyChanged += MainWindowViewModel_PropertyChanged;
-            ComunicaoPelaRede.AposReceberComandoListar += ComunicaoPelaRede_AposReceberComandoListar;
 
             JObject configApp = null;
 
@@ -89,8 +90,10 @@ namespace VMIClientePix.ViewModel
                 IniciaSessionEDAO();
                 AtualizarCobrancasPelaGN(false);
                 AtualizarListaPixPelaGN(false);
-                ListarPix();
-                ListarCobrancas();
+
+                timerConsulta = new Timer();
+                timerConsulta.Elapsed += TimerConsulta_Elapsed;
+                timerConsulta.Start();
 
                 if (configApp != null)
                 {
@@ -111,6 +114,21 @@ namespace VMIClientePix.ViewModel
             }
 
             splashScreenVM.CloseView();
+        }
+
+        private async void TimerConsulta_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            timerConsulta.Stop();
+            await daoCobranca.RefreshEntidade(Cobrancas);
+            ListarCobrancas();
+            ListarPix();
+
+            if (timerConsulta.Interval == 100)
+            {
+                timerConsulta.Interval = 5000;
+            }
+
+            timerConsulta.Start();
         }
 
         private void ConfiguraPosPrinter()
@@ -382,7 +400,6 @@ namespace VMIClientePix.ViewModel
                     try
                     {
                         await daoPix.Inserir(pixAtt);
-                        ComunicaoPelaRede.NotificaListar();
                     }
                     catch (Exception ex)
                     {
@@ -543,7 +560,7 @@ namespace VMIClientePix.ViewModel
             var txid = (viewModel as IReturnData).GetData();
             if (txid != null)
             {
-                await daoCobranca.ListarPorId(txid);
+                await daoCobranca.RefreshEntidade(await daoCobranca.ListarPorId(txid));
                 ListarCobrancas();
             }
         }
@@ -552,7 +569,6 @@ namespace VMIClientePix.ViewModel
         {
             SessionProvider.FechaSession(session);
             SessionProvider.FechaSessionFactory();
-            ComunicaoPelaRede.FecharSocket();
         }
 
         public ObservableCollection<Cobranca> Cobrancas
