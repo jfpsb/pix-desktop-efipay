@@ -45,7 +45,7 @@ namespace VMIClientePix.ViewModel
             //Salva config.json
             var config = new
             {
-                fazbackup = FazBackup
+                fazbackup = false
             };
 
             var configJson = JsonConvert.SerializeObject(config, Formatting.Indented);
