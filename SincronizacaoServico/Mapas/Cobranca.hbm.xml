@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="SincronizacaoServico"
+                   namespace="SincronizacaoServico.Model">
+
+	<class name="Cobranca" table="cobranca">
+		<id name="Txid" />
+		<many-to-one name="Calendario" class="SincronizacaoServico.Model.Calendario" cascade="save-update" lazy="false"/>
+		<many-to-one name="Valor" class="SincronizacaoServico.Model.Valor" cascade="save-update" lazy="false"/>
+		<many-to-one name="Loc" class="SincronizacaoServico.Model.Loc" cascade="save-update" lazy="false"/>
+		<many-to-one name="QrCode" class="SincronizacaoServico.Model.QRCode" cascade="save-update" lazy="false"/>
+		<property name="Uuid"/>
+		<property name="Revisao" />
+		<property name="Status" />
+		<property name="Chave" />
+		<property name="Location" />
+		<property name="PagoEm" />
+		<property name="CriadoEm" />
+		<property name="ModificadoEm" />
+		<property name="DeletadoEm" />
+		<property name="Deletado" />
+
+		<bag name="Pix" table="pix" cascade="save-update" inverse="true" lazy="false">
+			<key column="cobranca" />
+			<one-to-many class="SincronizacaoServico.Model.Pix"/>
+		</bag>
+	</class>
+
+</hibernate-mapping>

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<hibernate-mapping xmlns="urn:nhibernate-mapping-2.2"
+                   assembly="SincronizacaoServico"
+                   namespace="SincronizacaoServico.Model">
+
+	<class name="LastSync" table="last_sync">
+		<id name="Id" column="id" type="Int32">
+			<generator class="increment" />
+		</id>
+		<property name="LastSyncTime" column="last_sync_time"/>
+		<property name="Tabela"/>
+	</class>
+
+</hibernate-mapping>
