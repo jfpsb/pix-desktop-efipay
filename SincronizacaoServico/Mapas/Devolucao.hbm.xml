@@ -5,8 +5,8 @@
 
 	<class name="Devolucao" table="devolucao">
 		<id name="Id" />
-		<many-to-one name="Pix" class="SincronizacaoServico.Model.Pix" cascade="save-update" lazy="false"/>
-		<many-to-one name="Horario" class="SincronizacaoServico.Model.Horario" cascade="save-update" lazy="false"/>
+		<many-to-one name="Pix" class="SincronizacaoServico.Model.Pix" cascade="save-update" lazy="false" not-null="true"/>
+		<many-to-one name="Horario" class="SincronizacaoServico.Model.Horario" cascade="save-update" lazy="false" not-null="true"/>
 		<property name="Uuid"/>
 		<property name="RtrId" />
 		<property name="Valor" />
