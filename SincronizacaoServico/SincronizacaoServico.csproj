@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="hibernate.cfg.xml" />
+    <None Remove="hibernateBackup.cfg.xml" />
+    <None Remove="Mapas\Calendario.hbm.xml" />
+    <None Remove="Mapas\Cobranca.hbm.xml" />
+    <None Remove="Mapas\Devolucao.hbm.xml" />
+    <None Remove="Mapas\Horario.hbm.xml" />
+    <None Remove="Mapas\LastSync.hbm.xml" />
+    <None Remove="Mapas\Loc.hbm.xml" />
+    <None Remove="Mapas\Pagador.hbm.xml" />
+    <None Remove="Mapas\Pix.hbm.xml" />
+    <None Remove="Mapas\QRCode.hbm.xml" />
+    <None Remove="Mapas\Valor.hbm.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="hibernate.cfg.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="hibernateBackup.cfg.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Mapas\Calendario.hbm.xml" />
+    <EmbeddedResource Include="Mapas\Cobranca.hbm.xml" />
+    <EmbeddedResource Include="Mapas\Devolucao.hbm.xml" />
+    <EmbeddedResource Include="Mapas\Horario.hbm.xml" />
+    <EmbeddedResource Include="Mapas\Loc.hbm.xml" />
+    <EmbeddedResource Include="Mapas\LastSync.hbm.xml" />
+    <EmbeddedResource Include="Mapas\Pagador.hbm.xml" />
+    <EmbeddedResource Include="Mapas\Pix.hbm.xml" />
+    <EmbeddedResource Include="Mapas\QRCode.hbm.xml" />
+    <EmbeddedResource Include="Mapas\Valor.hbm.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MySql.Data" Version="8.0.29" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="NHibernate" Version="5.3.12" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="6.0.0" />
+    <PackageReference Include="Topshelf" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,76 @@
+﻿<Application x:Class="VMIClientePix.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:VMIClientePix"
+             xmlns:ViewModel="clr-namespace:VMIClientePix.ViewModel"
+             xmlns:View="clr-namespace:VMIClientePix.View"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <FontFamily x:Key="Gotham">pack://application:,,,/Resources/Fonts/#Gotham</FontFamily>
+
+            <Style x:Key="ControlBaseStyle"
+                   TargetType="Control">
+                <Setter Property="FontFamily"
+                        Value="{StaticResource Gotham}" />
+            </Style>
+
+            <Style x:Key="FrameworkElementBaseStyle"
+                   TargetType="FrameworkElement">
+                <Setter Property="TextElement.FontFamily"
+                        Value="{StaticResource Gotham}" />
+            </Style>
+
+            <Style TargetType="Window"
+                   BasedOn="{StaticResource ControlBaseStyle}">
+            </Style>
+
+            <Style TargetType="TextBlock"
+                   BasedOn="{StaticResource FrameworkElementBaseStyle}" />
+
+            <Style TargetType="Label"
+                   BasedOn="{StaticResource ControlBaseStyle}" />
+
+            <Style TargetType="Grid"
+                   BasedOn="{StaticResource FrameworkElementBaseStyle}" />
+
+            <Style x:Key="ButtonAppStyle"
+                   TargetType="Button"
+                   BasedOn="{StaticResource ControlBaseStyle}">
+                <Setter Property="FontSize"
+                        Value="30" />
+                <Setter Property="Padding"
+                        Value="20" />
+            </Style>
+
+            <DataTemplate DataType="{x:Type ViewModel:ApresentaDadosTransfPixViewModel}">
+                <View:ApresentaDadosTransfPix />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type ViewModel:ApresentaQRCodeEDadosViewModel}">
+                <View:ApresentaQRCodeEDados />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type ViewModel:ConfiguracoesImpressoraViewModel}">
+                <View:ConfiguracaoImpressora />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type ViewModel:ConfiguraCredenciaisViewModel}">
+                <View:ConfigurarCredenciais />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type ViewModel:ConfiguracaoAplicacaoViewModel}">
+                <View:ConfiguracaoAplicacao />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type ViewModel:VMISplashScreenViewModel}">
+                <View:VMISplashScreen />
+            </DataTemplate>
+
+            <DataTemplate DataType="{x:Type ViewModel:InformaValorPixViewModel}">
+                <View:InformaValorPix />
+            </DataTemplate>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
