@@ -33,7 +33,7 @@ namespace VMIClientePix.ViewModel
         private DAOCobranca daoCobranca;
         private DAOPix daoPix;
         private ISession session;
-        private Timer timerSync;
+        private System.Timers.Timer timerSync;
         private double _totalCobrancas;
         private double _totalTransferencias;
         private ACBrPosPrinter posPrinter;
@@ -102,7 +102,7 @@ namespace VMIClientePix.ViewModel
                 {
                     if ((bool)configApp["fazbackup"])
                     {
-                        timerSync = new Timer(); //Inicia timer de imediato e dentro do timer configuro para rodar de 1 em 1 minuto
+                        timerSync = new System.Timers.Timer(); //Inicia timer de imediato e dentro do timer configuro para rodar de 1 em 1 minuto
                         timerSync.Elapsed += TimerSync_Elapsed;
                         timerSync.AutoReset = false;
                         timerSync.Enabled = true;
@@ -421,7 +421,7 @@ namespace VMIClientePix.ViewModel
                 ListaPixs listaPixs = JsonConvert.DeserializeObject<ListaPixs>(response);
                 IList<Pix> pixAtt = new List<Pix>();
 
-                foreach (var pixConsulta in listaPixs.Pixs.Where(w => w.Chave.Equals((string)dados["chave_estatica"])))
+                foreach (var pixConsulta in listaPixs.Pixs.Where(w => w.Chave.ToLower().Equals((string)dados["chave_estatica"])))
                 {
                     var pixLocal = await daoPix.ListarPorId(pixConsulta.EndToEndId);
                     if (pixLocal != null) continue; //Não insere pix que já existem no banco local
