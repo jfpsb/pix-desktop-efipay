@@ -13,7 +13,6 @@ namespace VMIClientePix.Util
 {
     public class Credentials
     {
-        private static readonly string AppDocumentsFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "VMIClientePix");
         public static JObject GNEndpoints()
         {
             try

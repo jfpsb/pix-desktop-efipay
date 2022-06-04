@@ -30,8 +30,7 @@ namespace VMIClientePix.ViewModel
             AtualizarPortasComando = new RelayCommand(AtualizarPortas);
             SalvarConfigComando = new RelayCommand(SalvarConfig);
             posPrinter = new ACBrPosPrinter();
-            posPrinter.ConfigLer();
-
+            ConfiguraPosPrinter.Configurar(posPrinter);
             ModeloSelecionado = posPrinter.Config.Modelo;
             ChamaAcharPortas();
         }

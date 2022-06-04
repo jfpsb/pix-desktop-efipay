@@ -76,7 +76,6 @@ namespace SincronizacaoServico.Banco
             if (session != null && session.IsOpen)
             {
                 session.Dispose();
-                Console.WriteLine($"Sessão Fechada");
             }
         }
     }

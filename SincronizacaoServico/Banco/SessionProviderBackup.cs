@@ -79,7 +79,6 @@ namespace SincronizacaoServico.Banco
                 session.Clear();
                 session.Dispose();
             }
-            Console.WriteLine($"Sessão Fechada");
         }
     }
 }

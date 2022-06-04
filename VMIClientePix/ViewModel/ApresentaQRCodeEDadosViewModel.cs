@@ -1,4 +1,5 @@
-﻿using ACBrLib.PosPrinter;
+﻿using ACBrLib.Core.PosPrinter;
+using ACBrLib.PosPrinter;
 using Gerencianet.NETCore.SDK;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -36,8 +37,8 @@ namespace VMIClientePix.ViewModel
         private DAOCobranca daoCobranca;
         private double _segundosDesdeCriacao;
         private string _segundosAteExpiracaoEmString;
-        private System.Timers.Timer timerExpiracaoQrCode;
-        private System.Timers.Timer timerConsultaCobranca;
+        private Timer timerExpiracaoQrCode;
+        private Timer timerConsultaCobranca;
         private DateTime expiraEm;
         private ACBrPosPrinter posPrinter;
 
@@ -99,7 +100,7 @@ namespace VMIClientePix.ViewModel
             };
 
             posPrinter = new ACBrPosPrinter();
-            ConfiguraPosPrinter();
+            ConfiguraPosPrinter.Configurar(posPrinter);
         }
 
         private async void GetCobranca(string cobrancaId)
@@ -327,18 +328,6 @@ namespace VMIClientePix.ViewModel
             }
         }
 
-        private void ConfiguraPosPrinter()
-        {
-            try
-            {
-                posPrinter.ConfigLer();
-            }
-            catch (Exception ex)
-            {
-                _messageBox.Show("Erro ao iniciar impressora. Cheque se a impressora está conectada corretamente e que está ligada.\n\n" + ex.Message, "Impressão De Comprovante Pix", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-            }
-        }
-
         private async void GeraESalvaQrCode()
         {
             var gnEndPoints = Credentials.GNEndpoints();
@@ -371,7 +360,7 @@ namespace VMIClientePix.ViewModel
                     {
                         await daoCobranca.Atualizar(Cobranca);
                         PopulaDados();
-                        await daoCobranca.RefreshEntidade(Cobranca);                        
+                        await daoCobranca.RefreshEntidade(Cobranca);
                     }
                     catch (Exception ex)
                     {
