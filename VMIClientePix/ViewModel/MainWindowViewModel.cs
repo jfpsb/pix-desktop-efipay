@@ -131,18 +131,6 @@ namespace VMIClientePix.ViewModel
             timerConsulta.Start();
         }
 
-        private void ConfiguraPosPrinter()
-        {
-            try
-            {
-                posPrinter.ConfigLer();
-            }
-            catch (Exception ex)
-            {
-                messageBoxService.Show("Erro ao iniciar impressora. Cheque se a impressora está conectada corretamente e que está ligada.\n\n" + ex.Message, "Impressão De Comprovante Pix", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-            }
-        }
-
         private async void ComunicaoPelaRede_AposReceberComandoListar(object sender, EventArgs e)
         {
             try
@@ -194,7 +182,7 @@ namespace VMIClientePix.ViewModel
             ListarPix();
 
             posPrinter = new ACBrPosPrinter();
-            ConfiguraPosPrinter();
+            ConfiguraPosPrinter.Configurar(posPrinter);
 
             int numCobs = Cobrancas.Where(w => w.Status.Equals("CONCLUIDA")).ToList().Count;
             int colunas = 48;
