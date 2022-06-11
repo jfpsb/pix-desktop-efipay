@@ -460,8 +460,17 @@ namespace VMIClientePix.ViewModel
                         foreach (var p in cobrancaConsulta.Pix)
                         {
                             var pixLocal = await daoPix.ListarPorId(p.EndToEndId);
-                            pixLocal.Cobranca = cobrancaLocal;
-                            cobrancaLocal.Pix.Add(pixLocal);
+
+                            if (pixLocal == null)
+                            {
+                                p.Cobranca = cobrancaLocal;
+                                cobrancaLocal.Pix.Add(p);
+                            }
+                            else
+                            {
+                                pixLocal.Cobranca = cobrancaLocal;
+                                cobrancaLocal.Pix.Add(pixLocal);
+                            }
                         }
 
                         cobrancaLocal.Revisao = cobrancaConsulta.Revisao;
