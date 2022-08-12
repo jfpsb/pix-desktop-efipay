@@ -48,7 +48,10 @@ namespace VMIClientePix.Model.DAO
                     var criteria = CriarCriteria();
                     criteria.AddOrder(Order.Asc("Horario"));
                     criteria.Add(Restrictions.Between("Horario", dia.Date.ToUniversalTime(), dia.Date.ToUniversalTime().AddDays(1).AddSeconds(-1)));
-                    criteria.Add(Restrictions.Eq("Chave", chaveEstatica));
+                    var disj = Restrictions.Disjunction();
+                    disj.Add(Restrictions.Eq("Chave", chaveEstatica));
+                    disj.Add(Restrictions.IsNull("Chave"));
+                    criteria.Add(disj);
 
                     return await Listar(criteria);
                 }

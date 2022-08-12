@@ -376,7 +376,7 @@ namespace VMIClientePix.ViewModel
                 ListaPixs listaPixs = JsonConvert.DeserializeObject<ListaPixs>(response);
                 IList<Pix> pixAtt = new List<Pix>();
 
-                foreach (var pixConsulta in listaPixs.Pixs.Where(w => w.Chave.ToLower().Equals((string)dados["chave_estatica"])))
+                foreach (var pixConsulta in listaPixs.Pixs.Where(w => w.Chave == null || w.Chave.ToLower().Equals((string)dados["chave_estatica"])))
                 {
                     var pixLocal = await daoPix.ListarPorId(pixConsulta.EndToEndId);
                     if (pixLocal != null) continue; //Não insere pix que já existem no banco local
@@ -406,6 +406,7 @@ namespace VMIClientePix.ViewModel
             }
             catch (JsonReaderException jex)
             {
+                Log.EscreveExceptionGenerica(jex);
                 if (!throwEx)
                 {
                     messageBoxService.Show($"Erro ao listar pix da instituição GerenciaNet. Cheque se está conectado a internet.\n\n{jex.Message}", "Erro ao Consultar Pix", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -413,6 +414,7 @@ namespace VMIClientePix.ViewModel
             }
             catch (Exception ex)
             {
+                Log.EscreveExceptionGenerica(ex);
                 if (!throwEx)
                 {
                     messageBoxService.Show($"Erro ao listar pix da instituição GerenciaNet. Cheque se está conectado a internet.\n\n{ex.Message}\n\n{ex.InnerException?.Message}", "Erro ao Consultar Pix", MessageBoxButton.OK, MessageBoxImage.Error);
