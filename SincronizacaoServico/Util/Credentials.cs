@@ -1,6 +1,4 @@
 ﻿using Newtonsoft.Json.Linq;
-using System.Net;
-using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -12,8 +10,7 @@ namespace SincronizacaoServico.Util
         {
             try
             {
-                Directory.CreateDirectory(Global.AppDocumentsFolder);
-                JObject encrypted = JObject.Parse(File.ReadAllText(Path.Combine(Global.AppDocumentsFolder, "hibernate_config_encrypted.json")));
+                JObject encrypted = JObject.Parse(File.ReadAllText("hibernate_config_encrypted.json"));
 
                 byte[] userIdEncrypted = Convert.FromBase64String((string)encrypted["userid"]);
                 byte[] passwordEncrypted = Convert.FromBase64String((string)encrypted["password"]);
@@ -22,8 +19,8 @@ namespace SincronizacaoServico.Util
                 {
                     server = (string)encrypted["server"],
                     port = (string)encrypted["port"],
-                    userid = Encoding.Unicode.GetString(ProtectedData.Unprotect(userIdEncrypted, null, DataProtectionScope.CurrentUser)),
-                    password = Encoding.Unicode.GetString(ProtectedData.Unprotect(passwordEncrypted, null, DataProtectionScope.CurrentUser)),
+                    userid = Encoding.Unicode.GetString(ProtectedData.Unprotect(userIdEncrypted, null, DataProtectionScope.LocalMachine)),
+                    password = Encoding.Unicode.GetString(ProtectedData.Unprotect(passwordEncrypted, null, DataProtectionScope.LocalMachine)),
                     database = (string)encrypted["database"]
                 };
 
@@ -45,8 +42,7 @@ namespace SincronizacaoServico.Util
         {
             try
             {
-                Directory.CreateDirectory(Global.AppDocumentsFolder);
-                JObject encrypted = JObject.Parse(File.ReadAllText(Path.Combine(Global.AppDocumentsFolder, "hibernate_backup_config_encrypted.json")));
+                JObject encrypted = JObject.Parse(File.ReadAllText("hibernate_backup_config_encrypted.json"));
 
                 byte[] userIdEncrypted = Convert.FromBase64String((string)encrypted["userid"]);
                 byte[] passwordEncrypted = Convert.FromBase64String((string)encrypted["password"]);
@@ -55,8 +51,8 @@ namespace SincronizacaoServico.Util
                 {
                     server = (string)encrypted["server"],
                     port = (string)encrypted["port"],
-                    userid = Encoding.Unicode.GetString(ProtectedData.Unprotect(userIdEncrypted, null, DataProtectionScope.CurrentUser)),
-                    password = Encoding.Unicode.GetString(ProtectedData.Unprotect(passwordEncrypted, null, DataProtectionScope.CurrentUser)),
+                    userid = Encoding.Unicode.GetString(ProtectedData.Unprotect(userIdEncrypted, null, DataProtectionScope.LocalMachine)),
+                    password = Encoding.Unicode.GetString(ProtectedData.Unprotect(passwordEncrypted, null, DataProtectionScope.LocalMachine)),
                     database = (string)encrypted["database"]
                 };
 

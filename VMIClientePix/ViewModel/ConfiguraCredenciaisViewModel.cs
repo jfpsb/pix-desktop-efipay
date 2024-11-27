@@ -60,11 +60,11 @@ namespace VMIClientePix.ViewModel
                 if (!string.IsNullOrEmpty(ClientID) && !string.IsNullOrEmpty(ClientSecret))
                 {
                     byte[] clientIDByteArray = Encoding.Unicode.GetBytes(ClientID);
-                    byte[] clientIDByteArrayEncriptado = ProtectedData.Protect(clientIDByteArray, null, DataProtectionScope.CurrentUser);
+                    byte[] clientIDByteArrayEncriptado = ProtectedData.Protect(clientIDByteArray, null, DataProtectionScope.LocalMachine);
                     string clientIDEncriptado = Convert.ToBase64String(clientIDByteArrayEncriptado);
 
                     byte[] clientSecretByteArray = Encoding.Unicode.GetBytes(ClientSecret);
-                    byte[] clientSecretByteArrayEncriptado = ProtectedData.Protect(clientSecretByteArray, null, DataProtectionScope.CurrentUser);
+                    byte[] clientSecretByteArrayEncriptado = ProtectedData.Protect(clientSecretByteArray, null, DataProtectionScope.LocalMachine);
                     string clientSecretEncriptado = Convert.ToBase64String(clientSecretByteArrayEncriptado);
 
                     var credentials_encrypted = new
@@ -76,17 +76,17 @@ namespace VMIClientePix.ViewModel
                     };
 
                     string credentials_json = JsonConvert.SerializeObject(credentials_encrypted, Formatting.Indented);
-                    File.WriteAllText("credentials_encrypted.json", credentials_json);
+                    File.WriteAllText(Path.Combine(Global.AppDocumentsFolder, "credentials_encrypted.json"), credentials_json);
                 }
 
                 if (!string.IsNullOrEmpty(UserID) && !string.IsNullOrEmpty(Password))
                 {
                     byte[] userIDByteArray = Encoding.Unicode.GetBytes(UserID);
-                    byte[] userIDByteArrayEncriptado = ProtectedData.Protect(userIDByteArray, null, DataProtectionScope.CurrentUser);
+                    byte[] userIDByteArrayEncriptado = ProtectedData.Protect(userIDByteArray, null, DataProtectionScope.LocalMachine);
                     string userIDEncriptado = Convert.ToBase64String(userIDByteArrayEncriptado);
 
                     byte[] passwordByteArray = Encoding.Unicode.GetBytes(Password);
-                    byte[] passwordByteArrayEncriptado = ProtectedData.Protect(passwordByteArray, null, DataProtectionScope.CurrentUser);
+                    byte[] passwordByteArrayEncriptado = ProtectedData.Protect(passwordByteArray, null, DataProtectionScope.LocalMachine);
                     string passwordEncriptado = Convert.ToBase64String(passwordByteArrayEncriptado);
 
                     var hibernate_local_config = new
@@ -99,17 +99,17 @@ namespace VMIClientePix.ViewModel
                     };
 
                     string hibernate_json = JsonConvert.SerializeObject(hibernate_local_config, Formatting.Indented);
-                    File.WriteAllText("hibernate_config_encrypted.json", hibernate_json);
+                    File.WriteAllText(Path.Combine(Global.AppDocumentsFolder, "hibernate_config_encrypted.json"), hibernate_json);
                 }
 
                 if (!string.IsNullOrEmpty(UserIDRemoto) && !string.IsNullOrEmpty(PasswordRemoto))
                 {
                     byte[] userIDRemotoByteArray = Encoding.Unicode.GetBytes(UserIDRemoto);
-                    byte[] userIDRemotoByteArrayEncriptado = ProtectedData.Protect(userIDRemotoByteArray, null, DataProtectionScope.CurrentUser);
+                    byte[] userIDRemotoByteArrayEncriptado = ProtectedData.Protect(userIDRemotoByteArray, null, DataProtectionScope.LocalMachine);
                     string userIDRemotoEncriptado = Convert.ToBase64String(userIDRemotoByteArrayEncriptado);
 
                     byte[] passwordRemotoByteArray = Encoding.Unicode.GetBytes(PasswordRemoto);
-                    byte[] passwordRemotoByteArrayEncriptado = ProtectedData.Protect(passwordRemotoByteArray, null, DataProtectionScope.CurrentUser);
+                    byte[] passwordRemotoByteArrayEncriptado = ProtectedData.Protect(passwordRemotoByteArray, null, DataProtectionScope.LocalMachine);
                     string passwordRemotoEncriptado = Convert.ToBase64String(passwordRemotoByteArrayEncriptado);
 
                     var hibernate_backup_local_config = new
@@ -122,7 +122,7 @@ namespace VMIClientePix.ViewModel
                     };
 
                     string hibernate_backup_json = JsonConvert.SerializeObject(hibernate_backup_local_config, Formatting.Indented);
-                    File.WriteAllText("hibernate_backup_config_encrypted.json", hibernate_backup_json);
+                    File.WriteAllText(Path.Combine(Global.AppDocumentsFolder, "hibernate_backup_config_encrypted.json"), hibernate_backup_json);
                 }
 
                 messageBox.Show("Credenciais Salvas Com Sucesso!");

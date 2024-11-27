@@ -20,6 +20,8 @@ namespace VMIClientePix.Util
         {
             try
             {
+                Directory.CreateDirectory(Global.AppDocumentsFolder);
+
                 if (File.Exists(Path.Combine(Global.AppDocumentsFolder, "ACBrLib.ini")))
                 {
                     posPrinter.ConfigLer(Path.Combine(Global.AppDocumentsFolder, "ACBrLib.ini"));
@@ -48,7 +50,7 @@ namespace VMIClientePix.Util
             }
             catch (Exception ex)
             {
-                messageBoxService.Show("Erro ao iniciar impressora. Cheque se a impressora está conectada corretamente e que está ligada.\n\n" + ex.Message, "Impressão De Comprovante Pix", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+                messageBoxService.Show("Erro ao iniciar impressora. Cheque se a impressora está conectada corretamente e que está ligada.\n\n" + ex.Message + $"\n\n{ex.InnerException?.Message}\n\n{ex.StackTrace}", "Impressão De Comprovante Pix", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
             }
         }
     }

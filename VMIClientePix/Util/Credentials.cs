@@ -24,8 +24,8 @@ namespace VMIClientePix.Util
 
                 var credentials = new
                 {
-                    client_id = Encoding.Unicode.GetString(ProtectedData.Unprotect(clientIDEncrypted, null, DataProtectionScope.CurrentUser)),
-                    client_secret = Encoding.Unicode.GetString(ProtectedData.Unprotect(clientSecretEncrypted, null, DataProtectionScope.CurrentUser)),
+                    client_id = Encoding.Unicode.GetString(ProtectedData.Unprotect(clientIDEncrypted, null, DataProtectionScope.LocalMachine)),
+                    client_secret = Encoding.Unicode.GetString(ProtectedData.Unprotect(clientSecretEncrypted, null, DataProtectionScope.LocalMachine)),
                     pix_cert = (string)credentials_encrypted["pix_cert"],
                     sandbox = (string)credentials_encrypted["sandbox"]
                 };
@@ -84,8 +84,8 @@ namespace VMIClientePix.Util
                 {
                     server = (string)encrypted["server"],
                     port = (string)encrypted["port"],
-                    userid = Encoding.Unicode.GetString(ProtectedData.Unprotect(userIdEncrypted, null, DataProtectionScope.CurrentUser)),
-                    password = Encoding.Unicode.GetString(ProtectedData.Unprotect(passwordEncrypted, null, DataProtectionScope.CurrentUser)),
+                    userid = Encoding.Unicode.GetString(ProtectedData.Unprotect(userIdEncrypted, null, DataProtectionScope.LocalMachine)),
+                    password = Encoding.Unicode.GetString(ProtectedData.Unprotect(passwordEncrypted, null, DataProtectionScope.LocalMachine)),
                     database = (string)encrypted["database"]
                 };
 
@@ -116,8 +116,8 @@ namespace VMIClientePix.Util
                 {
                     server = (string)encrypted["server"],
                     port = (string)encrypted["port"],
-                    userid = Encoding.Unicode.GetString(ProtectedData.Unprotect(userIdEncrypted, null, DataProtectionScope.CurrentUser)),
-                    password = Encoding.Unicode.GetString(ProtectedData.Unprotect(passwordEncrypted, null, DataProtectionScope.CurrentUser)),
+                    userid = Encoding.Unicode.GetString(ProtectedData.Unprotect(userIdEncrypted, null, DataProtectionScope.LocalMachine)),
+                    password = Encoding.Unicode.GetString(ProtectedData.Unprotect(passwordEncrypted, null, DataProtectionScope.LocalMachine)),
                     database = (string)encrypted["database"]
                 };
 

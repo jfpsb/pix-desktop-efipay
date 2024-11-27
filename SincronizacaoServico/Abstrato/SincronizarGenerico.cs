@@ -80,9 +80,18 @@ namespace SincronizacaoServico.Interfaces
                                 }
 
                                 eASalvar.GetType().GetProperty(property).SetValue(eASalvar, manyToOneLocal);
-                                //persister.SetPropertyValue(eASalvar, property, manyToOneLocal);
+                            }
+
+                            if (eASalvar.GetType() == typeof(Pix))
+                            {
+                                var objPix = eASalvar as Pix;
+                                if (objPix.Txid != null && objPix.Cobranca == null)
+                                {
+                                    throw new Exception("O PIX possui TXID mas a cobrança está nula");
+                                }
                             }
                         }
+
                         insertsRemotoParaLocal.Add(eASalvar);
                     }
                 }
@@ -176,6 +185,15 @@ namespace SincronizacaoServico.Interfaces
                                     throw new Exception($"{property} não pode ser nulo.");
                                 }
                                 eASalvar.GetType().GetProperty(property).SetValue(eASalvar, manyToOneLocal);
+                            }
+
+                            if (eASalvar.GetType() == typeof(Pix))
+                            {
+                                var objPix = eASalvar as Pix;
+                                if (objPix.Txid != null && objPix.Cobranca == null)
+                                {
+                                    throw new Exception("O PIX possui TXID mas a cobrança está nula");
+                                }
                             }
                         }
 

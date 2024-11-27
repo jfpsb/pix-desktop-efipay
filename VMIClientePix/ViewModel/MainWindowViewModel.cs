@@ -131,18 +131,6 @@ namespace VMIClientePix.ViewModel
             timerConsulta.Start();
         }
 
-        private void ConfiguraPosPrinter()
-        {
-            try
-            {
-                posPrinter.ConfigLer();
-            }
-            catch (Exception ex)
-            {
-                messageBoxService.Show("Erro ao iniciar impressora. Cheque se a impressora está conectada corretamente e que está ligada.\n\n" + ex.Message, "Impressão De Comprovante Pix", System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
-            }
-        }
-
         private async void ComunicaoPelaRede_AposReceberComandoListar(object sender, EventArgs e)
         {
             try
@@ -194,7 +182,7 @@ namespace VMIClientePix.ViewModel
             ListarPix();
 
             posPrinter = new ACBrPosPrinter();
-            ConfiguraPosPrinter();
+            ConfiguraPosPrinter.Configurar(posPrinter);
 
             int numCobs = Cobrancas.Where(w => w.Status.Equals("CONCLUIDA")).ToList().Count;
             int colunas = 48;
@@ -388,7 +376,7 @@ namespace VMIClientePix.ViewModel
                 ListaPixs listaPixs = JsonConvert.DeserializeObject<ListaPixs>(response);
                 IList<Pix> pixAtt = new List<Pix>();
 
-                foreach (var pixConsulta in listaPixs.Pixs.Where(w => w.Chave.ToLower().Equals((string)dados["chave_estatica"])))
+                foreach (var pixConsulta in listaPixs.Pixs.Where(w => w.Chave == null || w.Chave.ToLower().Equals((string)dados["chave_estatica"])))
                 {
                     var pixLocal = await daoPix.ListarPorId(pixConsulta.EndToEndId);
                     if (pixLocal != null) continue; //Não insere pix que já existem no banco local
@@ -418,6 +406,7 @@ namespace VMIClientePix.ViewModel
             }
             catch (JsonReaderException jex)
             {
+                Log.EscreveExceptionGenerica(jex);
                 if (!throwEx)
                 {
                     messageBoxService.Show($"Erro ao listar pix da instituição GerenciaNet. Cheque se está conectado a internet.\n\n{jex.Message}", "Erro ao Consultar Pix", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -425,6 +414,7 @@ namespace VMIClientePix.ViewModel
             }
             catch (Exception ex)
             {
+                Log.EscreveExceptionGenerica(ex);
                 if (!throwEx)
                 {
                     messageBoxService.Show($"Erro ao listar pix da instituição GerenciaNet. Cheque se está conectado a internet.\n\n{ex.Message}\n\n{ex.InnerException?.Message}", "Erro ao Consultar Pix", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -472,8 +462,17 @@ namespace VMIClientePix.ViewModel
                         foreach (var p in cobrancaConsulta.Pix)
                         {
                             var pixLocal = await daoPix.ListarPorId(p.EndToEndId);
-                            pixLocal.Cobranca = cobrancaLocal;
-                            cobrancaLocal.Pix.Add(pixLocal);
+
+                            if (pixLocal == null)
+                            {
+                                p.Cobranca = cobrancaLocal;
+                                cobrancaLocal.Pix.Add(p);
+                            }
+                            else
+                            {
+                                pixLocal.Cobranca = cobrancaLocal;
+                                cobrancaLocal.Pix.Add(pixLocal);
+                            }
                         }
 
                         cobrancaLocal.Revisao = cobrancaConsulta.Revisao;
