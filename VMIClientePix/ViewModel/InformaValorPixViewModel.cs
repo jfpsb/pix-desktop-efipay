@@ -1,11 +1,9 @@
-﻿using Gerencianet.NETCore.SDK;
+﻿using Efipay;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NHibernate;
 using System;
 using System.Globalization;
-using System.IO;
-using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 using VMIClientePix.BancoDeDados.ConnectionFactory;
@@ -64,7 +62,7 @@ namespace VMIClientePix.ViewModel
 
             try
             {
-                var gnEndPoints = Credentials.GNEndpoints();
+                var gnEndPoints = Credentials.EfiEndpoints();
 
                 if (gnEndPoints == null)
                 {
@@ -72,7 +70,7 @@ namespace VMIClientePix.ViewModel
                     return;
                 }
 
-                dynamic endpoints = new Endpoints(gnEndPoints);
+                dynamic endpoints = new EfiPay(gnEndPoints);
                 var dados = JObject.Parse(ArquivosApp.GetDadosRecebedor());
 
                 var body = new
@@ -104,9 +102,9 @@ namespace VMIClientePix.ViewModel
                     IniciaSessionEDAO();
                 }
             }
-            catch (GnException e)
+            catch (EfiException e)
             {
-                Log.EscreveLogGn(e);
+                Log.EscreveLogEfi(e);
                 messageBoxService.Show($"Erro ao criar cobrança Pix na GerenciaNet.\nAcesse {Log.LogGn} para mais detalhes.", "Erro ao criar cobrança", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception ex)

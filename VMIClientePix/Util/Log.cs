@@ -1,4 +1,4 @@
-﻿using Gerencianet.NETCore.SDK;
+﻿using Efipay;
 using System;
 using System.IO;
 
@@ -36,7 +36,7 @@ namespace VMIClientePix.Util
             File.AppendAllText(LogBackup, msg);
         }
 
-        public static void EscreveLogGn(GnException ex)
+        public static void EscreveLogEfi(EfiException ex)
         {
             Directory.CreateDirectory(Path.Combine(Global.AppDocumentsFolder, "Logs", "ClientePix"));
             string msg = $"Data/Hora: {DateTime.Now};\nMensagem: \n{ex.Message};\nErrorType: \n{ex.ErrorType}";

@@ -1,5 +1,5 @@
 ﻿using ACBrLib.PosPrinter;
-using Gerencianet.NETCore.SDK;
+using Efipay;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NHibernate;
@@ -89,23 +89,11 @@ namespace VMIClientePix.ViewModel
                 SessionProvider.SessionFactory = SessionProvider.BuildSessionFactory();
                 IniciaSessionEDAO();
                 AtualizarCobrancasPelaGN(false);
-                AtualizarListaPixPelaGN(false);
+                AtualizarListaPixPelaEfi(false);
 
                 timerConsulta = new Timer();
                 timerConsulta.Elapsed += TimerConsulta_Elapsed;
                 timerConsulta.Start();
-
-                if (configApp != null)
-                {
-                    //if ((bool)configApp["fazbackup"])
-                    //{
-                    //    ComunicaoPelaRede.IniciaServidor();
-                    //}
-                    //else
-                    //{
-                    //    ComunicaoPelaRede.IniciaListener();
-                    //}
-                }
             }
             catch (Exception ex)
             {
@@ -177,7 +165,7 @@ namespace VMIClientePix.ViewModel
             //Atualiza listas caso estejam desatualizadas
             //Ao mesmo tempo atualiza campos de total
             AtualizarCobrancasPelaGN(false);
-            AtualizarListaPixPelaGN(false);
+            AtualizarListaPixPelaEfi(false);
             ListarCobrancas();
             ListarPix();
 
@@ -276,7 +264,7 @@ namespace VMIClientePix.ViewModel
 
         private void ConsultarRecebimentoPix(object obj)
         {
-            AtualizarListaPixPelaGN(true);
+            AtualizarListaPixPelaEfi(true);
             ListarPix();
         }
 
@@ -348,12 +336,12 @@ namespace VMIClientePix.ViewModel
         }
 
         /// <summary>
-        /// Consulta A API da GerenciaNet para retornar os Pix do dia atual
+        /// Consulta A API da Efi SA para retornar os Pix do dia atual
         /// </summary>
         /// <param name="throwEx">Determina se eventuais exceções devem mostrar aviso ao usuário ou se serão tratadas silenciosamente</param>
-        private async void AtualizarListaPixPelaGN(bool throwEx)
+        private async void AtualizarListaPixPelaEfi(bool throwEx)
         {
-            var gnEndPoints = Credentials.GNEndpoints();
+            var gnEndPoints = Credentials.EfiEndpoints();
             var dados = JObject.Parse(ArquivosApp.GetDadosRecebedor());
 
             if (gnEndPoints == null)
@@ -362,7 +350,7 @@ namespace VMIClientePix.ViewModel
                 return;
             }
 
-            dynamic endpoints = new Endpoints(gnEndPoints);
+            dynamic endpoints = new EfiPay(gnEndPoints);
 
             var param = new
             {
@@ -372,7 +360,7 @@ namespace VMIClientePix.ViewModel
 
             try
             {
-                var response = endpoints.PixListReceived(param);
+                var response = endpoints.PixReceivedList(param);
                 ListaPixs listaPixs = JsonConvert.DeserializeObject<ListaPixs>(response);
                 IList<Pix> pixAtt = new List<Pix>();
 
@@ -396,9 +384,9 @@ namespace VMIClientePix.ViewModel
                     }
                 }
             }
-            catch (GnException e)
+            catch (EfiException e)
             {
-                Log.EscreveLogGn(e);
+                Log.EscreveLogEfi(e);
                 if (!throwEx)
                 {
                     messageBoxService.Show($"Erro ao listar pix da instituição GerenciaNet.\n\nAcesse {Log.LogGn} para mais detalhes.", "Erro ao consultar pix", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -429,7 +417,7 @@ namespace VMIClientePix.ViewModel
         /// <param name="throwEx">Determina se eventuais exceções devem mostrar aviso ao usuário ou se serão tratadas silenciosamente</param>
         private async void AtualizarCobrancasPelaGN(bool throwEx)
         {
-            var gnEndPoints = Credentials.GNEndpoints();
+            var gnEndPoints = Credentials.EfiEndpoints();
 
             if (gnEndPoints == null)
             {
@@ -437,7 +425,7 @@ namespace VMIClientePix.ViewModel
                 return;
             }
 
-            dynamic endpoints = new Endpoints(gnEndPoints);
+            dynamic endpoints = new EfiPay(gnEndPoints);
 
             var param = new
             {
@@ -509,9 +497,9 @@ namespace VMIClientePix.ViewModel
                     IniciaSessionEDAO();
                 }
             }
-            catch (GnException e)
+            catch (EfiException e)
             {
-                Log.EscreveLogGn(e);
+                Log.EscreveLogEfi(e);
                 if (!throwEx)
                 {
                     messageBoxService.Show($"Erro ao listar cobranças da instituição GerenciaNet.\n\nAcesse {Log.LogGn} para mais detalhes.", "Erro ao consultar cobranças", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -633,7 +621,7 @@ namespace VMIClientePix.ViewModel
         /// <param name="chave">Chave PIX cadastrada em conta</param>
         public static void ConfigurarWebhookPix(string chave)
         {
-            dynamic endpoints = new Endpoints(Credentials.GNEndpoints());
+            dynamic endpoints = new EfiPay(Credentials.EfiEndpoints());
 
             var headers = "{\"x-skip-mtls-checking\": \"true\"}";
 
@@ -652,7 +640,7 @@ namespace VMIClientePix.ViewModel
                 var response = endpoints.PixConfigWebhook(param, body, headers);
                 Console.WriteLine(response);
             }
-            catch (GnException e)
+            catch (EfiException e)
             {
                 Console.WriteLine(e.ErrorType);
                 Console.WriteLine(e.Message);
@@ -661,7 +649,7 @@ namespace VMIClientePix.ViewModel
 
         public static void ListarWebhooksCadastrados()
         {
-            dynamic endpoints = new Endpoints(Credentials.GNEndpoints());
+            dynamic endpoints = new EfiPay(Credentials.EfiEndpoints());
 
             var param = new
             {
@@ -674,7 +662,7 @@ namespace VMIClientePix.ViewModel
                 var response = endpoints.PixListWebhook(param);
                 Console.WriteLine(response);
             }
-            catch (GnException e)
+            catch (EfiException e)
             {
                 Console.WriteLine(e.ErrorType);
                 Console.WriteLine(e.Message);
@@ -683,7 +671,7 @@ namespace VMIClientePix.ViewModel
 
         public static void DeletarWebhook(string chave)
         {
-            dynamic endpoints = new Endpoints(Credentials.GNEndpoints());
+            dynamic endpoints = new EfiPay(Credentials.EfiEndpoints());
 
             var param = new
             {
@@ -695,7 +683,7 @@ namespace VMIClientePix.ViewModel
                 var response = endpoints.PixDeleteWebhook(param);
                 Console.WriteLine(response);
             }
-            catch (GnException e)
+            catch (EfiException e)
             {
                 Console.WriteLine(e.ErrorType);
                 Console.WriteLine(e.Message);

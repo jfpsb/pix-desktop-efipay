@@ -1,11 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
-using NHibernate;
+﻿using NHibernate;
 using NHibernate.Cfg;
 using NHibernate.Event;
 using System;
-using System.IO;
-using System.Text.RegularExpressions;
-using VMIClientePix.Util;
 
 namespace VMIClientePix.BancoDeDados.ConnectionFactory
 {
@@ -34,10 +30,6 @@ namespace VMIClientePix.BancoDeDados.ConnectionFactory
             Configuration.Configure();
             Configuration.SetListener(ListenerType.PreUpdate, new NHibernatePreEventListener());
             Configuration.SetListener(ListenerType.PreInsert, new NHibernatePreEventListener());
-
-            string connString = Credentials.HibernateLocalConnString();
-            const string connectionStringKey = "connection.connection_string";
-            Configuration.SetProperty(connectionStringKey, connString);
 
             return Configuration.BuildSessionFactory();
         }

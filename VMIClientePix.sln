@@ -11,8 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ACBrLib.Core", "VMIClienteP
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ACBrLib.PosPrinter", "VMIClientePix\Import\Dinamico\ST\ACBrLib.PosPrinter.csproj", "{434313F8-1CFD-44C1-8C62-22C55CF2A742}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SincronizacaoServico", "SincronizacaoServico\SincronizacaoServico.csproj", "{0F22CA41-6A97-4C13-84CB-4D3A6A13DD9F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,10 +29,6 @@ Global
 		{434313F8-1CFD-44C1-8C62-22C55CF2A742}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{434313F8-1CFD-44C1-8C62-22C55CF2A742}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{434313F8-1CFD-44C1-8C62-22C55CF2A742}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0F22CA41-6A97-4C13-84CB-4D3A6A13DD9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0F22CA41-6A97-4C13-84CB-4D3A6A13DD9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0F22CA41-6A97-4C13-84CB-4D3A6A13DD9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0F22CA41-6A97-4C13-84CB-4D3A6A13DD9F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

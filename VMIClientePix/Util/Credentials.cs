@@ -13,7 +13,7 @@ namespace VMIClientePix.Util
 {
     public class Credentials
     {
-        public static JObject GNEndpoints()
+        public static JObject EfiEndpoints()
         {
             try
             {
@@ -26,7 +26,7 @@ namespace VMIClientePix.Util
                 {
                     client_id = Encoding.Unicode.GetString(ProtectedData.Unprotect(clientIDEncrypted, null, DataProtectionScope.LocalMachine)),
                     client_secret = Encoding.Unicode.GetString(ProtectedData.Unprotect(clientSecretEncrypted, null, DataProtectionScope.LocalMachine)),
-                    pix_cert = (string)credentials_encrypted["pix_cert"],
+                    certificate = (string)credentials_encrypted["certificate"],
                     sandbox = (string)credentials_encrypted["sandbox"]
                 };
 

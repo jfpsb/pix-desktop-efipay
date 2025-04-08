@@ -1,6 +1,5 @@
-﻿using ACBrLib.Core.PosPrinter;
-using ACBrLib.PosPrinter;
-using Gerencianet.NETCore.SDK;
+﻿using ACBrLib.PosPrinter;
+using Efipay;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NHibernate;
@@ -198,7 +197,7 @@ namespace VMIClientePix.ViewModel
             {
                 timerConsultaCobranca.Stop();
 
-                var gnEndPoints = Credentials.GNEndpoints();
+                var gnEndPoints = Credentials.EfiEndpoints();
 
                 if (gnEndPoints == null)
                 {
@@ -206,7 +205,7 @@ namespace VMIClientePix.ViewModel
                     return;
                 }
 
-                dynamic endpoints = new Endpoints(gnEndPoints);
+                dynamic endpoints = new EfiPay(gnEndPoints);
 
                 var param = new
                 {
@@ -230,9 +229,9 @@ namespace VMIClientePix.ViewModel
 
                     Cobranca.Status = cobranca.Status;
                 }
-                catch (GnException gne)
+                catch (EfiException gne)
                 {
-                    Log.EscreveLogGn(gne);
+                    Log.EscreveLogEfi(gne);
                     _messageBox.Show($"Erro ao consultar cobrança Pix na GerenciaNet.\nAcesse {Log.LogGn} para mais detalhes.", "Erro ao consultar cobrança", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 catch (Exception ex)
@@ -330,7 +329,7 @@ namespace VMIClientePix.ViewModel
 
         private async void GeraESalvaQrCode()
         {
-            var gnEndPoints = Credentials.GNEndpoints();
+            var gnEndPoints = Credentials.EfiEndpoints();
 
             if (gnEndPoints == null)
             {
@@ -338,7 +337,7 @@ namespace VMIClientePix.ViewModel
                 return;
             }
 
-            dynamic endpoints = new Endpoints(gnEndPoints);
+            dynamic endpoints = new EfiPay(gnEndPoints);
 
             var paramQRCode = new
             {
@@ -368,9 +367,9 @@ namespace VMIClientePix.ViewModel
                         IniciaSessionEDAO();
                     }
                 }
-                catch (GnException e)
+                catch (EfiException e)
                 {
-                    Log.EscreveLogGn(e);
+                    Log.EscreveLogEfi(e);
                     _messageBox.Show($"Erro ao gerar QR Code na GerenciaNet.\nAcesse {Log.LogGn} para mais detalhes.", "Erro ao gerar QR Code", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 catch (Exception ex)

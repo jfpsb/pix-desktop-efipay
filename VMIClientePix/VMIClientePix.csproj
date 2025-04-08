@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
     <OutputType>WinExe</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWPF>true</UseWPF>
@@ -21,7 +21,6 @@
   <ItemGroup>
     <None Remove="Resources\Fonts\Astral Sisters.ttf" />
     <None Remove="hibernate.cfg.xml" />
-    <None Remove="hibernateBackup.cfg.xml" />
     <None Remove="Mapas\Calendario.hbm.xml" />
     <None Remove="Mapas\Cobranca.hbm.xml" />
     <None Remove="Mapas\Devolucao.hbm.xml" />
@@ -46,9 +45,6 @@
     <EmbeddedResource Include="hibernate.cfg.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <EmbeddedResource Include="hibernateBackup.cfg.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
     <EmbeddedResource Include="Mapas\Pagador.hbm.xml" />
     <EmbeddedResource Include="Mapas\Horario.hbm.xml" />
     <EmbeddedResource Include="Mapas\Devolucao.hbm.xml" />
@@ -60,16 +56,23 @@
     <EmbeddedResource Include="Mapas\Calendario.hbm.xml" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Gerencianet.NETCore.SDK" Version="2.0.2" />
+    <PackageReference Include="EfiPay" Version="2.0.2" />
+    <PackageReference Include="FluentNHibernate" Version="3.4.1" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.39" />
-    <PackageReference Include="MySql.Data" Version="8.0.29" />
-    <PackageReference Include="NHibernate" Version="5.3.11" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.135" />
+    <PackageReference Include="MySql.Data" Version="9.2.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="NHibernate" Version="5.5.2" />
+    <PackageReference Include="RestSharp" Version="112.1.0" />
+    <PackageReference Include="SQLite" Version="3.13.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
-    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.3.310801">
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.421302">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="9.0.3" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.119" />
+    <PackageReference Include="System.Net.Http" Version="4.3.4" />
+    <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Import\Dinamico\ST\ACBrLib.PosPrinter.csproj" />
@@ -88,6 +91,12 @@
     <Resource Include="View\Imagens\SplashScreen.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="ACBrLib\x64\ACBrPosPrinter64.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="ACBrLib\x86\ACBrPosPrinter32.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="dados_recebedor.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
