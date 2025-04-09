@@ -32,6 +32,7 @@
     <None Remove="Mapas\Valor.hbm.xml" />
     <None Remove="Resources\Fonts\Gotham-Bold.ttf" />
     <None Remove="Resources\Fonts\Gotham-Regular.ttf" />
+    <None Remove="Resources\PixLogo.png" />
     <None Remove="View\Imagens\Atualizar.png" />
     <None Remove="View\Imagens\CheckMark.png" />
     <None Remove="View\Imagens\ErrorMark.png" />
@@ -82,6 +83,12 @@
     <Resource Include="Resources\Fonts\Astral Sisters.ttf" />
     <Resource Include="Resources\Fonts\Gotham-Bold.ttf" />
     <Resource Include="Resources\Fonts\Gotham-Regular.ttf" />
+    <Resource Include="Resources\PixLogo.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\SplashScreen.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="View\Imagens\Atualizar.png" />
     <Resource Include="View\Imagens\CheckMark.png" />
     <Resource Include="View\Imagens\ErrorMark.png" />

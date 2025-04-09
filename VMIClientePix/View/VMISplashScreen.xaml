@@ -5,17 +5,26 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:local="clr-namespace:VMIClientePix.View"
              mc:Ignorable="d"
-             Height="300"
-             Width="600"
+             
+             MaxWidth="600"
              Loaded="UserControl_Loaded">
-    <StackPanel Background="#CE1F24">
-        <Image Margin="5"
-               Height="250"
-               Source="/View/Imagens/SplashScreen.png" />
-        <Label Content="carregando aplicação. aguarde"
-               HorizontalContentAlignment="Center"
-               FontSize="18.5"
-               FontWeight="Bold"
-               Foreground="White" />
-    </StackPanel>
+    <Border BorderBrush="Black"
+            BorderThickness="1">
+        <Grid Background="DimGray">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Image Stretch="Fill"
+                   MaxHeight="300"
+                   Source="/Resources/PixLogo.png" />
+            <Label Grid.Row="1"
+                   Content="carregando aplicação. aguarde"
+                   HorizontalContentAlignment="Center"
+                   VerticalContentAlignment="Bottom"
+                   FontSize="18.5"
+                   FontWeight="Bold"
+                   Foreground="White" />
+        </Grid>
+    </Border>
 </UserControl>

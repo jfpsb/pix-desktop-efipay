@@ -5,6 +5,6 @@ namespace VMIClientePix.Util
 {
     public static class Global
     {
-        public static readonly string AppDocumentsFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "VMIClientePix");
+        public static readonly string AppDocumentsFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "PixDesktopEfipay");
     }
 }
