@@ -49,7 +49,7 @@ namespace VMIClientePix.Util
             string path = Path.Combine(Global.AppDocumentsFolder, "dados_recebedor.json");
             if (!File.Exists(path))
             {
-                throw new IOException("Arquivo de dados de recebdor não encontrado.");
+                throw new IOException("Arquivo de dados de recebedor não encontrado.");
             }
             return File.ReadAllText(path);
         }

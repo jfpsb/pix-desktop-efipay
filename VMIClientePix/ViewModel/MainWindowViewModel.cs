@@ -341,25 +341,26 @@ namespace VMIClientePix.ViewModel
         /// <param name="throwEx">Determina se eventuais exceções devem mostrar aviso ao usuário ou se serão tratadas silenciosamente</param>
         private async void AtualizarListaPixPelaEfi(bool throwEx)
         {
-            var gnEndPoints = Credentials.EfiEndpoints();
-            var dados = JObject.Parse(ArquivosApp.GetDadosRecebedor());
-
-            if (gnEndPoints == null)
-            {
-                messageBoxService.Show($"Erro ao recuperar credenciais da GerenciaNet.\nAcesse {Log.LogCredenciais} para mais detalhes.", "Erro em Credenciais GerenciaNet", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            dynamic endpoints = new EfiPay(gnEndPoints);
-
-            var param = new
-            {
-                inicio = JsonConvert.SerializeObject(DateTime.Now.Date.ToUniversalTime()).Replace("\"", ""),
-                fim = JsonConvert.SerializeObject(DateTime.Now.Date.AddDays(1).AddSeconds(-1).ToUniversalTime()).Replace("\"", "")
-            };
-
             try
             {
+                var gnEndPoints = Credentials.EfiEndpoints();
+                var dados = JObject.Parse(ArquivosApp.GetDadosRecebedor());
+
+                if (gnEndPoints == null)
+                {
+                    messageBoxService.Show($"Erro ao recuperar credenciais da GerenciaNet.\nAcesse {Log.LogCredenciais} para mais detalhes.", "Erro em Credenciais GerenciaNet", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
+
+                dynamic endpoints = new EfiPay(gnEndPoints);
+
+                var param = new
+                {
+                    inicio = JsonConvert.SerializeObject(DateTime.Now.Date.ToUniversalTime()).Replace("\"", ""),
+                    fim = JsonConvert.SerializeObject(DateTime.Now.Date.AddDays(1).AddSeconds(-1).ToUniversalTime()).Replace("\"", "")
+                };
+
+
                 var response = endpoints.PixReceivedList(param);
                 ListaPixs listaPixs = JsonConvert.DeserializeObject<ListaPixs>(response);
                 IList<Pix> pixAtt = new List<Pix>();

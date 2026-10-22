@@ -41,7 +41,7 @@
                        FontSize="14" />
                 <TextBox FontSize="14"
                          IsEnabled="False"
-                         Text="GERENCIANET" />
+                         Text="Efi S.A." />
                 <Label Content="Identificação De Loja:"
                        FontSize="14" />
                 <TextBox FontSize="14"
