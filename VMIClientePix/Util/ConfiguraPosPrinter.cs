@@ -2,6 +2,7 @@
 using ACBrLib.PosPrinter;
 using System;
 using System.IO;
+using System.Text;
 using VMIClientePix.ViewModel.Services.Concretos;
 using VMIClientePix.ViewModel.Services.Interfaces;
 
@@ -22,9 +23,9 @@ namespace VMIClientePix.Util
             {
                 Directory.CreateDirectory(Global.AppDocumentsFolder);
 
-                if (File.Exists(Path.Combine(Global.AppDocumentsFolder, "ACBrLib.ini")))
+                if (File.Exists("ACBrLib.ini"))
                 {
-                    posPrinter.ConfigLer(Path.Combine(Global.AppDocumentsFolder, "ACBrLib.ini"));
+                    posPrinter.ConfigLer("ACBrLib.ini");
                 }
                 else
                 {
@@ -45,7 +46,7 @@ namespace VMIClientePix.Util
                     posPrinter.Config.QrCodeConfig.LarguraModulo = 6;
                     posPrinter.Config.QrCodeConfig.ErrorLevel = 0;
 
-                    posPrinter.ConfigGravar(Path.Combine(Global.AppDocumentsFolder, "ACBrLib.ini"));
+                    posPrinter.ConfigGravar("ACBrLib.ini");
                 }
             }
             catch (Exception ex)
